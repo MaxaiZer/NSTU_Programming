@@ -35,7 +35,7 @@ public:
 	bool removeByPos(int pos); //удаление значения из позиции с заданным номером
 	Iterator begin(); //запрос прямого итератора begin()
 	Iterator end(); //запрос «неустановленного» прямого итератора end()
-	void print() const;
+	void print();
 
 protected:
 	int size = 0;

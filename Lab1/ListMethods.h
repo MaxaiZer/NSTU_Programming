@@ -244,17 +244,17 @@ inline  typename List<T>::Iterator List<T>::end()
 }
 
 template<class T>
-inline void List<T>::print() const
+inline void List<T>::print()
 {
-	Iterator iter = list.begin();
-	cout << "{ ";
-	while (iter != list.end())
+	Iterator iter = this->begin();
+	std::cout << "{ ";
+	while (iter != this->end())
 	{
-		cout << "[" << *iter << "] ";
+		std::cout << "[" << *iter << "] ";
 		iter++;
 	}
-	cout << "}";
-	cout << endl;
+	std::cout << "}";
+	std::cout << std::endl;
 }
 
 template<class T>
