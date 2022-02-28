@@ -86,11 +86,13 @@ inline T& List<T>::operator[](const int pos)
 template<class T>
 inline bool List<T>::Add(T value, int pos)
 {
-	if (pos < 0 || pos >= size || size == capacity)
+	if (pos < 0 || pos > size || size == capacity)
 		return false;
 
-	if (pos == size - 1)
-		Add(value);
+	if (pos == size)
+	{
+		return Add(value);
+	}
 
 	Iterator iter = this->Begin();
 	int currentPos = 0;
@@ -106,15 +108,16 @@ inline bool List<T>::Add(T value, int pos)
 			int newNodeIndex = FindFreeIndex();
 			array[newNodeIndex] = newNode;
 
-			if (currentPos == 0)
-				this->startIndex = newNodeIndex;
+			bool isFirst = prevIndex == NO_INDEX;
+
+			if (isFirst)
+				this->startIndex = newNodeIndex; 
 			else
 				array[prevIndex].nextIndex = newNodeIndex;
 
-			if (currentPos == size - 1)
-				this->endIndex = newNodeIndex;
-			else
-				array[currentIndex].prevIndex = newNodeIndex;
+			array[currentIndex].prevIndex = newNodeIndex;
+			if (currentIndex == size - 1)
+				this->endIndex = currentIndex;
 
 			size++;
 			return true;
