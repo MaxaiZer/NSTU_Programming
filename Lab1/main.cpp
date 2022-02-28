@@ -21,28 +21,28 @@ int inputValue(string value)
 	return input;
 }
 
-void handleInput(int input, List<int>& list)
+void handleInput(int input, Lab1::List<int>& list)
 {
 	switch (input)
 	{
 	case 0:
-		list.print();
+		list.Print();
 		break;
 	case 1:
-		list.clear();
+		list.Clear();
 		break;
 	case 2:
-		list.add(inputValue("New element"));
+		list.Add(inputValue("New element"));
 		break;
 	case 3:
-		cout << "Func returned " << list.add(inputValue("New element"), inputValue("Index")) << endl;
+		cout << "Func returned " << list.Add(inputValue("New element"), inputValue("Index")) << endl;
 		break;
 	case 4:
 	{
 		int e;
 		try
 		{
-			e = list.read(inputValue("Index"));
+			e = list[inputValue("Index")];
 		}
 		catch (const char* ex)
 		{
@@ -57,7 +57,7 @@ void handleInput(int input, List<int>& list)
 		int e;
 		try
 		{
-			e = list.getPos(inputValue("Element"));
+			e = list.GetPos(inputValue("Element"));
 		}
 		catch (const char* ex)
 		{
@@ -68,16 +68,23 @@ void handleInput(int input, List<int>& list)
 		break;
 	}
 	case 6:
-		cout << "Func returned " << list.removeByValue(inputValue("Element")) << endl;
+		cout << "Func returned " << list.RemoveByValue(inputValue("Element")) << endl;
 		break;
 	case 7:
-		cout << "Func returned " << list.removeByPos(inputValue("Index")) << endl;
+		cout << "Func returned " << list.RemoveByPos(inputValue("Index")) << endl;
 		break;
 	case 8:
-		cout << "Size: " << list.getSize() << endl;
+		cout << "Size: " << list.GetSize() << endl;
 		break;
 	case 9:
-		cout << "Func returned " << list.set(inputValue("Element"), inputValue("Index")) << endl;
+		try
+		{
+			list[inputValue("Index")] = inputValue("Value");
+		}
+		catch (const char* ex)
+		{
+			cout << ex << endl;
+		}
 		break;
 	default:
 		cout << "Wrong command" << endl;
@@ -91,19 +98,19 @@ int main()
 	string commands[COMMANDS_COUNT] =
 	{
 		"print list", //0
-		"clear list", //1
-		"add element", //2
-		"add element with index", //3
+		"Clear list", //1
+		"Add element", //2
+		"Add element with index", //3
 		"get element by index", //4
 		"get index by element", //5
 		"remove element by value", //6
 		"remove element by index", //7
 		"get size of list", //8
-		"set element by index" //9
+		"Set element by index" //9
 	};
 
-	List<int> list;
-	List<int>::Iterator iterator = list.begin();
+	Lab1::List<int> list(200);
+	Lab1::List<int>::Iterator iterator = list.Begin();
 	
 	printCommands(commands);
 

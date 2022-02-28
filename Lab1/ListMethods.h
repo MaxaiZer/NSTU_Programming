@@ -1,300 +1,334 @@
 #pragma once 
 #include "List.h"
 
+using namespace Lab1;
+
+template<class T>
+inline Lab1::List<T>::List(int capacity)
+{
+	array = new Node[capacity];
+	this->capacity = capacity;
+}
+
 template<class T>
 inline List<T>::List(const List<T>& list)
 {
+	Clear();
+
 	if (list.isEmpty())
-		return;
-
-	clear();
-
-	Node* node = list.start;
-
-	while (node != nullptr)
 	{
-		add(node->value);
-		node = node->next;
+		return;
 	}
 
+	Iterator iter = list.Begin();
+
+	do
+	{
+		Add(*iter);
+	} 
+	while (iter++);
+
 }
 
 template<class T>
-inline List<T>::~List()
+inline void List<T>::Clear()
 {
-	clear();
-}
-
-template<class T>
-inline int List<T>::getSize() const
-{
-	return size;
-}
-
-template<class T>
-inline bool List<T>::isEmpty() const
-{
-	return size == 0;
-}
-
-template<class T>
-inline void List<T>::clear()
-{
-	if (isEmpty())
+	if (IsEmpty())
 		return;
 
 	size = 0;
 
-	Node* node = start;
-
-	while (node->next != nullptr)
+	Iterator iter = this->Begin();
+	do
 	{
-		Node* nodeToDelete = node;
-		node = node->next;
-		delete nodeToDelete;
-	}
+		iter.current.MakeEmpty();
+	} while (iter++);
 
-	delete node;
+	startIndex = NO_INDEX;
+	endIndex = NO_INDEX;
 }
 
 template<class T>
-inline bool List<T>::contains(T value) const
+inline bool List<T>::Contains(T value)
 {
-	Node* node = start;
+	if (IsEmpty())
+		return false;
 
-	while (node != nullptr)
+	Iterator iter = this->Begin();
+
+	do
 	{
-		if (node->value == value)
+		if (*iter == value)
 			return true;
-
-		node = node->next;
-	}
+	} while (iter++);
 
 	return false;
 }
 
 template<class T>
-inline bool List<T>::add(T value, int index)
+inline T& List<T>::operator[](const int pos)
 {
-	if (index < 0 || index > size)
+	if (pos < 0 || pos >= size)
+		throw std::out_of_range("Wrong pos");
+
+	Iterator iter = this->Begin();
+	int currentPos = 0;
+
+	do
+	{
+		if (currentPos == pos)
+			return *iter;
+
+		currentPos++;
+	} while (iter++);
+}
+
+template<class T>
+inline bool List<T>::Add(T value, int pos)
+{
+	if (pos < 0 || pos >= size || size == capacity)
 		return false;
 
-	if (index == size)
+	if (pos == size - 1)
+		Add(value);
+
+	Iterator iter = this->Begin();
+	int currentPos = 0;
+	int currentIndex = startIndex;
+
+	do
 	{
-		add(value);
-		return true;
-	}
+		if (currentPos == pos)
+		{
+			int prevIndex = iter.current.prevIndex;
 
-	Node* nextNode = start;
+			Node newNode(value, prevIndex, currentIndex);
+			int newNodeIndex = FindFreeIndex();
+			array[newNodeIndex] = newNode;
 
-	for (int curIndex = 0; curIndex < index; curIndex++)
-		nextNode = nextNode->next;
+			if (currentPos == 0)
+				this->startIndex = newNodeIndex;
+			else
+				array[prevIndex].nextIndex = newNodeIndex;
 
-	Node* prevNode = nextNode->prev;
+			if (currentPos == size - 1)
+				this->endIndex = newNodeIndex;
+			else
+				array[currentIndex].prevIndex = newNodeIndex;
 
-	Node* newNode = new Node(value, prevNode, nextNode);
+			size++;
+			return true;
+		}
+		currentPos++;
+		currentIndex = array[currentIndex].nextIndex;
+	} while (iter++);
 
-	if (prevNode != nullptr)
-		prevNode->next = newNode;
-	else
-		start = newNode;
+	return false;
+}
 
-	if (nextNode != nullptr)
-		nextNode->prev = newNode;
+template<class T>
+inline bool List<T>::Add(T value)
+{
+	if (size == capacity)
+		return false;
+
+	Node newNode(value, this->endIndex, NO_INDEX);
+	int freeIndex = FindFreeIndex();
+	array[freeIndex] = newNode;
+
+	array[endIndex].nextIndex = freeIndex;
+	endIndex = freeIndex;
+
+	if (IsEmpty())
+		startIndex = freeIndex;
 
 	size++;
 	return true;
 }
 
 template<class T>
-inline void List<T>::add(T value)
+inline int List<T>::GetPos(T value)
 {
-	if (isEmpty())
+	if (IsEmpty())
+		throw "List is empty";
+
+	Iterator iter = this->Begin();
+	int curPosition = 0;
+
+	do
 	{
-		start = new Node(value, nullptr, nullptr);
-		size++;
-		return;
-	}
-
-	Node* last = start;
-	while (last->next != nullptr)
-		last = last->next;
-
-	Node* newNode = new Node(value, last, nullptr);
-	last->next = newNode;
-	size++;
-}
-
-template<class T>
-inline T List<T>::read(int index) const
-{
-	if (index < 0 || index > size)
-		throw "Wrong index";
-
-	Node* cur = start;
-
-	for (int curIndex = 0; curIndex < index; curIndex++)
-		cur = cur->next;
-
-	return cur->value;
-}
-
-template<class T>
-inline bool List<T>::set(T value, int index)
-{
-	if (index < 0 || index >= size)
-		return false;
-
-	Node* node = start;
-
-	for (int curIndex = 0; curIndex < index; curIndex++)
-		node = node->next;
-
-	node->value = value;
-	return true;
-}
-
-template<class T>
-inline int List<T>::getPos(T value) const
-{
-	Node* node = start;
-	int curIndex = 0;
-
-	for (; node->next != nullptr; curIndex++)
-	{
-		if (node->value == value)
-			return curIndex;
-
-		node = node->next;
-	}
-
-	if (node->value == value)
-		return curIndex;
+		if (*iter == value)
+		{
+			return curPosition;
+		}
+		curPosition++;
+	} while (iter++);
 
 	throw "Wrond value";
 }
 
 template<class T>
-void List<T>::remove(Node* node)
+void List<T>::Remove(Node& node)
 {
-	Node* prev = node->prev;
-	Node* next = node->next;
-	delete node;
-	if (prev != nullptr)
-		prev->next = next;
-	else
-		start = next;
+	if (size == 1)
+	{
+		startIndex = endIndex = NO_INDEX;
+		size--;
+		return;
+	}
 
-	if (next != nullptr)
-		next->prev = prev;
+	int nodePrevIndex = node.prevIndex;
+	int nodeNextIndex = node.nextIndex;
+
+	if (nodePrevIndex == NO_INDEX)
+		startIndex = nodeNextIndex;	
+	else
+		array[nodePrevIndex].nextIndex = nodeNextIndex;
+
+	if (nodeNextIndex == NO_INDEX)
+		endIndex = nodePrevIndex;		
+	else
+		array[nodeNextIndex].prevIndex = nodePrevIndex;
+
+	node.MakeEmpty();
+
 	size--;
 }
 
 template<class T>
-inline bool List<T>::removeByValue(T value)
+inline int List<T>::FindFreeIndex()
 {
-	Node* node = start;
+	if (size == capacity)
+		return NO_INDEX;
 
-	while (node != nullptr)
+	if (size == 1)
+		return (startIndex == 0 ? 1 : 0);
+
+	for (int i = 0, j = capacity - 1; i <= j; i++, j--)
 	{
-		if (node->value == value)
-		{
-			remove(node);
+		if (array[i].IsEmpty())
+			return i;
+		if (array[j].IsEmpty())
+			return j;
+	}
+
+	return NO_INDEX;
+}
+
+template<class T>
+inline bool List<T>::RemoveByValue(T value)
+{
+	Iterator iter = this->Begin();
+
+	do
+	{
+		if (*iter == value)
+		{		
+			Remove(iter.current);
 			return true;
 		}
-		node = node->next;
-	}
+	} while (iter++);
 
 	return false;
 }
 
 template<class T>
-inline bool List<T>::removeByPos(int index)
+inline bool List<T>::RemoveByPos(int pos)
 {
-	Node* node = start;
-	int curIndex = 0;
+	if (pos < 0 || pos >= size)
+		return false;
 
-	while (node != nullptr)
-	{
-		if (curIndex == index)
-		{
-			remove(node);
-			return true;
-		}
-		node = node->next;
-		curIndex++;
-	}
+	Remove(array[pos]);
 
-	return false;
+	return true;
 }
 
 template<class T>
-inline typename List<T>::Iterator List<T>::begin()
+inline typename List<T>::Iterator List<T>::Begin()
 {
-	if (size == 0)
-		return end();
-
-	return List<T>::Iterator(this, start);
+	Iterator iter(this, startIndex);
+	return iter;
 }
 
 template<class T>
-inline  typename List<T>::Iterator List<T>::end()
+inline  typename List<T>::Iterator List<T>::End()
 {
-	return List<T>::Iterator(this, nullptr);
+	Iterator iter(this, endIndex);
+	return iter;
 }
 
 template<class T>
-inline void List<T>::print()
+inline void List<T>::Print()
 {
-	Iterator iter = this->begin();
+	Iterator iter = this->Begin();
 	std::cout << "{ ";
-	while (iter != this->end())
+
+	if (IsEmpty())
+		goto end;
+	do
 	{
 		std::cout << "[" << *iter << "] ";
-		iter++;
-	}
+	} 
+	while (iter++);
+
+	end:
 	std::cout << "}";
 	std::cout << std::endl;
 }
 
 template<class T>
-inline List<T>::Iterator::Iterator(List<T>* list, Node* node)
+inline Lab1::List<T>::Iterator::Iterator(List<T>* list, int index) : current(list->array[index])
 {
 	this->list = list;
-	this->cur = node;
 }
 
 template<class T>
 inline T& List<T>::Iterator::operator*()
 {
-	return cur->value;
+	return current.value;
 }
 
 template<class T>
-inline  void List<T>::Iterator::operator++(int)
+inline bool List<T>::Iterator::operator++(int)
 {
-	if (cur->next != nullptr)
-		cur = cur->next;
-	else
-		*this = list->end();
+	if (current.nextIndex == NO_INDEX)
+		return false;
+
+	current = list->array[current.nextIndex];
+	return true;
 }
 
 template<class T>
-inline void List<T>::Iterator::operator--(int)
+inline bool List<T>::Iterator::operator--(int)
 {
-	if (cur->prev != nullptr)
-		cur = cur->prev;
+	if (current.prevIndex == NO_INDEX)
+		return false;
+
+	current = list->array[current.prevIndex];
+	return true;
 }
 
 template<class T>
 inline bool  List<T>::Iterator::operator==(List<T>::Iterator iterator)
 {
-	return this->cur == iterator.cur;
+	return this->list == iterator.list && this->current == iterator.current;
 }
 
 template<class T>
 inline bool  List<T>::Iterator::operator!=(List<T>::Iterator iterator)
 {
-	return this->cur != iterator.cur;
+	return !(*this == iterator);
 }
 
+template<class T>
+inline bool List<T>::Node::operator==(Node node)
+{
+	return this->value == node.value && this->nextIndex == node.nextIndex
+		&& this->prevIndex == node.prevIndex;
+}
+
+template<class T>
+inline bool List<T>::Node::operator!=(Node node)
+{
+	return !(*this == node);
+}
