@@ -219,6 +219,16 @@ inline int List<T>::FindFreeIndex()
 }
 
 template<class T>
+inline bool Lab1::List<T>::LinkAsPrevAndNext(int index1, int index2)
+{
+	if (index1 < 0 || index1 >= size || index2 < 0 || index2 >= size)
+		return false;
+	array[index1].nextIndex = index2;
+	array[index2].prevIndex = index1;
+	return true;
+}
+
+template<class T>
 inline bool List<T>::RemoveByValue(T value)
 {
 	Iterator iter = this->Begin();
@@ -249,14 +259,14 @@ inline bool List<T>::RemoveByPos(int pos)
 template<class T>
 inline typename List<T>::Iterator List<T>::Begin()
 {
-	Iterator iter(this, startIndex);
+	Iterator iter(*this, startIndex);
 	return iter;
 }
 
 template<class T>
 inline  typename List<T>::Iterator List<T>::End()
 {
-	Iterator iter(this, endIndex);
+	Iterator iter(*this, endIndex);
 	return iter;
 }
 
@@ -280,24 +290,12 @@ inline void List<T>::Print()
 }
 
 template<class T>
-inline Lab1::List<T>::Iterator::Iterator(List<T>* list, int index) : current(list->array[index])
-{
-	this->list = list;
-}
-
-template<class T>
-inline T& List<T>::Iterator::operator*()
-{
-	return current.value;
-}
-
-template<class T>
 inline bool List<T>::Iterator::operator++(int)
 {
 	if (current.nextIndex == NO_INDEX)
 		return false;
 
-	current = list->array[current.nextIndex];
+	current = list.array[current.nextIndex];
 	return true;
 }
 
@@ -307,7 +305,7 @@ inline bool List<T>::Iterator::operator--(int)
 	if (current.prevIndex == NO_INDEX)
 		return false;
 
-	current = list->array[current.prevIndex];
+	current = list.array[current.prevIndex];
 	return true;
 }
 
