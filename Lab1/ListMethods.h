@@ -8,7 +8,10 @@ inline Lab1::List<T>::List(int capacity)
 {
 	array = new Node[capacity];
 	for (int i = 0; i < capacity - 1; i++)
+	{
+		array[i].index = i;
 		array[i].nextIndex = i + 1;
+	}
 	this->capacity = capacity;
 }
 
@@ -18,9 +21,7 @@ inline List<T>::List(const List<T>& list)
 	Clear();
 
 	if (list.isEmpty())
-	{
 		return;
-	}
 
 	Iterator iter = list.Begin();
 
@@ -82,6 +83,8 @@ inline T& List<T>::operator[](const int pos)
 
 		currentPos++;
 	} while (iter++);
+
+	throw "Unknown error";
 }
 
 template<class T>
@@ -112,12 +115,10 @@ inline bool List<T>::Add(T value, int pos)
 		return false;
 
 	if (pos == size)
-	{
 		return Add(value);
-	}
+
 	Iterator iter = this->Begin();
 	int currentPos = 0;
-	int currentIndex = startIndex;
 
 	do
 	{
@@ -125,7 +126,7 @@ inline bool List<T>::Add(T value, int pos)
 		{
 			int prevIndex = iter.current->prevIndex;
 
-			int nextNodeIndex = currentIndex;
+			int nextNodeIndex = iter.current->index;
 
 			int newNodeIndex;
 			Node& node = GetFreeNode(newNodeIndex);
@@ -143,7 +144,6 @@ inline bool List<T>::Add(T value, int pos)
 			return true;
 		}
 		currentPos++;
-		currentIndex = array[currentIndex].nextIndex;
 		
 	} while (iter++);
 
@@ -174,38 +174,38 @@ inline int List<T>::GetPos(T value)
 template<class T>
 void List<T>::Remove(Node& node)
 {
+	int prevIndex;
+	int nextIndex;
+
 	if (size == 1)
 	{
 		this->startIndex = endIndex = NO_INDEX;
-		return;
+		goto addNodeToFree;
 	}
 
-	int prevIndex = node.prevIndex;
-	int nextIndex = node.nextIndex;
-	int nodeIndex;
+	prevIndex = node.prevIndex;
+	nextIndex = node.nextIndex;
 
 	if (prevIndex != NO_INDEX && nextIndex != NO_INDEX)
 	{
 		LinkAsPrevAndNext(prevIndex, nextIndex);
-		nodeIndex = array[prevIndex].nextIndex;
 	}
 	else if (prevIndex == NO_INDEX)
 	{
-		nodeIndex = this->startIndex;
 		this->startIndex = nextIndex;
 		array[nextIndex].prevIndex = NO_INDEX;		
 	}
 	else if (nextIndex == NO_INDEX)
 	{
-		nodeIndex = this->endIndex;
 		this->endIndex = prevIndex;
 		array[prevIndex].nextIndex = NO_INDEX;
 	}
+
+	addNodeToFree:
+
 	node.ResetIndexes();
-
 	node.nextIndex = this->firstFreeIndex;
-	firstFreeIndex = nodeIndex;
-
+	firstFreeIndex = node.index;
 	size--;
 }
 
@@ -268,7 +268,7 @@ inline typename List<T>::Iterator List<T>::Begin()
 template<class T>
 inline  typename List<T>::Iterator List<T>::End()
 {
-	Iterator iter(*this, endIndex);
+	Iterator iter(*this, this->endIndex);
 	return iter;
 }
 

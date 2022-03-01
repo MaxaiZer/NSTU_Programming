@@ -56,15 +56,14 @@ namespace Lab1
 		class Node
 		{
 		public:
-			Node(T value, int prevIndex, int nextIndex) :
-				prevIndex(prevIndex), nextIndex(nextIndex), value(value) { }
 			Node(const Node& node) :
-				prevIndex(node.prevIndex), nextIndex(node.nextIndex), value(node.value) {}
+				prevIndex(node.prevIndex), nextIndex(node.nextIndex), value(node.value), index(index) {}
 			Node() { }
 			void ResetIndexes() { prevIndex = nextIndex = NO_INDEX; }
 			bool operator == (Node node);
 			bool operator != (Node node);
 			int prevIndex = NO_INDEX;
+			int index = NO_INDEX;
 			int nextIndex = NO_INDEX;
 			T value;
 		};
