@@ -7,6 +7,8 @@ template<class T>
 inline Lab1::List<T>::List(int capacity)
 {
 	array = new Node[capacity];
+	for (int i = 0; i < capacity - 1; i++)
+		array[i].nextIndex = i + 1;
 	this->capacity = capacity;
 }
 
@@ -37,15 +39,14 @@ inline void List<T>::Clear()
 		return;
 
 	size = 0;
+	startIndex = endIndex = NO_INDEX;
 
 	Iterator iter = this->Begin();
 	do
 	{
-		iter.current.MakeEmpty();
+		Remove(*iter.current);
 	} while (iter++);
 
-	startIndex = NO_INDEX;
-	endIndex = NO_INDEX;
 }
 
 template<class T>
@@ -84,6 +85,27 @@ inline T& List<T>::operator[](const int pos)
 }
 
 template<class T>
+inline bool List<T>::Add(T value)
+{
+	if (size == capacity)
+		return false;
+
+	int freeIndex;
+	Node& node = GetFreeNode(freeIndex);
+	node.value = value;
+
+	if (IsEmpty())
+		startIndex = freeIndex;
+	else
+		LinkAsPrevAndNext(endIndex, freeIndex);
+
+	endIndex = freeIndex;
+
+	size++;
+	return true;
+}
+
+template<class T>
 inline bool List<T>::Add(T value, int pos)
 {
 	if (pos < 0 || pos > size || size == capacity)
@@ -93,7 +115,6 @@ inline bool List<T>::Add(T value, int pos)
 	{
 		return Add(value);
 	}
-
 	Iterator iter = this->Begin();
 	int currentPos = 0;
 	int currentIndex = startIndex;
@@ -102,51 +123,31 @@ inline bool List<T>::Add(T value, int pos)
 	{
 		if (currentPos == pos)
 		{
-			int prevIndex = iter.current.prevIndex;
+			int prevIndex = iter.current->prevIndex;
 
-			Node newNode(value, prevIndex, currentIndex);
-			int newNodeIndex = FindFreeIndex();
-			array[newNodeIndex] = newNode;
+			int nextNodeIndex = currentIndex;
+
+			int newNodeIndex;
+			Node& node = GetFreeNode(newNodeIndex);
+			node.value = value;
 
 			bool isFirst = prevIndex == NO_INDEX;
 
 			if (isFirst)
-				this->startIndex = newNodeIndex; 
+				this->startIndex = newNodeIndex;
 			else
-				array[prevIndex].nextIndex = newNodeIndex;
+				LinkAsPrevAndNext(prevIndex, newNodeIndex);
 
-			array[currentIndex].prevIndex = newNodeIndex;
-			if (currentIndex == size - 1)
-				this->endIndex = currentIndex;
-
+			LinkAsPrevAndNext(newNodeIndex, nextNodeIndex);
 			size++;
 			return true;
 		}
 		currentPos++;
 		currentIndex = array[currentIndex].nextIndex;
+		
 	} while (iter++);
 
 	return false;
-}
-
-template<class T>
-inline bool List<T>::Add(T value)
-{
-	if (size == capacity)
-		return false;
-
-	Node newNode(value, this->endIndex, NO_INDEX);
-	int freeIndex = FindFreeIndex();
-	array[freeIndex] = newNode;
-
-	array[endIndex].nextIndex = freeIndex;
-	endIndex = freeIndex;
-
-	if (IsEmpty())
-		startIndex = freeIndex;
-
-	size++;
-	return true;
 }
 
 template<class T>
@@ -175,23 +176,19 @@ void List<T>::Remove(Node& node)
 {
 	if (size == 1)
 	{
-		startIndex = endIndex = NO_INDEX;
-		size--;
+		this->startIndex = endIndex = NO_INDEX;
 		return;
 	}
 
-	int nodePrevIndex = node.prevIndex;
-	int nodeNextIndex = node.nextIndex;
+	int prevIndex = node.prevIndex;
+	int nextIndex = node.nextIndex;
 
-	if (nodePrevIndex == NO_INDEX)
-		startIndex = nodeNextIndex;	
-	else
-		array[nodePrevIndex].nextIndex = nodeNextIndex;
-
-	if (nodeNextIndex == NO_INDEX)
-		endIndex = nodePrevIndex;		
-	else
-		array[nodeNextIndex].prevIndex = nodePrevIndex;
+	if (prevIndex != NO_INDEX && nextIndex != NO_INDEX)
+		LinkAsPrevAndNext(prevIndex, nextIndex);
+	else if (prevIndex == NO_INDEX)
+		this->startIndex = nextIndex;
+	else if (nextIndex == NO_INDEX)
+		this->endIndex = prevIndex;
 
 	node.MakeEmpty();
 
@@ -199,29 +196,20 @@ void List<T>::Remove(Node& node)
 }
 
 template<class T>
-inline int List<T>::FindFreeIndex()
+inline typename List<T>::Node& List<T>::GetFreeNode(int &index)
 {
-	if (size == capacity)
-		return NO_INDEX;
+	index = firstFreeIndex;
+	Node& freeNode = array[firstFreeIndex];
+	firstFreeIndex = array[firstFreeIndex].nextIndex;
+	freeNode.MakeEmpty();
 
-	if (size == 1)
-		return (startIndex == 0 ? 1 : 0);
-
-	for (int i = 0, j = capacity - 1; i <= j; i++, j--)
-	{
-		if (array[i].IsEmpty())
-			return i;
-		if (array[j].IsEmpty())
-			return j;
-	}
-
-	return NO_INDEX;
+	return freeNode;
 }
 
 template<class T>
 inline bool Lab1::List<T>::LinkAsPrevAndNext(int index1, int index2)
 {
-	if (index1 < 0 || index1 >= size || index2 < 0 || index2 >= size)
+	if (index1 < 0 || index1 >= capacity || index2 < 0 || index2 >= capacity)
 		return false;
 	array[index1].nextIndex = index2;
 	array[index2].prevIndex = index1;
@@ -237,7 +225,7 @@ inline bool List<T>::RemoveByValue(T value)
 	{
 		if (*iter == value)
 		{		
-			Remove(iter.current);
+			Remove(*iter.current);
 			return true;
 		}
 	} while (iter++);
@@ -259,7 +247,7 @@ inline bool List<T>::RemoveByPos(int pos)
 template<class T>
 inline typename List<T>::Iterator List<T>::Begin()
 {
-	Iterator iter(*this, startIndex);
+	Iterator iter(*this, this->startIndex);
 	return iter;
 }
 
@@ -292,10 +280,10 @@ inline void List<T>::Print()
 template<class T>
 inline bool List<T>::Iterator::operator++(int)
 {
-	if (current.nextIndex == NO_INDEX)
+	if (current->nextIndex == NO_INDEX)
 		return false;
 
-	current = list.array[current.nextIndex];
+	current = &list.array[current->nextIndex];
 	return true;
 }
 
@@ -305,7 +293,7 @@ inline bool List<T>::Iterator::operator--(int)
 	if (current.prevIndex == NO_INDEX)
 		return false;
 
-	current = list.array[current.prevIndex];
+	current = &list.array[current->prevIndex];
 	return true;
 }
 

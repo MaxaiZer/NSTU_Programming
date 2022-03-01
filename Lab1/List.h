@@ -12,15 +12,15 @@ namespace Lab1
 		class Iterator
 		{
 		public:
-			Iterator(List<T>& list, int index) : list(list), current(list.array[index]) {}
-			T& operator *() { return current.value; }
+			Iterator(List<T>& list, int index) : list(list) { current = &list.array[index]; }
+			T& operator *() { return current->value; }
 			bool operator++(int value);
 			bool operator--(int value);
 			bool operator == (Iterator iterator);
 			bool operator != (Iterator iterator);
 		private:
 			List<T>& list;
-			Node& current;
+			Node* current;
 
 			friend class List;
 		};
@@ -47,9 +47,10 @@ namespace Lab1
 		int size = 0;
 		int startIndex = NO_INDEX;
 		int endIndex = NO_INDEX;
+		int firstFreeIndex = 0;
 		Node* array;
 		void Remove(Node& node);
-		int FindFreeIndex();
+		Node& GetFreeNode(int& index);
 		bool LinkAsPrevAndNext(int index1, int index2);
 
 		class Node
