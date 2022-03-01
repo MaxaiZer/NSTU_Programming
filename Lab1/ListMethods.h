@@ -182,20 +182,29 @@ void List<T>::Remove(Node& node)
 
 	int prevIndex = node.prevIndex;
 	int nextIndex = node.nextIndex;
+	int nodeIndex;
 
 	if (prevIndex != NO_INDEX && nextIndex != NO_INDEX)
+	{
 		LinkAsPrevAndNext(prevIndex, nextIndex);
+		nodeIndex = array[prevIndex].nextIndex;
+	}
 	else if (prevIndex == NO_INDEX)
 	{
+		nodeIndex = this->startIndex;
 		this->startIndex = nextIndex;
-		array[nextIndex].prevIndex = NO_INDEX;
+		array[nextIndex].prevIndex = NO_INDEX;		
 	}
 	else if (nextIndex == NO_INDEX)
 	{
+		nodeIndex = this->endIndex;
 		this->endIndex = prevIndex;
 		array[prevIndex].nextIndex = NO_INDEX;
 	}
 	node.ResetIndexes();
+
+	node.nextIndex = this->firstFreeIndex;
+	firstFreeIndex = nodeIndex;
 
 	size--;
 }
