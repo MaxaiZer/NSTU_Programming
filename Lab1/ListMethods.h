@@ -186,11 +186,16 @@ void List<T>::Remove(Node& node)
 	if (prevIndex != NO_INDEX && nextIndex != NO_INDEX)
 		LinkAsPrevAndNext(prevIndex, nextIndex);
 	else if (prevIndex == NO_INDEX)
+	{
 		this->startIndex = nextIndex;
+		array[nextIndex].prevIndex = NO_INDEX;
+	}
 	else if (nextIndex == NO_INDEX)
+	{
 		this->endIndex = prevIndex;
-
-	node.MakeEmpty();
+		array[prevIndex].nextIndex = NO_INDEX;
+	}
+	node.ResetIndexes();
 
 	size--;
 }
@@ -201,7 +206,7 @@ inline typename List<T>::Node& List<T>::GetFreeNode(int &index)
 	index = firstFreeIndex;
 	Node& freeNode = array[firstFreeIndex];
 	firstFreeIndex = array[firstFreeIndex].nextIndex;
-	freeNode.MakeEmpty();
+	freeNode.ResetIndexes();
 
 	return freeNode;
 }

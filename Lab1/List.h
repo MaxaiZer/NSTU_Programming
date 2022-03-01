@@ -60,22 +60,13 @@ namespace Lab1
 				prevIndex(prevIndex), nextIndex(nextIndex), value(value) { }
 			Node(const Node& node) :
 				prevIndex(node.prevIndex), nextIndex(node.nextIndex), value(node.value) {}
-			Node() {
-				ResetIndexes();
-			}
-
-			bool IsEmpty()
-			{
-				return prevIndex == NO_INDEX && nextIndex == NO_INDEX;
-			}
-			void MakeEmpty() { ResetIndexes(); }
+			Node() { }
+			void ResetIndexes() { prevIndex = nextIndex = NO_INDEX; }
 			bool operator == (Node node);
 			bool operator != (Node node);
-			int prevIndex;
-			int nextIndex;
+			int prevIndex = NO_INDEX;
+			int nextIndex = NO_INDEX;
 			T value;
-		private:
-			void ResetIndexes() { prevIndex = nextIndex= NO_INDEX; }
 		};
 
 	};

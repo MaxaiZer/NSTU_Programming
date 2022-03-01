@@ -88,6 +88,23 @@ namespace UnitTest
 			Assert::IsTrue(2 == list[0]);
 		}
 
+		TEST_METHOD(TestRemoveByPos1)
+		{
+			Lab1::List<int> list(20);
+			list.Add(2);
+			list.Add(3);
+			list.RemoveByPos(0);
+
+			Assert::IsTrue(3 == list[0]);
+
+			list.Add(2);
+
+			list.RemoveByPos(1);
+			list.Add(4);
+
+			Assert::IsTrue(4 == list[1]);
+		}
+
 
 	};
 }
