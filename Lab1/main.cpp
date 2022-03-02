@@ -122,4 +122,5 @@ int main()
 	{
 		handleInput(inputValue("Номер команды"), list);
 	}
+
 }

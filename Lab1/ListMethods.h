@@ -14,19 +14,25 @@ inline Lab1::List<T>::List(int capacity)
 template<class T>
 inline List<T>::List(const List<T>& list)
 {
-	Clear();
-
-	if (list.isEmpty())
+	if (list.IsEmpty())
 		return;
 
-	Iterator iter = list.Begin();
+	this->capacity = list.capacity;
+	array = new Node[capacity];
+	InitializeArray(array, capacity);
 
-	do
+	Node node = list.array[list.startIndex];
+
+	for (int i = 0; i < list.size; i++)
 	{
-		Add(*iter);
-	} 
-	while (iter++);
+		this->Add(node.value);
+		node = list.array[node.nextIndex];
+	}
 
+	startIndex = 0;
+	endIndex = size - 1;
+
+	firstFreeIndex = (size < capacity ? size : NO_INDEX);
 }
 
 template<class T>
@@ -68,6 +74,9 @@ inline bool Lab1::List<T>::ChangeCapacity(int newCapacity)
 
 	for (int i = 0; i < size; i++, node = array[node.nextIndex])
 		newArray[i].value = node.value;
+
+	startIndex = 0;
+	endIndex = size - 1;
 
 	end:
 
@@ -268,6 +277,7 @@ inline bool Lab1::List<T>::LinkAsPrevAndNext(int index1, int index2)
 {
 	if (index1 < 0 || index1 >= capacity || index2 < 0 || index2 >= capacity)
 		return false;
+
 	array[index1].nextIndex = index2;
 	array[index2].prevIndex = index1;
 	return true;

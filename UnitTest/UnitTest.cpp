@@ -105,21 +105,24 @@ namespace UnitTest
 			Assert::IsTrue(4 == list[1]);
 		}
 
-		TEST_METHOD(TestChangeCapacity1)
+		TEST_METHOD(Test—opy—onstructor1)
 		{
-			Lab1::List<int> list(20);
-			list.Add(1);
-			list.Add(2);
-			list.Add(3);
-			list.Add(4);
+			Lab1::List<int> list1(20);
+			list1.Add(1);
+			list1.Add(2);
+			list1.Add(3);
+			list1.Add(4);
+			Lab1::List<int> list2(list1);
 
-			list.ChangeCapacity(3);
-			Assert::IsTrue(1 == list[0]);
-			Assert::IsTrue(2 == list[1]);
-			Assert::IsTrue(3 == list[2]);
-			Assert::IsTrue(4 == list[3]);
+			Assert::IsTrue(list2[0] == list1[0]);
+			Assert::IsTrue(list2[1] == list1[1]);
+			Assert::IsTrue(list2[2] == list1[2]);
+			Assert::IsTrue(list2[3] == list1[3]);
+
+			list1[1] = 15;
+
+			Assert::IsTrue(list2[1] != list1[1]);
 		}
-
 
 	};
 }
