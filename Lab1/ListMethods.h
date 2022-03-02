@@ -21,12 +21,10 @@ inline List<T>::List(const List<T>& list)
 	array = new Node[capacity];
 	InitializeArray(array, capacity);
 
-	Node node = list.array[list.startIndex];
-
-	for (int i = 0; i < list.size; i++)
+	for (int i = 0, index = list.startIndex; i < list.size; i++)
 	{
-		this->Add(node.value);
-		node = list.array[node.nextIndex];
+		this->Add(list.array[index].value);
+		index = list.array[index].nextIndex;
 	}
 
 	startIndex = 0;
@@ -38,18 +36,8 @@ inline List<T>::List(const List<T>& list)
 template<class T>
 inline void List<T>::Clear()
 {
-	if (IsEmpty())
-		return;
-
-	size = 0;
-	startIndex = endIndex = NO_INDEX;
-
-	Iterator iter = this->Begin();
-	do
-	{
-		Remove(*iter.current);
-	} while (iter++);
-
+	while (size > 0)
+		Remove(array[startIndex]);
 }
 
 template<class T>
@@ -309,9 +297,19 @@ inline bool List<T>::RemoveByPos(int pos)
 	if (pos < 0 || pos >= size)
 		return false;
 
-	Remove(array[pos]);
+	Iterator iter = this->Begin();
+	int position = 0;
+	do
+	{
+		if (position == pos)
+		{
+			Remove(*iter.current);
+			return true;
+		}
+		position++;
+	} while (iter++);
 
-	return true;
+	return false;
 }
 
 template<class T>
@@ -347,6 +345,20 @@ inline void List<T>::Print()
 	std::cout << std::endl;
 }
 
+/*
+
+template<class T>
+inline void Lab1::List<T>::PrintArray()
+{
+	std::cout << "------------" << std::endl;
+
+	for (int i = 0; i < capacity; i++)
+		printf("Value:%d PrevIndex:%d Index:%d NextIndex:%d\n", array[i].value, array[i].prevIndex, array[i].index, array[i].nextIndex);
+
+	std::cout << "------------" << std::endl;
+}
+*/
+
 template<class T>
 inline bool List<T>::Iterator::operator++(int)
 {
@@ -360,7 +372,7 @@ inline bool List<T>::Iterator::operator++(int)
 template<class T>
 inline bool List<T>::Iterator::operator--(int)
 {
-	if (current.prevIndex == NO_INDEX)
+	if (current->prevIndex == NO_INDEX)
 		return false;
 
 	current = &list.array[current->prevIndex];

@@ -113,7 +113,7 @@ int main()
 		"Изменить ёмкость" //10
 	};
 
-	Lab1::List<int> list(20);
+	Lab1::List<int> list(4);
 	Lab1::List<int>::Iterator iterator = list.Begin();
 	
 	printCommands(commands);

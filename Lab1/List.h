@@ -42,6 +42,7 @@ namespace Lab1
 		Iterator Begin(); //запрос прямого итератора begin()
 		Iterator End(); //запрос «неустановленного» прямого итератора end()
 		void Print();
+		//void PrintArray(); //отладка
 
 	protected:
 		int capacity;
