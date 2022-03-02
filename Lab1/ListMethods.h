@@ -7,11 +7,7 @@ template<class T>
 inline Lab1::List<T>::List(int capacity)
 {
 	array = new Node[capacity];
-	for (int i = 0; i < capacity - 1; i++)
-	{
-		array[i].index = i;
-		array[i].nextIndex = i + 1;
-	}
+	InitializeArray(array, capacity);
 	this->capacity = capacity;
 }
 
@@ -51,6 +47,42 @@ inline void List<T>::Clear()
 }
 
 template<class T>
+inline bool Lab1::List<T>::ChangeCapacity(int newCapacity)
+{
+	if (newCapacity <= 0 || capacity == newCapacity)
+		return false;
+
+	capacity = newCapacity;
+	if (size > capacity)
+		size = capacity;
+
+	Node* newArray = new Node[capacity];
+	InitializeArray(newArray, capacity);
+
+	Node node;
+
+	if (IsEmpty())
+		goto end;
+
+	node = array[startIndex];
+
+	for (int i = 0; i < size; i++, node = array[node.nextIndex])
+		newArray[i].value = node.value;
+
+	end:
+
+	delete array;
+	array = newArray;
+
+	for (int i = 0; i < size - 1; i++)
+		LinkAsPrevAndNext(i, i + 1);
+
+	firstFreeIndex = (size < capacity ? size : NO_INDEX);
+
+	return true;
+}
+
+template<class T>
 inline bool List<T>::Contains(T value)
 {
 	if (IsEmpty())
@@ -71,7 +103,7 @@ template<class T>
 inline T& List<T>::operator[](const int pos)
 {
 	if (pos < 0 || pos >= size)
-		throw std::out_of_range("Wrong pos");
+		throw "Wrong pos";
 
 	Iterator iter = this->Begin();
 	int currentPos = 0;
@@ -210,6 +242,17 @@ void List<T>::Remove(Node& node)
 }
 
 template<class T>
+inline void Lab1::List<T>::InitializeArray(Node* nodes, int size)
+{
+	for (int i = 0; i < size - 1; i++)
+	{
+		nodes[i].index = i;
+		nodes[i].nextIndex = i + 1;
+	}
+	nodes[size - 1].index = size - 1;
+}
+
+template<class T>
 inline typename List<T>::Node& List<T>::GetFreeNode(int &index)
 {
 	index = firstFreeIndex;
@@ -233,6 +276,9 @@ inline bool Lab1::List<T>::LinkAsPrevAndNext(int index1, int index2)
 template<class T>
 inline bool List<T>::RemoveByValue(T value)
 {
+	if (IsEmpty())
+		return false;
+
 	Iterator iter = this->Begin();
 
 	do
@@ -314,24 +360,11 @@ inline bool List<T>::Iterator::operator--(int)
 template<class T>
 inline bool  List<T>::Iterator::operator==(List<T>::Iterator iterator)
 {
-	return this->list == iterator.list && this->current == iterator.current;
+	return this->current == iterator->current;
 }
 
 template<class T>
 inline bool  List<T>::Iterator::operator!=(List<T>::Iterator iterator)
 {
-	return !(*this == iterator);
-}
-
-template<class T>
-inline bool List<T>::Node::operator==(Node node)
-{
-	return this->value == node.value && this->nextIndex == node.nextIndex
-		&& this->prevIndex == node.prevIndex;
-}
-
-template<class T>
-inline bool List<T>::Node::operator!=(Node node)
-{
-	return !(*this == node);
+	return this->current != iterator->current;
 }

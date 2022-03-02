@@ -1,7 +1,7 @@
-const int NO_INDEX = -1;
-
 namespace Lab1
 {
+
+	const int NO_INDEX = -1;
 
 	template <class T>
 	class List
@@ -29,6 +29,7 @@ namespace Lab1
 		List(const List<T>&); //конструктор копирования
 		~List() { delete array; }; //деструктор
 		int GetSize() const { return size; }//опрос размера списка
+		bool ChangeCapacity(int newCapacity);
 		void Clear(); //очистка списка
 		bool IsEmpty() const { return size == 0; } //проверка списка на пустоту
 		bool Contains(T value); //опрос наличия заданного значения
@@ -49,6 +50,7 @@ namespace Lab1
 		int endIndex = NO_INDEX;
 		int firstFreeIndex = 0;
 		Node* array;
+		void InitializeArray(Node* nodes, int size);
 		void Remove(Node& node);
 		Node& GetFreeNode(int& index);
 		bool LinkAsPrevAndNext(int index1, int index2);
@@ -60,8 +62,6 @@ namespace Lab1
 				prevIndex(node.prevIndex), nextIndex(node.nextIndex), value(node.value), index(index) {}
 			Node() { }
 			void ResetIndexes() { prevIndex = nextIndex = NO_INDEX; }
-			bool operator == (Node node);
-			bool operator != (Node node);
 			int prevIndex = NO_INDEX;
 			int index = NO_INDEX;
 			int nextIndex = NO_INDEX;

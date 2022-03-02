@@ -105,6 +105,21 @@ namespace UnitTest
 			Assert::IsTrue(4 == list[1]);
 		}
 
+		TEST_METHOD(TestChangeCapacity1)
+		{
+			Lab1::List<int> list(20);
+			list.Add(1);
+			list.Add(2);
+			list.Add(3);
+			list.Add(4);
+
+			list.ChangeCapacity(3);
+			Assert::IsTrue(1 == list[0]);
+			Assert::IsTrue(2 == list[1]);
+			Assert::IsTrue(3 == list[2]);
+			Assert::IsTrue(4 == list[3]);
+		}
+
 
 	};
 }
