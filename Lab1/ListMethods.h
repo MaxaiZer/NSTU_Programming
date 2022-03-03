@@ -80,7 +80,7 @@ inline bool Lab1::List<T>::ChangeCapacity(int newCapacity)
 }
 
 template<class T>
-inline bool List<T>::Contains(T value) const
+inline bool List<T>::Contains(T value)
 {
 	int nodeIndex, pos;
 	return FindNodeByValue(nodeIndex, pos, value);
@@ -152,7 +152,7 @@ inline bool List<T>::Add(T value, int pos)
 }
 
 template<class T>
-inline int List<T>::GetPos(T value) const
+inline int List<T>::GetPos(T value)
 {
 	int nodeIndex, pos;
 	if (FindNodeByValue(nodeIndex, pos, value) == false)
@@ -229,13 +229,14 @@ inline bool List<T>::LinkAsPrevAndNext(int index1, int index2)
 }
 
 template<class T>
-inline bool List<T>::FindNodeByPos(int &index, int pos) const
+inline bool List<T>::FindNodeByPos(int &index, int pos)
 {
 	if (pos < 0 || pos >= size)
 		return false;
 
 	bool reverseBypass = false;
 	int curPos = 0;
+	readedElements = 1;
 	int curIndex = startIndex;
 
 	if (pos > size / 2)
@@ -257,6 +258,7 @@ inline bool List<T>::FindNodeByPos(int &index, int pos) const
 			curIndex = array[curIndex].nextIndex;
 			curPos++;
 		}
+		readedElements++;
 	}
 
 	index = curIndex;
@@ -264,13 +266,14 @@ inline bool List<T>::FindNodeByPos(int &index, int pos) const
 }
 
 template<class T>
-inline bool List<T>::FindNodeByValue(int &index, int& pos,T value) const
+inline bool List<T>::FindNodeByValue(int &index, int& pos,T value)
 {
 	if (IsEmpty())
 		return false;
 
 	int curIndex = startIndex;
 	int curPos = 0;
+	readedElements = 1;
 	do
 	{
 		if (array[curIndex].value == value)
@@ -280,6 +283,7 @@ inline bool List<T>::FindNodeByValue(int &index, int& pos,T value) const
 			return true;
 		}
 		curPos++;
+		readedElements++;
 		curIndex = array[curIndex].nextIndex;
 	} while (curIndex != NO_INDEX);
 
@@ -340,19 +344,6 @@ inline void List<T>::Print()
 	std::cout << "}";
 	std::cout << std::endl;
 }
-
-/*
-template<class T>
-inline void Lab1::List<T>::PrintArray()
-{
-	std::cout << "------------" << std::endl;
-
-	for (int i = 0; i < capacity; i++)
-		printf("Value:%d PrevIndex:%d Index:%d NextIndex:%d\n", array[i].value, array[i].prevIndex, array[i].index, array[i].nextIndex);
-
-	std::cout << "------------" << std::endl;
-}
-*/
 
 template<class T>
 inline Lab1::List<T>::Iterator::Iterator(List<T>& list, int pos): list(list)

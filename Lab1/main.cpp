@@ -36,12 +36,12 @@ void handleInput(int input, Lab1::List<int>& list, Lab1::List<int>::Iterator& it
 		cout << "Метод вернул " << list.Add(inputValue("Значение")) << endl;
 		break;
 	case 3:
-		cout << "Метод вернул " << list.Add(inputValue("Значение"), inputValue("Индекс")) << endl;
+		cout << "Метод вернул " << list.Add(inputValue("Значение"), inputValue("Номер")) << endl;
 		break;
 	case 4:
 	{
 		int e;
-		try { e = list[inputValue("Индекс")];  }
+		try { e = list[inputValue("Номер")];  }
 		catch (const char* ex)
 		{
 			cout << ex << endl;
@@ -66,7 +66,7 @@ void handleInput(int input, Lab1::List<int>& list, Lab1::List<int>::Iterator& it
 		cout << "Метод вернул " << list.RemoveByValue(inputValue("Значение")) << endl;
 		break;
 	case 7:
-		cout << "Метод вернул " << list.RemoveByPos(inputValue("Индекс")) << endl;
+		cout << "Метод вернул " << list.RemoveByPos(inputValue("Номер")) << endl;
 		break;
 	case 8:
 		cout << "Размер: " << list.GetSize() << endl;
@@ -82,22 +82,25 @@ void handleInput(int input, Lab1::List<int>& list, Lab1::List<int>::Iterator& it
 		cout << "Метод вернул " << list.ChangeCapacity(inputValue("Новая ёмкость")) << endl;
 		break;
 	case 11:
-		iter = list.Begin();
+		cout << list.GetReadedElemetsCount() << endl;
 		break;
 	case 12:
-		cout << "Метод вернул " << iter++ << endl;
+		iter = list.Begin();
 		break;
 	case 13:
-		cout << "Метод вернул " << iter-- << endl;
+		cout << "Метод вернул " << iter++ << endl;
 		break;
 	case 14:
+		cout << "Метод вернул " << iter-- << endl;
+		break;
+	case 15:
 		try { cout << *iter << endl; }
 		catch (const char* ex)
 		{
 			cout << ex << endl;
 		}
 		break;
-	case 15:
+	case 16:
 		cout << (iter == list.End()) << endl;
 		break;
 	default:
@@ -114,22 +117,23 @@ int main()
 		"Вывести список", //0
 		"Очистить список", //1
 		"Добавить элемент", //2
-		"Добавить элемент с индексом", //3
-		"Получить элемент по индексу", //4
+		"Добавить элемент с номером", //3
+		"Получить элемент по номеру", //4
 		"Получить индекс по элементу", //5
 		"Удалить элемент по значению", //6
-		"Удалить элемент по индексу", //7
+		"Удалить элемент по номеру", //7
 		"Получить размер списка", //8
-		"Изменить элемент по индексу", //9
+		"Изменить элемент по номеру", //9
 		"Изменить ёмкость", //10
-		"Установить итератор на начало списка", //11
-		"Итератор: следующее значение", // 12
-		"Итератор: предыдущее значение", //13
-		"Разыменовать итератор", //14
-		"Равен ли итератор End()?" //15
+		"Количество просмотренных элементов", //11
+		"Установить итератор на начало списка", //12
+		"Итератор: следующее значение", // 13
+		"Итератор: предыдущее значение", //14
+		"Разыменовать итератор", //15
+		"Равен ли итератор End()?" //16
 	};
 
-	Lab1::List<int> list(4);
+	Lab1::List<int> list(5);
 	Lab1::List<int>::Iterator iter = list.Begin();
 	
 	printCommands(commands);
@@ -137,7 +141,6 @@ int main()
 	while (true)
 	{
 		handleInput(inputValue("Номер команды"), list, iter);
-		//list.PrintArray();
 	}
 
 }
