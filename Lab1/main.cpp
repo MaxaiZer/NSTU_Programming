@@ -121,6 +121,7 @@ int main()
 	while (true)
 	{
 		handleInput(inputValue("Номер команды"), list);
+		//list.PrintArray();
 	}
 
 }

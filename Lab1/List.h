@@ -14,6 +14,10 @@ namespace Lab1
 		public:
 			Iterator(List<T>& list, int index) : list(list) { current = &list.array[index]; }
 			T& operator *() { return current->value; }
+			Iterator& operator=(const Iterator& iter) {
+				list = iter.list; current = iter.current;
+				return *this;
+			};
 			bool operator++(int value);
 			bool operator--(int value);
 			bool operator == (Iterator iterator);
@@ -32,9 +36,9 @@ namespace Lab1
 		bool ChangeCapacity(int newCapacity);
 		void Clear(); //очистка списка
 		bool IsEmpty() const { return size == 0; } //проверка списка на пустоту
-		bool Contains(T value); //опрос наличия заданного значения
+		bool Contains(T value) const; //опрос наличия заданного значения
 		T& operator[] (const int index); //чтение/изменение значения с заданным номером в списке
-		int GetPos(T value); //получение позиции в списке для заданного значения
+		int GetPos(T value) const; //получение позиции в списке для заданного значения
 		bool Add(T value); //включение нового значения
 		bool Add(T value, int pos); //включение нового значения в позицию с заданным номером		
 		bool RemoveByValue(T value); //удаление заданного значения из списка
@@ -54,6 +58,8 @@ namespace Lab1
 		void InitializeArray(Node* nodes, int size);
 		void Remove(Node& node);
 		Node& GetFreeNode(int& index);
+		bool FindNodeByPos(int &index, int pos);
+		bool FindNodeByValue(int &index, int& pos, T value) const;
 		bool LinkAsPrevAndNext(int index1, int index2);
 
 		class Node
