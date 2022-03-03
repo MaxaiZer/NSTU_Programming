@@ -229,38 +229,37 @@ inline bool List<T>::LinkAsPrevAndNext(int index1, int index2)
 }
 
 template<class T>
-inline bool List<T>::FindNodeByPos(int &index, int pos)
+inline bool List<T>::FindNodeByPos(int &index, int pos) const
 {
 	if (pos < 0 || pos >= size)
 		return false;
 
 	bool reverseBypass = false;
-	int currentPos = 0;
-	Iterator iter = this->Begin();
+	int curPos = 0;
+	int curIndex = startIndex;
 
 	if (pos > size / 2)
 	{
-		iter = this->End();
-		//iter--;
-		currentPos = size - 1;
+		curIndex = endIndex;
+		curPos = size - 1;
 		reverseBypass = true;
 	}
 
-	while (currentPos != pos)
+	while (curPos != pos)
 	{
 		if (reverseBypass)
 		{
-			iter--;
-			currentPos--;
+			curIndex = array[curIndex].prevIndex;
+			curPos--;
 		}
 		else
 		{
-			iter++;
-			currentPos++;
+			curIndex = array[curIndex].nextIndex;
+			curPos++;
 		}
 	}
 
-	index = iter.current->index;
+	index = curIndex;
 	return true;
 }
 

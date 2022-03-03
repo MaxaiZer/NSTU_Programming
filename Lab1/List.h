@@ -58,7 +58,7 @@ namespace Lab1
 		void InitializeArray(Node* nodes, int size);
 		void Remove(Node& node);
 		Node& GetFreeNode(int& index);
-		bool FindNodeByPos(int &index, int pos);
+		bool FindNodeByPos(int &index, int pos) const;
 		bool FindNodeByValue(int &index, int& pos, T value) const;
 		bool LinkAsPrevAndNext(int index1, int index2);
 
