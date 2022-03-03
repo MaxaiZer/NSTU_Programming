@@ -12,10 +12,10 @@ namespace Lab1
 		class Iterator
 		{
 		public:
-			Iterator(List<T>& list, int index) : list(list) { current = &list.array[index]; }
-			T& operator *() { return current->value; }
+			Iterator(List<T>& list, int pos);
+			T& operator *();
 			Iterator& operator=(const Iterator& iter) {
-				list = iter.list; current = iter.current;
+				list = iter.list; current = iter.current; isInstalled = iter.isInstalled;
 				return *this;
 			};
 			bool operator++(int value);
@@ -24,7 +24,8 @@ namespace Lab1
 			bool operator != (Iterator iterator);
 		private:
 			List<T>& list;
-			Node* current;
+			Node* current = nullptr;
+			bool isInstalled = false;
 
 			friend class List;
 		};

@@ -121,5 +121,38 @@ namespace UnitTest
 			Assert::IsTrue(list2[1] != list1[1]);
 		}
 
+		TEST_METHOD(TestAll)
+		{
+			Lab1::List<int> list(20);
+			list.Add(1);
+			list.Add(2);
+			list.Add(3);
+			list.Add(4);
+			Assert::IsTrue(true == list.Contains(4));
+
+			list.RemoveByValue(3);
+
+			Assert::IsTrue(list[0] == 1);
+			Assert::IsTrue(list[1] == 2);
+			Assert::IsTrue(list[2] == 4);
+
+			list.RemoveByPos(1);
+
+			Assert::IsTrue(list[0] == 1);
+			Assert::IsTrue(list[1] == 4);
+
+			list.Add(5, 1);
+			list.Add(6, 0);
+			list.Add(7, 4);
+
+			Assert::IsTrue(list[0] == 6);
+			Assert::IsTrue(list[1] == 1);
+			Assert::IsTrue(list[2] == 5);
+			Assert::IsTrue(list[3] == 4);
+			Assert::IsTrue(list[4] == 7);
+
+			Assert::IsTrue(5 == list.GetSize());
+		}
+
 	};
 }

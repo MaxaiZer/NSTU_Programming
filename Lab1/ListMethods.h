@@ -311,14 +311,14 @@ inline bool List<T>::RemoveByPos(int pos)
 template<class T>
 inline typename List<T>::Iterator List<T>::Begin()
 {
-	Iterator iter(*this, this->startIndex);
+	Iterator iter(*this, 0);
 	return iter;
 }
 
 template<class T>
 inline  typename List<T>::Iterator List<T>::End()
 {
-	Iterator iter(*this, this->endIndex);
+	Iterator iter(*this, NO_INDEX);
 	return iter;
 }
 
@@ -355,10 +355,33 @@ inline void Lab1::List<T>::PrintArray()
 */
 
 template<class T>
+inline Lab1::List<T>::Iterator::Iterator(List<T>& list, int pos): list(list)
+{
+	int index;
+	if (list.FindNodeByPos(index, pos))
+	{
+		isInstalled = true;
+		current = &list.array[index];
+	}
+}
+
+template<class T>
+inline T& Lab1::List<T>::Iterator::operator*()
+{
+	if (isInstalled)
+		return current->value;
+	else
+		throw "Iterator is not installed";
+}
+
+template<class T>
 inline bool List<T>::Iterator::operator++(int)
 {
 	if (current->nextIndex == NO_INDEX)
+	{
+		*this = list.End();
 		return false;
+	}
 
 	current = &list.array[current->nextIndex];
 	return true;
@@ -377,11 +400,11 @@ inline bool List<T>::Iterator::operator--(int)
 template<class T>
 inline bool  List<T>::Iterator::operator==(List<T>::Iterator iterator)
 {
-	return this->current == iterator->current;
+	return this->current == iterator.current;
 }
 
 template<class T>
 inline bool  List<T>::Iterator::operator!=(List<T>::Iterator iterator)
 {
-	return this->current != iterator->current;
+	return this.current != iterator.current;
 }
