@@ -41,45 +41,6 @@ inline void List<T>::Clear()
 }
 
 template<class T>
-inline bool Lab1::List<T>::ChangeCapacity(int newCapacity)
-{
-	if (newCapacity <= 0 || capacity == newCapacity)
-		return false;
-
-	capacity = newCapacity;
-	if (size > capacity)
-		size = capacity;
-
-	Node* newArray = new Node[capacity];
-	InitializeArray(newArray, capacity);
-
-	Node node;
-
-	if (IsEmpty())
-		goto end;
-
-	node = array[startIndex];
-
-	for (int i = 0; i < size; i++, node = array[node.nextIndex])
-		newArray[i].value = node.value;
-
-	startIndex = 0;
-	endIndex = size - 1;
-
-	end:
-
-	delete array;
-	array = newArray;
-
-	for (int i = 0; i < size - 1; i++)
-		LinkAsPrevAndNext(i, i + 1);
-
-	firstFreeIndex = (size < capacity ? size : NO_INDEX);
-
-	return true;
-}
-
-template<class T>
 inline bool List<T>::Contains(T value)
 {
 	int nodeIndex, pos;
@@ -97,10 +58,10 @@ inline T& List<T>::operator[](const int pos)
 }
 
 template<class T>
-inline bool List<T>::Add(T value)
+inline void List<T>::Add(T value)
 {
 	if (size == capacity)
-		return false;
+		IncreaseArray();
 
 	int freeIndex;
 	Node& node = GetFreeNode(freeIndex);
@@ -114,7 +75,6 @@ inline bool List<T>::Add(T value)
 	endIndex = freeIndex;
 
 	size++;
-	return true;
 }
 
 template<class T>
@@ -226,6 +186,24 @@ inline bool List<T>::LinkAsPrevAndNext(int index1, int index2)
 	array[index1].nextIndex = index2;
 	array[index2].prevIndex = index1;
 	return true;
+}
+
+template<class T>
+inline void Lab1::List<T>::IncreaseArray()
+{
+	capacity++;
+
+	Node* newArray = new Node[capacity];
+	for (int i = 0; i < capacity - 1; i++)
+		newArray[i] = array[i];
+
+	if (firstFreeIndex != NO_INDEX)
+		array[firstFreeIndex].nextIndex = capacity - 1;
+
+	firstFreeIndex = capacity - 1;
+
+	delete array;
+	array = newArray;
 }
 
 template<class T>

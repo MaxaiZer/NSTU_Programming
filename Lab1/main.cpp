@@ -79,28 +79,25 @@ void handleInput(int input, Lab1::List<int>& list, Lab1::List<int>::Iterator& it
 		}
 		break;
 	case 10:
-		cout << "Метод вернул " << list.ChangeCapacity(inputValue("Новая ёмкость")) << endl;
-		break;
-	case 11:
 		cout << list.GetReadedElemetsCount() << endl;
 		break;
-	case 12:
+	case 11:
 		iter = list.Begin();
 		break;
-	case 13:
+	case 12:
 		cout << "Метод вернул " << iter++ << endl;
 		break;
-	case 14:
+	case 13:
 		cout << "Метод вернул " << iter-- << endl;
 		break;
-	case 15:
+	case 14:
 		try { cout << *iter << endl; }
 		catch (const char* ex)
 		{
 			cout << ex << endl;
 		}
 		break;
-	case 16:
+	case 15:
 		cout << (iter == list.End()) << endl;
 		break;
 	default:
@@ -124,13 +121,12 @@ int main()
 		"Удалить элемент по номеру", //7
 		"Получить размер списка", //8
 		"Изменить элемент по номеру", //9
-		"Изменить ёмкость", //10
-		"Количество просмотренных элементов", //11
-		"Установить итератор на начало списка", //12
-		"Итератор: следующее значение", // 13
-		"Итератор: предыдущее значение", //14
-		"Разыменовать итератор", //15
-		"Равен ли итератор End()?" //16
+		"Количество просмотренных элементов", //10
+		"Установить итератор на начало списка", //11
+		"Итератор: следующее значение", // 12
+		"Итератор: предыдущее значение", //13
+		"Разыменовать итератор", //14
+		"Равен ли итератор End()?" //15
 	};
 
 	Lab1::List<int> list(5);
