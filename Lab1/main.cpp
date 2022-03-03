@@ -33,7 +33,7 @@ void handleInput(int input, Lab1::List<int>& list, Lab1::List<int>::Iterator& it
 		list.Clear();
 		break;
 	case 2:
-		cout << "Метод вернул " << list.Add(inputValue("Значение")) << endl;
+		list.Add(inputValue("Значение"));
 		break;
 	case 3:
 		cout << "Метод вернул " << list.Add(inputValue("Значение"), inputValue("Номер")) << endl;
@@ -129,9 +129,9 @@ int main()
 		"Равен ли итератор End()?" //15
 	};
 
-	Lab1::List<int> list(5);
+	Lab1::List<int> list;
 	Lab1::List<int>::Iterator iter = list.Begin();
-	
+
 	printCommands(commands);
 
 	while (true)

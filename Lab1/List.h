@@ -23,14 +23,15 @@ namespace Lab1
 			bool operator == (Iterator iterator);
 			bool operator != (Iterator iterator);
 		private:
-			List<T>& list;
+			List<T>* list;
 			Node* current = nullptr;
 			bool isInstalled = false;
 
 			friend class List;
 		};
 
-		List(int capacity); //конструктор
+		List(): List(1) {} //конструктор по умолчанию
+		List(int capacity); //конструктор с параметром
 		List(const List<T>&); //конструктор копирования
 		~List() { delete array; }; //деструктор
 		int GetSize() const { return size; }//опрос размера списка
@@ -56,7 +57,7 @@ namespace Lab1
 		int endIndex = NO_INDEX;
 		int firstFreeIndex = 0;
 		Node* array;
-		void InitializeArray(Node* nodes, int size);
+		void CreateArrayWithFreeNodes(int capacity);
 		void Remove(Node& node);
 		Node& GetFreeNode(int& index);
 		bool FindNodeByPos(int &index, int pos);

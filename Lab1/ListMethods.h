@@ -4,22 +4,18 @@
 using namespace Lab1;
 
 template<class T>
-inline Lab1::List<T>::List(int capacity)
+inline List<T>::List(int capacity)
 {
-	array = new Node[capacity];
-	InitializeArray(array, capacity);
-	this->capacity = capacity;
+	CreateArrayWithFreeNodes(capacity);
 }
 
 template<class T>
 inline List<T>::List(const List<T>& list)
 {
+	CreateArrayWithFreeNodes(list.capacity);
+
 	if (list.IsEmpty())
 		return;
-
-	this->capacity = list.capacity;
-	array = new Node[capacity];
-	InitializeArray(array, capacity);
 
 	for (int i = 0, index = list.startIndex; i < list.size; i++)
 	{
@@ -80,11 +76,17 @@ inline void List<T>::Add(T value)
 template<class T>
 inline bool List<T>::Add(T value, int pos)
 {
-	if (size == capacity)
+	if (pos < 0 || pos > size)
 		return false;
 
+	if (size == capacity)
+		IncreaseArray();
+
 	if (pos == size)
-		return Add(value);
+	{
+		Add(value);
+		return true;
+	}
 
 	int nodeIndex;
 	if (FindNodeByPos(nodeIndex, pos) == false)
@@ -156,14 +158,16 @@ void List<T>::Remove(Node& node)
 }
 
 template<class T>
-inline void List<T>::InitializeArray(Node* nodes, int size)
+inline void List<T>::CreateArrayWithFreeNodes(int capacity)
 {
-	for (int i = 0; i < size - 1; i++)
+	this->capacity = capacity;
+	array = new Node[capacity];
+	for (int i = 0; i < capacity - 1; i++)
 	{
-		nodes[i].index = i;
-		nodes[i].nextIndex = i + 1;
+		array[i].index = i;
+		array[i].nextIndex = i + 1;
 	}
-	nodes[size - 1].index = size - 1;
+	array[capacity - 1].index = capacity - 1;
 }
 
 template<class T>
@@ -189,7 +193,7 @@ inline bool List<T>::LinkAsPrevAndNext(int index1, int index2)
 }
 
 template<class T>
-inline void Lab1::List<T>::IncreaseArray()
+inline void List<T>::IncreaseArray()
 {
 	capacity++;
 
@@ -324,8 +328,9 @@ inline void List<T>::Print()
 }
 
 template<class T>
-inline Lab1::List<T>::Iterator::Iterator(List<T>& list, int pos): list(list)
+inline List<T>::Iterator::Iterator(List<T>& list, int pos)
 {
+	this->list = &list;
 	int index;
 	if (list.FindNodeByPos(index, pos))
 	{
@@ -335,7 +340,7 @@ inline Lab1::List<T>::Iterator::Iterator(List<T>& list, int pos): list(list)
 }
 
 template<class T>
-inline T& Lab1::List<T>::Iterator::operator*()
+inline T& List<T>::Iterator::operator*()
 {
 	if (isInstalled)
 		return current->value;
@@ -346,34 +351,44 @@ inline T& Lab1::List<T>::Iterator::operator*()
 template<class T>
 inline bool List<T>::Iterator::operator++(int)
 {
+	if (isInstalled == false)
+		return false;
+
 	if (current->nextIndex == NO_INDEX)
 	{
-		*this = list.End();
+		*this = list->End();
 		return false;
 	}
 
-	current = &list.array[current->nextIndex];
+	current = &list->array[current->nextIndex];
 	return true;
 }
 
 template<class T>
 inline bool List<T>::Iterator::operator--(int)
 {
+	if (isInstalled == false)
+	{
+		Iterator iter(*list, list->size - 1);
+		*this = iter;
+		return isInstalled;
+	}
+
 	if (current->prevIndex == NO_INDEX)
 		return false;
 
-	current = &list.array[current->prevIndex];
+	current = &list->array[current->prevIndex];
 	return true;
 }
 
 template<class T>
 inline bool  List<T>::Iterator::operator==(List<T>::Iterator iterator)
 {
-	return this->current == iterator.current;
+	return current == iterator.current;
 }
 
 template<class T>
 inline bool  List<T>::Iterator::operator!=(List<T>::Iterator iterator)
 {
-	return this.current != iterator.current;
+	return current != iterator.current;
 }
