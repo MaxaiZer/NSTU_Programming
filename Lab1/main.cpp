@@ -2,12 +2,12 @@
 #include <vector>
 #include "list.h"
 
+const int ITERATORS_COUNT = 2;
+
 using namespace std;
 
 void printCommands(vector<string> commands)
 {
-	int index = 0;
-	
 	for (int i = 0; i < commands.size(); i++)
 	{
 		cout << i << " - " << commands[i] << endl;
@@ -22,7 +22,18 @@ int inputValue(string hintForUser)
 	return input;
 }
 
-void handleInput(int input, Lab1::List<int>& list, Lab1::List<int>::Iterator& iter)
+int inputIterNumber()
+{
+	int number = inputValue("Номер итератора");
+	while (0 > number || number >= ITERATORS_COUNT)
+	{
+		cout << "Неправильный номер" << endl;
+		number = inputValue("Номер итератора");
+	}
+	return number;
+}
+
+void handleInput(int input, Lab1::List<int>& list, Lab1::List<int>::Iterator iters[ITERATORS_COUNT])
 {
 	switch (input)
 	{
@@ -82,23 +93,29 @@ void handleInput(int input, Lab1::List<int>& list, Lab1::List<int>::Iterator& it
 		cout << list.GetReadedElementsCount() << endl;
 		break;
 	case 11:
-		iter = list.Begin();
+		iters[inputIterNumber()] = list.Begin();
 		break;
 	case 12:
-		cout << "Метод вернул " << iter++ << endl;
+		iters[inputIterNumber()] = list.End();
 		break;
 	case 13:
-		cout << "Метод вернул " << iter-- << endl;
+		cout << "Метод вернул " << iters[inputIterNumber()]++ << endl;
 		break;
 	case 14:
-		try { cout << *iter << endl; }
+		cout << "Метод вернул " << iters[inputIterNumber()]-- << endl;
+		break;
+	case 15:
+		try { cout << *iters[inputIterNumber()] << endl; }
 		catch (const char* ex)
 		{
 			cout << ex << endl;
 		}
 		break;
-	case 15:
-		cout << (iter == list.End()) << endl;
+	case 16:
+		cout << (iters[0] == iters[1]) << endl;
+		break;
+	case 17:
+		cout << (iters[inputIterNumber()] == list.End()) << endl;
 		break;
 	default:
 		cout << "Неправильный номер команды" << endl;
@@ -123,20 +140,22 @@ int main()
 		"Изменить элемент по номеру", //9
 		"Количество просмотренных элементов", //10
 		"Установить итератор на начало списка", //11
-		"Итератор: следующее значение", // 12
-		"Итератор: предыдущее значение", //13
-		"Разыменовать итератор", //14
-		"Равен ли итератор End()?" //15
+		"Установить итератор на конец списка", //12
+		"Итератор: следующее значение", // 13
+		"Итератор: предыдущее значение", //14
+		"Разыменовать итератор", //15
+		"Равны ли итераторы?", //16
+		"Равен ли итератор End()?" //17
 	};
 
 	Lab1::List<int> list;
-	Lab1::List<int>::Iterator iter = list.Begin();
+	Lab1::List<int>::Iterator iterators[ITERATORS_COUNT];
 
 	printCommands(commands);
 
 	while (true)
 	{
-		handleInput(inputValue("Номер команды"), list, iter);
+		handleInput(inputValue("Номер команды"), list, iterators);
 	}
 
 }

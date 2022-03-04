@@ -12,6 +12,7 @@ namespace Lab1
 		class Iterator
 		{
 		public:
+			Iterator() {};
 			Iterator(List<T>& list, int pos);
 			T& operator *();
 			Iterator& operator=(const Iterator& iter) {
