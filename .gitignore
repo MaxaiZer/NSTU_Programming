@@ -340,6 +340,6 @@ ASALocalRun/
 healthchecksdb
 
 UnitTest
-.Lab1.sln
-.Lab4sem.vcxproj
-.Lab4sem.vcxproj.filters
+*.sln
+*.vcxproj
+*.filters
