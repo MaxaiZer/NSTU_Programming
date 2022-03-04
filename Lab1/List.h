@@ -22,7 +22,7 @@ namespace Lab1
 			bool operator--(int value);
 			bool operator == (Iterator iterator);
 			bool operator != (Iterator iterator);
-		private:
+		protected:
 			List<T>* list;
 			Node* current = nullptr;
 			bool isInstalled = false;
@@ -46,7 +46,7 @@ namespace Lab1
 		bool RemoveByPos(int pos); //удаление значения из позиции с заданным номером
 		Iterator Begin(); //запрос прямого итератора begin()
 		Iterator End(); //запрос «неустановленного» прямого итератора end()
-		int GetReadedElemetsCount() const { return readedElements; } //запрос числа элементов списка, просмотренных предыдущей операцией
+		int GetReadedElementsCount() const { return readedElements; } //запрос числа элементов списка, просмотренных предыдущей операцией
 		void Print(); //вывод списка на экран
 
 	protected:
@@ -58,12 +58,12 @@ namespace Lab1
 		int firstFreeIndex = 0;
 		Node* array;
 		void CreateArrayWithFreeNodes(int capacity);
+		void IncreaseArray();
 		void Remove(Node& node);
 		Node& GetFreeNode(int& index);
 		bool FindNodeByPos(int &index, int pos);
 		bool FindNodeByValue(int &index, int& pos, T value);
-		bool LinkAsPrevAndNext(int index1, int index2);
-		void IncreaseArray();
+		bool LinkAsPrevAndNext(int index1, int index2);	
 
 		class Node
 		{

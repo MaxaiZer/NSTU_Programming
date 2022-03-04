@@ -79,7 +79,7 @@ void handleInput(int input, Lab1::List<int>& list, Lab1::List<int>::Iterator& it
 		}
 		break;
 	case 10:
-		cout << list.GetReadedElemetsCount() << endl;
+		cout << list.GetReadedElementsCount() << endl;
 		break;
 	case 11:
 		iter = list.Begin();
