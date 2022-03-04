@@ -69,7 +69,7 @@ namespace Lab1
 		{
 		public:
 			Node(const Node& node) :
-				prevIndex(node.prevIndex), nextIndex(node.nextIndex), value(node.value), index(index) {}
+				prevIndex(node.prevIndex), nextIndex(node.nextIndex), value(node.value), index(node.index) {}
 			Node() { }
 			void ResetIndexes() { prevIndex = nextIndex = NO_INDEX; }
 			int prevIndex = NO_INDEX;

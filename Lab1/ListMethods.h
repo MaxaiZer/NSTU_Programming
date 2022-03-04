@@ -12,21 +12,15 @@ inline List<T>::List(int capacity)
 template<class T>
 inline List<T>::List(const List<T>& list)
 {
-	CreateArrayWithFreeNodes(list.capacity);
+	this->capacity = list.capacity;
+	this->startIndex = list.startIndex;
+	this->endIndex = list.endIndex;
+	this->size = list.size;
+	this->firstFreeIndex = list.firstFreeIndex;
 
-	if (list.IsEmpty())
-		return;
-
-	for (int i = 0, index = list.startIndex; i < list.size; i++)
-	{
-		this->Add(list.array[index].value);
-		index = list.array[index].nextIndex;
-	}
-
-	startIndex = 0;
-	endIndex = size - 1;
-
-	firstFreeIndex = (size < capacity ? size : NO_INDEX);
+	array = new Node[capacity];
+	for (int i = 0; i < capacity; i++)
+		array[i] = list.array[i];
 }
 
 template<class T>
@@ -384,11 +378,11 @@ inline bool List<T>::Iterator::operator--(int)
 template<class T>
 inline bool  List<T>::Iterator::operator==(List<T>::Iterator iterator)
 {
-	return current == iterator.current;
+	return list == iterator.list && current == iterator.current;
 }
 
 template<class T>
 inline bool  List<T>::Iterator::operator!=(List<T>::Iterator iterator)
 {
-	return current != iterator.current;
+	return list != iterator.list || current != iterator.current;
 }
