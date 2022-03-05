@@ -14,7 +14,7 @@ namespace Lab2
 		public:
 			Iterator();
 			Iterator(BST& bst, Node& node);
-			T& operator *();
+			Data& operator *();
 			bool operator++(int value);
 			bool operator--(int value);
 			bool operator == (Iterator iterator);
@@ -40,18 +40,19 @@ namespace Lab2
 			friend class BST;
 		};
 
-		BST();
-		BST(const& BST bst);
-		~BST();
+		BST() {};
+		BST(const BST<Key, Data>& bst);
+		~BST() { Clear(); }
 		int GetSize() const { return size; }
 		void Clear();
 		bool IsEmpty() const { return size == 0; }
 		Data& operator[] (Key key);
 		bool Add(Key key, Data value);
 		bool Remove(Key key);
-		Lab1::List<Data> GetNodesList() const;
+		Lab1::List<Key> GetKeysList();
 		int GetReadedElementsCount() const { return readedElements; }
 		void Print();
+		void MergeWith();
 
 		Iterator Begin();
 		Iterator End();
@@ -61,7 +62,10 @@ namespace Lab2
 		int size = 0;
 		int readedElements = 0;
 		Node* root = nullptr;
-		bool FindNodeByKey(Node* resultParent, Node* resultNode, Key key);
+		void PrintLevels(Node* root, int level);
+		bool FindNodeByKey(Node** resultParent, Node** resultNode, Key key);
+		void TreeBypass(Node* root, Lab1::List<Node*>& list);
+		void GetNodesList(Lab1::List<Node*>& list);
 
 		class Node
 		{
