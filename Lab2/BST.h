@@ -52,7 +52,7 @@ namespace Lab2
 		Lab1::List<Key> GetKeysList();
 		int GetReadedElementsCount() const { return readedElements; }
 		void Print();
-		void MergeWith();
+		void MergeWith(const BST<Key,Data>& bst);
 
 		Iterator Begin();
 		Iterator End();
@@ -65,7 +65,12 @@ namespace Lab2
 		void PrintLevels(Node* root, int level);
 		bool FindNodeByKey(Node** resultParent, Node** resultNode, Key key);
 		void TreeBypass(Node* root, Lab1::List<Node*>& list);
-		void GetNodesList(Lab1::List<Node*>& list);
+		void GetNodesList(Lab1::List<Node*>& list) ;
+		Node* Join(Node* myRoot, Node* anotherRoot, int& readedElements);
+		void Remove(Node* node, Node* parent);
+		Node* InsertRoot(Node* root, Key key, Data value, bool& isInserted);
+		Node* RotateRight(Node* node);
+		Node* RotateLeft(Node* node);
 
 		class Node
 		{

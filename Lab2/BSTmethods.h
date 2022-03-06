@@ -1,11 +1,32 @@
 #pragma once 
 #include "BST.h"
+#include <stack>
 
 using namespace Lab2;
 
 template<class Key, class Data>
 inline BST<Key, Data>::BST(const BST<Key, Data>& bst)
 {
+	if (bst.IsEmpty())
+		return;
+
+	Node* node = bst.root;
+	std::stack<Node*> _stack;
+	_stack.push(node);
+
+	while (_stack.empty() == false)
+	{
+		node = _stack.top();
+		_stack.pop();
+
+		Add(node->key, node->value);
+
+		if (node->left != nullptr)
+			_stack.push(node->left);
+		if (node->right != nullptr)
+			_stack.push(node->right);
+
+	}
 }
 
 template<class Key, class Data>
@@ -28,7 +49,7 @@ inline void BST<Key, Data>::Clear()
 }
 
 template<class Key, class Data>
-inline Data& Lab2::BST<Key, Data>::operator[](Key key)
+inline Data& BST<Key, Data>::operator[](Key key)
 {
 	Node* parent = nullptr;
 	Node* node = nullptr;
@@ -81,20 +102,27 @@ inline bool BST<Key, Data>::Remove(Key key)
 	if (FindNodeByKey(&parent, &nodeToRemove, key) == false)
 		return false;
 
+	Remove(nodeToRemove, parent);
+	return true;
+}
+
+template<class Key, class Data>
+inline void BST<Key, Data>::Remove(Node* node, Node* parent)
+{
 	Node* replaceNode;
-	bool noLeft = nodeToRemove->left == nullptr;
-	bool noRight = nodeToRemove->right == nullptr;
+	bool noLeft = node->left == nullptr;
+	bool noRight = node->right == nullptr;
 
 	if (noLeft && noRight)
 		replaceNode = nullptr;
 	else if (noLeft)
-		replaceNode = nodeToRemove->right;
+		replaceNode = node->right;
 	else if (noRight)
-		replaceNode = nodeToRemove->left;
+		replaceNode = node->left;
 	else
 	{
-		parent = nodeToRemove;
-		Node* y = nodeToRemove->right;
+		parent = node;
+		Node* y = node->right;
 
 		readedElements++;
 		while (y->left != nullptr)
@@ -103,10 +131,10 @@ inline bool BST<Key, Data>::Remove(Key key)
 			y = y->left;
 			readedElements++;
 		}
-		nodeToRemove->key = y->key;
-		nodeToRemove->value = y->value;
+		node->key = y->key;
+		node->value = y->value;
 		replaceNode = y->right;
-		nodeToRemove = y;
+		node = y;
 	}
 
 
@@ -114,18 +142,68 @@ inline bool BST<Key, Data>::Remove(Key key)
 		this->root = replaceNode;
 	else
 	{
-		if (nodeToRemove->key < parent->key)
+		if (node->key < parent->key)
 			parent->left = replaceNode;
 		else
 			parent->right = replaceNode;
 	}
-	delete nodeToRemove;
+	delete node;
 	size--;
-	return true;
 }
 
 template<class Key, class Data>
-inline Lab1::List<Key> Lab2::BST<Key, Data>::GetKeysList()
+inline typename BST<Key, Data>::Node* BST<Key, Data>::InsertRoot(Node* curRoot, Key key, Data value, bool& isInserted)
+{
+	if (curRoot == nullptr)
+	{
+		isInserted = true;
+		return new Node(key, value);
+	}
+	if (key == curRoot->key)
+	{
+		isInserted = false;
+		return curRoot;
+	}
+	if (key < curRoot->key)
+	{
+		curRoot->left = InsertRoot(curRoot->left, key, value, isInserted);
+		return (isInserted ? RotateRight(curRoot) : curRoot);
+	}
+	else
+	{
+		curRoot->right = InsertRoot(curRoot->right, key, value, isInserted);
+		return (isInserted ? RotateLeft(curRoot) : curRoot);
+	}
+
+	return nullptr;
+}
+
+template<class Key, class Data>
+inline typename BST<Key, Data>::Node* BST<Key, Data>::RotateRight(Node* node)
+{
+	if (node == nullptr)
+		return nullptr;
+
+	Node* newNode = node->left;
+	node->left = newNode->right;
+	newNode->right = node;
+	return newNode;
+}
+
+template<class Key, class Data>
+inline typename BST<Key, Data>::Node* BST<Key, Data>::RotateLeft(Node* node)
+{
+	if (node == nullptr)
+		return nullptr;
+
+	Node* newNode = node->right;
+	node->right = newNode->left;
+	newNode->left = node;
+	return newNode;
+}
+
+template<class Key, class Data>
+inline Lab1::List<Key> BST<Key, Data>::GetKeysList()
 {
 	if (IsEmpty())
 		return Lab1::List<Key>();
@@ -139,10 +217,12 @@ inline Lab1::List<Key> Lab2::BST<Key, Data>::GetKeysList()
 	{
 		keys.Add((*iter)->key);
 	} while (iter++);
+
+	return keys;
 }
 
 template<class Key, class Data>
-inline void Lab2::BST<Key, Data>::GetNodesList(Lab1::List<BST::Node*>& list)
+inline void BST<Key, Data>::GetNodesList(Lab1::List<BST::Node*>& list)
 {
 	list.Clear();
 
@@ -165,8 +245,45 @@ template<class Key, class Data>
 inline void BST<Key, Data>::Print()
 {
 	PrintLevels(root, 0);
+	std::cout << std::endl;
 }
 
+template<class Key, class Data>
+inline void BST<Key, Data>::MergeWith(const BST<Key, Data>& bst)
+{
+	int _readedElements = 0;
+	Join(this->root, bst.root, _readedElements);
+	readedElements = _readedElements;
+}
+
+template<class Key, class Data>
+inline typename BST<Key,Data>::Node* BST<Key, Data>::Join(Node* myRoot, Node* anotherRoot, int& readedElements)
+{
+	if (myRoot == nullptr)
+		return anotherRoot;
+	if (anotherRoot == nullptr)
+		return root;
+
+	Node* left = myRoot->left;
+	Node* right = myRoot->right;
+
+	myRoot->left = nullptr;
+	myRoot->right = nullptr;
+
+	if (myRoot->key == anotherRoot->key)
+	{
+		Remove(myRoot, nullptr);
+		readedElements += this->readedElements;
+		return anotherRoot;
+	}
+
+	bool isInserted = false;
+	anotherRoot = InsertRoot(anotherRoot, myRoot->key, myRoot->value, isInserted);
+	anotherRoot->left = Join(left, anotherRoot->left, readedElements);
+	anotherRoot->right = Join(right, anotherRoot->right, readedElements);
+	
+	return anotherRoot;
+}
 
 template<class Key, class Data>
 inline void BST<Key, Data>::PrintLevels(Node* root, int level)
