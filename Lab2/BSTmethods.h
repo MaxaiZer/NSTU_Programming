@@ -41,7 +41,7 @@ inline void BST<Key, Data>::Clear()
 	typename Lab1::List<Node*>::Iterator iter = nodes.Begin();
 	do
 	{
-		delete *iter;
+			delete *iter;
 	} while (iter++);
 
 	size = 0;
@@ -152,33 +152,6 @@ inline void BST<Key, Data>::Remove(Node* node, Node* parent)
 }
 
 template<class Key, class Data>
-inline typename BST<Key, Data>::Node* BST<Key, Data>::InsertRoot(Node* curRoot, Key key, Data value, bool& isInserted)
-{
-	if (curRoot == nullptr)
-	{
-		isInserted = true;
-		return new Node(key, value);
-	}
-	if (key == curRoot->key)
-	{
-		isInserted = false;
-		return curRoot;
-	}
-	if (key < curRoot->key)
-	{
-		curRoot->left = InsertRoot(curRoot->left, key, value, isInserted);
-		return (isInserted ? RotateRight(curRoot) : curRoot);
-	}
-	else
-	{
-		curRoot->right = InsertRoot(curRoot->right, key, value, isInserted);
-		return (isInserted ? RotateLeft(curRoot) : curRoot);
-	}
-
-	return nullptr;
-}
-
-template<class Key, class Data>
 inline typename BST<Key, Data>::Node* BST<Key, Data>::RotateRight(Node* node)
 {
 	if (node == nullptr)
@@ -220,13 +193,12 @@ inline typename BST<Key, Data>::Node* BST<Key, Data>::GetParent(Node* root, Node
 	Node* parent;
 	if (node->key > root->key)
 	{
-		parent = GetParent(node->right, node);
+		parent = GetParent(root->right, node);
 		return (parent != nullptr ? parent : root);
 	}
 	else
 		return GetParent(root->left, node);
 }
-
 
 template<class Key, class Data>
 inline typename BST<Key, Data>::Node* BST<Key, Data>::GetNext(Node* node)
@@ -287,7 +259,10 @@ template<class Key, class Data>
 inline void BST<Key, Data>::MergeWith(const BST<Key, Data>& bst)
 {
 	int _readedElements = 0;
-	this->root = Join(this->root, bst.root, _readedElements);
+
+	BST<Key, Data>* bstCopy = new BST<Key,Data>(bst); //и куда это?
+
+	this->root = Join(this->root, bstCopy->root, _readedElements);
 	readedElements = _readedElements;
 }
 
@@ -297,7 +272,7 @@ inline typename BST<Key,Data>::Node* BST<Key, Data>::Join(Node* myRoot, Node* an
 	if (myRoot == nullptr)
 		return anotherRoot;
 	if (anotherRoot == nullptr)
-		return root;
+		return myRoot;
 
 	Node* left = myRoot->left;
 	Node* right = myRoot->right;
@@ -314,10 +289,40 @@ inline typename BST<Key,Data>::Node* BST<Key, Data>::Join(Node* myRoot, Node* an
 
 	bool isInserted = false;
 	anotherRoot = InsertRoot(anotherRoot, myRoot->key, myRoot->value, isInserted);
+	size++;
+
 	anotherRoot->left = Join(left, anotherRoot->left, readedElements);
+
 	anotherRoot->right = Join(right, anotherRoot->right, readedElements);
-	
+
 	return anotherRoot;
+}
+
+template<class Key, class Data>
+inline typename BST<Key, Data>::Node* BST<Key, Data>::InsertRoot(Node* curRoot, Key key, Data value, bool& isInserted)
+{
+	if (curRoot == nullptr)
+	{
+		isInserted = true;
+		return new Node(key, value);
+	}
+	if (key == curRoot->key)
+	{
+		isInserted = false;
+		return curRoot;
+	}
+	if (key < curRoot->key)
+	{
+		curRoot->left = InsertRoot(curRoot->left, key, value, isInserted);
+		return (isInserted ? RotateRight(curRoot) : curRoot);
+	}
+	else
+	{
+		curRoot->right = InsertRoot(curRoot->right, key, value, isInserted);
+		return (isInserted ? RotateLeft(curRoot) : curRoot);
+	}
+
+	return nullptr;
 }
 
 template<class Key, class Data>

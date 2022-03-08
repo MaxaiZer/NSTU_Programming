@@ -12,7 +12,7 @@ namespace Lab2
 		class Iterator
 		{
 		public:
-			Iterator();
+			Iterator() {};
 			Iterator(BST& bst) { this->bst = &bst;  }
 			Data& operator *();
 			bool operator++(int value);
@@ -29,7 +29,7 @@ namespace Lab2
 		class ReverseIterator : Iterator
 		{
 		public:
-			ReverseIterator();
+			ReverseIterator() {};
 			ReverseIterator(BST& bst, Node& node);
 			bool operator++(int value) { this->Iterator::operator--(value); }
 			bool operator--(int value) { this->Iterator::operator++(value); }
@@ -76,11 +76,17 @@ namespace Lab2
 		class Node
 		{
 		public:
+			Node() {};
 			Node(Key key, Data value) : key(key), value(value) {};
+			Node& operator=(const Node& node) { 
+				key = node.list; value = node.value;
+				left = node.left; right = node.right;
+				return *this;
+			};
 			Key key;
 			Data value;
-			Node* left;
-			Node* right;
+			Node* left = nullptr;
+			Node* right = nullptr;
 			Node* GetMaxInChild() {
 				if (this->right == nullptr)
 					return nullptr;
