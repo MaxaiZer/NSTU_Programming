@@ -69,14 +69,14 @@ namespace Lab1
 		class Node
 		{
 		public:
-			Node(const Node& node) :
+			Node() { } //конструктор по умолчанию
+			Node(const Node& node) : //конструктор копирования
 				prevIndex(node.prevIndex), nextIndex(node.nextIndex), value(node.value), index(node.index) {}
-			Node() { }
-			void ResetIndexes() { prevIndex = nextIndex = NO_INDEX; }
-			int prevIndex = NO_INDEX;
-			int index = NO_INDEX;
-			int nextIndex = NO_INDEX;
-			T value;
+			void ResetIndexes() { prevIndex = nextIndex = NO_INDEX; } //сброс индексов
+			int prevIndex = NO_INDEX; //индекс предыдущего элемента
+			int index = NO_INDEX; //собственный индекс 
+			int nextIndex = NO_INDEX; //индекс следующего элемента
+			T value; //значение
 		};
 
 	};
