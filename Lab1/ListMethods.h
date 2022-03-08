@@ -362,14 +362,13 @@ template<class T>
 inline bool List<T>::Iterator::operator--(int)
 {
 	if (isInstalled == false)
-	{
-		Iterator iter(*list, list->size - 1);
-		*this = iter;
-		return isInstalled;
-	}
+		return false;
 
 	if (current->prevIndex == NO_INDEX)
+	{
+		*this = list->End();
 		return false;
+	}
 
 	current = &list->array[current->prevIndex];
 	return true;
