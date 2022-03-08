@@ -365,30 +365,22 @@ template<class Key, class Data>
 inline bool BST<Key, Data>::Iterator::operator++(int value)
 {
 	current = bst->GetNext(current);
-	if (current == nullptr)
-	{
-		isInstalled == false;
-		return false;
-	}
-	return true;
+
+	return current != nullptr;
 }
 
 template<class Key, class Data>
 inline bool BST<Key, Data>::Iterator::operator--(int value)
 {
 	current = bst->GetPrev(current);
-	if (current == nullptr)
-	{
-		isInstalled == false;
-		return false;
-	}
-	return true;
+
+	return current != nullptr;
 }
 
 template<class Key, class Data>
 inline Data& BST<Key, Data>::Iterator::operator*()
 {
-	if (isInstalled)
+	if (current != nullptr)
 		return current->value;
 	else
 		throw "Iterator is not installed";

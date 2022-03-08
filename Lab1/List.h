@@ -22,9 +22,9 @@ namespace Lab1
 			bool operator++(int value); //постфиксный инкремент
 			bool operator--(int value); //постфиксный декремент
 			bool operator == (Iterator iterator); //операторы сравнения
-			bool operator != (Iterator iterator);
+			bool operator != (Iterator iterator) { return !(*this == iterator); }
 		protected:
-			List<T>* list; //указатель на список
+			List<T>* list = nullptr; //указатель на список
 			Node* current = nullptr; //указатель на текущий элемент списка
 
 			friend class List;

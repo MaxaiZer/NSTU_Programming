@@ -17,12 +17,11 @@ namespace Lab2
 			Data& operator *();
 			bool operator++(int value);
 			bool operator--(int value);
-			bool operator == (Iterator iterator) { return bst == iterator.bst; }
-			bool operator != (Iterator iterator) { return bst != iterator.bst; }
+			bool operator == (Iterator iterator);
+			bool operator != (Iterator iterator) { return !(*this == iterator); }
 		protected:
-			bool isInstalled = false;
-			BST* bst;
-			Node* current;
+			BST* bst = nullptr;
+			Node* current = nullptr;
 
 			friend class BST;
 		};
@@ -34,8 +33,6 @@ namespace Lab2
 			ReverseIterator(BST& bst, Node& node);
 			bool operator++(int value) { this->Iterator::operator--(value); }
 			bool operator--(int value) { this->Iterator::operator++(value); }
-			bool operator == (ReverseIterator iterator);
-			bool operator != (ReverseIterator iterator);
 
 			friend class BST;
 		};
