@@ -227,6 +227,16 @@ int main()
 	};
 
 	Lab2::BST<int, int> bst;
+	bst.Add(1, 1);
+	bst.Add(2, 1);
+	bst.Add(3, 1);
+
+	Lab2::BST<int, int>::Iterator iter(bst);
+
+	do
+	{
+		cout << *iter;
+	} while (iter++);
 
 	printCommands(commands);
 

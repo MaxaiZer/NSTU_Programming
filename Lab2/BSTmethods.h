@@ -41,7 +41,7 @@ inline void BST<Key, Data>::Clear()
 	typename Lab1::List<Node*>::Iterator iter = nodes.Begin();
 	do
 	{
-		delete* iter;
+		delete *iter;
 	} while (iter++);
 
 	size = 0;
@@ -203,6 +203,41 @@ inline typename BST<Key, Data>::Node* BST<Key, Data>::RotateLeft(Node* node)
 }
 
 template<class Key, class Data>
+inline typename BST<Key,Data>::Node* BST<Key, Data>::GetPrev(Node* node)
+{
+	if (node->left != nullptr)
+		return node->left->GetMaxInChild();
+
+	return GetParent(this->root, node);
+}
+
+template<class Key, class Data>
+inline typename BST<Key, Data>::Node* BST<Key, Data>::GetParent(Node* root, Node* node)
+{
+	if (node == nullptr)
+		return nullptr;
+
+	Node* parent;
+	if (node->key > root->key)
+	{
+		parent = GetParent(node->right, node);
+		return (parent != nullptr ? parent : root);
+	}
+	else
+		return GetParent(root->left, node);
+}
+
+
+template<class Key, class Data>
+inline typename BST<Key, Data>::Node* BST<Key, Data>::GetNext(Node* node)
+{
+	if (node->right != nullptr)
+		return node->right->GetMinInChild();
+
+	return GetParent(this->root, node);
+}
+
+template<class Key, class Data>
 inline Lab1::List<Key> BST<Key, Data>::GetKeysList()
 {
 	if (IsEmpty())
@@ -252,7 +287,7 @@ template<class Key, class Data>
 inline void BST<Key, Data>::MergeWith(const BST<Key, Data>& bst)
 {
 	int _readedElements = 0;
-	Join(this->root, bst.root, _readedElements);
+	this->root = Join(this->root, bst.root, _readedElements);
 	readedElements = _readedElements;
 }
 
@@ -324,4 +359,37 @@ inline bool BST<Key, Data>::FindNodeByKey(Node** resultParent, Node** resultNode
 	*resultNode = curRoot;
 	*resultParent = curParent;
 	return true;
+}
+
+template<class Key, class Data>
+inline bool BST<Key, Data>::Iterator::operator++(int value)
+{
+	current = bst->GetNext(current);
+	if (current == nullptr)
+	{
+		isInstalled == false;
+		return false;
+	}
+	return true;
+}
+
+template<class Key, class Data>
+inline bool BST<Key, Data>::Iterator::operator--(int value)
+{
+	current = bst->GetPrev(current);
+	if (current == nullptr)
+	{
+		isInstalled == false;
+		return false;
+	}
+	return true;
+}
+
+template<class Key, class Data>
+inline Data& BST<Key, Data>::Iterator::operator*()
+{
+	if (isInstalled)
+		return current->value;
+	else
+		throw "Iterator is not installed";
 }

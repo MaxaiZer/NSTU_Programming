@@ -13,12 +13,12 @@ namespace Lab2
 		{
 		public:
 			Iterator();
-			Iterator(BST& bst, Node& node);
+			Iterator(BST& bst) { this->bst = &bst;  }
 			Data& operator *();
 			bool operator++(int value);
 			bool operator--(int value);
-			bool operator == (Iterator iterator);
-			bool operator != (Iterator iterator);
+			bool operator == (Iterator iterator) { return bst == iterator.bst; }
+			bool operator != (Iterator iterator) { return bst != iterator.bst; }
 		protected:
 			bool isInstalled = false;
 			BST* bst;
@@ -71,6 +71,10 @@ namespace Lab2
 		Node* InsertRoot(Node* root, Key key, Data value, bool& isInserted);
 		Node* RotateRight(Node* node);
 		Node* RotateLeft(Node* node);
+		Node* GetParent(Node* root, Node* node);
+		Node* GetPrev(Node* node);
+		Node* GetNext(Node* node);
+
 
 		class Node
 		{
@@ -80,6 +84,26 @@ namespace Lab2
 			Data value;
 			Node* left;
 			Node* right;
+			Node* GetMaxInChild() {
+				if (this->right == nullptr)
+					return nullptr;
+
+				Node* max = this->right;
+				while (max != nullptr)
+					max = this->right;
+
+				return max;
+			}
+			Node* GetMinInChild() {
+				if (this->left == nullptr)
+					return nullptr;
+
+				Node* min = this->left;
+				while (min != nullptr)
+					min = this->left;
+
+				return min;
+			}
 		};
 
 		friend class Iterator;
