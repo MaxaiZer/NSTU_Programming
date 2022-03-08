@@ -96,25 +96,22 @@ void handleInput(int input, Lab1::List<int>& list, Lab1::List<int>::Iterator ite
 		iters[inputIterNumber()] = list.Begin();
 		break;
 	case 12:
-		iters[inputIterNumber()] = list.End();
-		break;
-	case 13:
 		cout << "Метод вернул " << iters[inputIterNumber()]++ << endl;
 		break;
-	case 14:
+	case 13:
 		cout << "Метод вернул " << iters[inputIterNumber()]-- << endl;
 		break;
-	case 15:
+	case 14:
 		try { cout << *iters[inputIterNumber()] << endl; }
 		catch (const char* ex)
 		{
 			cout << ex << endl;
 		}
 		break;
-	case 16:
+	case 15:
 		cout << (iters[0] == iters[1]) << endl;
 		break;
-	case 17:
+	case 16:
 		cout << (iters[inputIterNumber()] == list.End()) << endl;
 		break;
 	default:
@@ -140,12 +137,11 @@ int main()
 		"Изменить элемент по номеру", //9
 		"Количество просмотренных элементов", //10
 		"Установить итератор на начало списка", //11
-		"Установить итератор на конец списка", //12
-		"Итератор: следующее значение", // 13
-		"Итератор: предыдущее значение", //14
-		"Разыменовать итератор", //15
-		"Равны ли итераторы?", //16
-		"Равен ли итератор End()?" //17
+		"Итератор: следующее значение", // 12
+		"Итератор: предыдущее значение", //13
+		"Разыменовать итератор", //14
+		"Равны ли итераторы?", //15
+		"Равен ли итератор End()?" //16
 	};
 
 	Lab1::List<int> list;

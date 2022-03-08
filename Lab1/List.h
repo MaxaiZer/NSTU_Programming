@@ -16,7 +16,7 @@ namespace Lab1
 			Iterator(List<T>& list, int pos); //конструктор с параметрами
 			T& operator *(); //возвращает ссылку на элемент списка
 			Iterator& operator=(const Iterator& iter) { //оператор присваивания
-				list = iter.list; current = iter.current; isInstalled = iter.isInstalled;
+				list = iter.list; current = iter.current;
 				return *this;
 			};
 			bool operator++(int value); //постфиксный инкремент
@@ -26,7 +26,6 @@ namespace Lab1
 		protected:
 			List<T>* list; //указатель на список
 			Node* current = nullptr; //указатель на текущий элемент списка
-			bool isInstalled = false; //установлен ли итератор?
 
 			friend class List;
 		};

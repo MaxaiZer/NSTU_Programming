@@ -328,7 +328,6 @@ inline List<T>::Iterator::Iterator(List<T>& list, int pos)
 	int index;
 	if (list.FindNodeByPos(index, pos))
 	{
-		isInstalled = true;
 		current = &list.array[index];
 	}
 }
@@ -336,7 +335,7 @@ inline List<T>::Iterator::Iterator(List<T>& list, int pos)
 template<class T>
 inline T& List<T>::Iterator::operator*()
 {
-	if (isInstalled)
+	if (current != nullptr)
 		return current->value;
 	else
 		throw "Iterator is not installed";
@@ -345,7 +344,7 @@ inline T& List<T>::Iterator::operator*()
 template<class T>
 inline bool List<T>::Iterator::operator++(int)
 {
-	if (isInstalled == false)
+	if (current == nullptr)
 		return false;
 
 	if (current->nextIndex == NO_INDEX)
@@ -361,7 +360,7 @@ inline bool List<T>::Iterator::operator++(int)
 template<class T>
 inline bool List<T>::Iterator::operator--(int)
 {
-	if (isInstalled == false)
+	if (current == nullptr)
 		return false;
 
 	if (current->prevIndex == NO_INDEX)
