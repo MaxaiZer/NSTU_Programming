@@ -144,7 +144,11 @@ int inputValue(string hintForUser)
 {
 	cout << hintForUser << ":";
 	int input;
-	cin >> input;
+	while (!(cin >> input))
+	{
+		cin.clear(); //игнорируем всё, кроме цифр
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	}
 	return input;
 }
 
@@ -230,7 +234,7 @@ int main()
 	Lab2::BST<int, int>::Iterator iter(bst);
 
 	printCommands(commands);
-
+	
 	while (true)
 	{
 		handleInput(inputValue("Номер команды"), bst);
