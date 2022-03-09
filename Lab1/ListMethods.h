@@ -274,7 +274,7 @@ inline bool List<T>::RemoveByValue(T value)
 		return false;
 
 	Remove(array[nodeIndex]);
-	return false;
+	return true;
 }
 
 template<class T>
