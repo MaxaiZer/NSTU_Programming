@@ -376,8 +376,5 @@ inline bool List<T>::Iterator::operator--(int)
 template<class T>
 inline bool  List<T>::Iterator::operator==(List<T>::Iterator iterator)
 {
-	if (current == nullptr)
-		return false;
-
 	return list == iterator.list && current == iterator.current;
 }
