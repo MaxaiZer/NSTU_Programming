@@ -44,6 +44,14 @@ inline void BST<Key, Data>::Clear()
 			delete *iter;
 	} while (iter++);
 
+	
+	for (int i=0; i < copiedTrees.GetSize(); i++)
+	{
+		copiedTrees[i]->size = 0; //т.к. её элементы уже удалены из памяти
+		delete copiedTrees[i]; // чтобы тут не выбросило исключение "нарушение доступа для чтения" из деструктора дерева
+	}
+
+
 	size = 0;
 	root = nullptr;
 }
@@ -196,6 +204,8 @@ inline typename BST<Key, Data>::Node* BST<Key, Data>::GetParent(Node* root, Node
 		parent = GetParent(root->right, node);
 		return (parent != nullptr ? parent : root);
 	}
+	else if (node->key == root->key)
+		return nullptr;
 	else
 		return GetParent(root->left, node);
 }
@@ -204,9 +214,20 @@ template<class Key, class Data>
 inline typename BST<Key, Data>::Node* BST<Key, Data>::GetNext(Node* node)
 {
 	if (node->right != nullptr)
-		return node->right->GetMinInChild();
+	{
+		Node* min = node->right->GetMinInChild();
+		return (min == nullptr ? node->right : min);
+	}
 
-	return GetParent(this->root, node);
+	Node* parent = node;
+	do
+	{
+		parent = GetParent(this->root, parent);
+		if (parent == nullptr)
+			break;
+	} while (parent->key < node->key);
+
+	return parent;
 }
 
 template<class Key, class Data>
@@ -260,10 +281,55 @@ inline void BST<Key, Data>::MergeWith(const BST<Key, Data>& bst)
 {
 	int _readedElements = 0;
 
-	BST<Key, Data>* bstCopy = new BST<Key,Data>(bst); //и куда это?
+	BST<Key, Data>* bstCopy = new BST<Key,Data>(bst); 
+	copiedTrees.Add(bstCopy);
 
 	this->root = Join(this->root, bstCopy->root, _readedElements);
 	readedElements = _readedElements;
+}
+
+template<class Key, class Data>
+inline  typename BST<Key, Data>::Iterator BST<Key, Data>::Begin()
+{
+	Node* min;
+	if (root == nullptr)
+		min = nullptr;
+	else
+	{
+		min = root->GetMinInChild();
+		min = (min == nullptr ? root : min);
+	}
+	Iterator iter(*this, min);
+	return iter;
+}
+
+template<class Key, class Data>
+inline  typename BST<Key, Data>::Iterator BST<Key, Data>::End()
+{
+	Iterator iter(*this, nullptr);
+	return iter;
+}
+
+template<class Key, class Data>
+inline  typename BST<Key, Data>::ReverseIterator BST<Key, Data>::Rbegin()
+{
+	Node* max;
+	if (root == nullptr)
+		max = nullptr;
+	else
+	{
+		max = root->GetMaxInChild();
+		max = (max == nullptr ? root : max);
+	}
+	ReverseIterator iter(*this, max);
+	return iter;
+}
+
+template<class Key, class Data>
+inline  typename BST<Key, Data>::ReverseIterator BST<Key, Data>::Rend()
+{
+	ReverseIterator iter(*this, nullptr);
+	return iter;
 }
 
 template<class Key, class Data>
@@ -389,4 +455,10 @@ inline Data& BST<Key, Data>::Iterator::operator*()
 		return current->value;
 	else
 		throw "Iterator is not installed";
+}
+
+template<class Key, class Data>
+inline bool BST<Key, Data>::Iterator::operator==(Iterator iterator)
+{
+	return bst == iterator.bst && current == iterator.current;
 }

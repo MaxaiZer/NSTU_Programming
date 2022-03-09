@@ -231,7 +231,7 @@ int main()
 	};
 
 	Lab2::BST<int, int> bst;
-	Lab2::BST<int, int>::Iterator iter(bst);
+	Lab2::BST<int, int>::Iterator iter;
 
 	printCommands(commands);
 	

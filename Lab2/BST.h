@@ -13,7 +13,7 @@ namespace Lab2
 		{
 		public:
 			Iterator() {};
-			Iterator(BST& bst) { this->bst = &bst;  }
+			Iterator(BST& bst, Node* node) { this->bst = &bst; current = node; }
 			Data& operator *();
 			bool operator++(int value);
 			bool operator--(int value);
@@ -26,13 +26,13 @@ namespace Lab2
 			friend class BST;
 		};
 
-		class ReverseIterator : Iterator
+		class ReverseIterator : public Iterator
 		{
 		public:
 			ReverseIterator() {};
-			ReverseIterator(BST& bst, Node& node);
-			bool operator++(int value) { this->Iterator::operator--(value); }
-			bool operator--(int value) { this->Iterator::operator++(value); }
+			ReverseIterator(BST& bst, Node* node) : Iterator(bst, node) {};
+			bool operator++(int value) { return this->Iterator::operator--(value); }
+			bool operator--(int value) { return this->Iterator::operator++(value); }
 
 			friend class BST;
 		};
@@ -59,6 +59,7 @@ namespace Lab2
 		int size = 0;
 		int readedElements = 0;
 		Node* root = nullptr;
+		Lab1::List <BST<Key, Data>*> copiedTrees;
 		void PrintLevels(Node* root, int level);
 		bool FindNodeByKey(Node** resultParent, Node** resultNode, Key key);
 		void TreeBypass(Node* root, Lab1::List<Node*>& list);
@@ -92,8 +93,8 @@ namespace Lab2
 					return nullptr;
 
 				Node* max = this->right;
-				while (max != nullptr)
-					max = this->right;
+				while (max->right != nullptr)
+					max = max->right;
 
 				return max;
 			}
@@ -102,8 +103,8 @@ namespace Lab2
 					return nullptr;
 
 				Node* min = this->left;
-				while (min != nullptr)
-					min = this->left;
+				while (min->left != nullptr)
+					min = min->left;
 
 				return min;
 			}
