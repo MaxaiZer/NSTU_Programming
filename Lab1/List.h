@@ -1,7 +1,7 @@
 namespace Lab1
 {
 
-	const int NO_INDEX = -1;
+	const int NO_INDEX = -1; //значение, если индекса не существует
 
 	template <class T>
 	class List

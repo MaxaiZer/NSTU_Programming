@@ -3,6 +3,8 @@
 
 using namespace Lab1;
 
+//публичные методы списка
+
 template<class T>
 inline List<T>::List(int capacity)
 {
@@ -112,158 +114,9 @@ inline int List<T>::GetPos(T value)
 {
 	int nodeIndex, pos;
 	if (FindNodeByValue(nodeIndex, pos, value) == false)
-		throw "Didn't find value";
+		throw "Wrong value";
 
 	return pos;
-}
-
-template<class T>
-void List<T>::Remove(Node& node)
-{
-	int prevIndex = node.prevIndex, nextIndex = node.nextIndex;
-
-	if (size == 1)
-	{
-		this->startIndex = endIndex = NO_INDEX;
-		goto addNodeToFree;
-	}
-
-	if (prevIndex != NO_INDEX && nextIndex != NO_INDEX)
-	{
-		LinkAsPrevAndNext(prevIndex, nextIndex);
-	}
-	else if (prevIndex == NO_INDEX)
-	{
-		this->startIndex = nextIndex;
-		array[nextIndex].prevIndex = NO_INDEX;		
-	}
-	else if (nextIndex == NO_INDEX)
-	{
-		this->endIndex = prevIndex;
-		array[prevIndex].nextIndex = NO_INDEX;
-	}
-
-	addNodeToFree:
-
-	node.ResetIndexes();
-	node.nextIndex = this->firstFreeIndex;
-	firstFreeIndex = node.index;
-	size--;
-}
-
-template<class T>
-inline void List<T>::CreateArrayWithFreeNodes(int capacity)
-{
-	this->capacity = capacity;
-	array = new Node[capacity];
-	for (int i = 0; i < capacity - 1; i++)
-	{
-		array[i].index = i;
-		array[i].nextIndex = i + 1;
-	}
-	array[capacity - 1].index = capacity - 1;
-}
-
-template<class T>
-inline typename List<T>::Node& List<T>::GetFreeNode(int &index)
-{
-	index = firstFreeIndex;
-	Node& freeNode = array[firstFreeIndex];
-	firstFreeIndex = array[firstFreeIndex].nextIndex;
-	freeNode.ResetIndexes();
-
-	return freeNode;
-}
-
-template<class T>
-inline bool List<T>::LinkAsPrevAndNext(int index1, int index2)
-{
-	if (index1 < 0 || index1 >= capacity || index2 < 0 || index2 >= capacity)
-		return false;
-
-	array[index1].nextIndex = index2;
-	array[index2].prevIndex = index1;
-	return true;
-}
-
-template<class T>
-inline void List<T>::IncreaseArray()
-{
-	capacity++;
-
-	Node* newArray = new Node[capacity];
-	for (int i = 0; i < capacity - 1; i++)
-		newArray[i] = array[i];
-
-	if (firstFreeIndex != NO_INDEX)
-		array[firstFreeIndex].nextIndex = capacity - 1;
-
-	firstFreeIndex = capacity - 1;
-
-	delete array;
-	array = newArray;
-}
-
-template<class T>
-inline bool List<T>::FindNodeByPos(int &index, int pos)
-{
-	if (pos < 0 || pos >= size)
-		return false;
-
-	bool reverseBypass = false;
-	int curPos = 0;
-	readedElements = 1;
-	int curIndex = startIndex;
-
-	if (pos > size / 2)
-	{
-		curIndex = endIndex;
-		curPos = size - 1;
-		reverseBypass = true;
-	}
-
-	while (curPos != pos)
-	{
-		if (reverseBypass)
-		{
-			curIndex = array[curIndex].prevIndex;
-			curPos--;
-		}
-		else
-		{
-			curIndex = array[curIndex].nextIndex;
-			curPos++;
-		}
-		readedElements++;
-	}
-
-	index = curIndex;
-	return true;
-}
-
-template<class T>
-inline bool List<T>::FindNodeByValue(int &index, int& pos,T value)
-{
-	if (IsEmpty())
-		return false;
-
-	int curIndex = startIndex;
-	int curPos = 0;
-	readedElements = 1;
-	do
-	{
-		if (array[curIndex].value == value)
-		{
-			index = curIndex;
-			pos = curPos;
-			return true;
-		}
-		curPos++;
-		readedElements++;
-		curIndex = array[curIndex].nextIndex;
-	} while (curIndex != NO_INDEX);
-
-	return false;
 }
 
 template<class T>
@@ -320,6 +173,159 @@ inline void List<T>::Print()
 	std::cout << "}";
 	std::cout << std::endl;
 }
+
+//приватные методы списка
+
+template<class T>
+inline void List<T>::CreateArrayWithFreeNodes(int capacity)
+{
+	this->capacity = capacity;
+	array = new Node[capacity];
+	for (int i = 0; i < capacity - 1; i++)
+	{
+		array[i].index = i;
+		array[i].nextIndex = i + 1; //свободные элементы (в данном случае все) образуют односвязный список
+	}
+	array[capacity - 1].index = capacity - 1;
+}
+
+template<class T>
+inline void List<T>::IncreaseArray()
+{
+	capacity++;
+
+	Node* newArray = new Node[capacity];
+	for (int i = 0; i < capacity - 1; i++)
+		newArray[i] = array[i];
+
+	if (firstFreeIndex != NO_INDEX)
+		array[firstFreeIndex].nextIndex = capacity - 1;
+
+	firstFreeIndex = capacity - 1;
+
+	delete array;
+	array = newArray;
+}
+
+template<class T>
+void List<T>::Remove(Node& node)
+{
+	int prevIndex = node.prevIndex, nextIndex = node.nextIndex;
+
+	if (size == 1)
+	{
+		this->startIndex = endIndex = NO_INDEX;
+		goto addNodeToFree;
+	}
+
+	if (prevIndex != NO_INDEX && nextIndex != NO_INDEX)
+	{
+		LinkAsPrevAndNext(prevIndex, nextIndex);
+	}
+	else if (prevIndex == NO_INDEX)
+	{
+		this->startIndex = nextIndex;
+		array[nextIndex].prevIndex = NO_INDEX;
+	}
+	else if (nextIndex == NO_INDEX)
+	{
+		this->endIndex = prevIndex;
+		array[prevIndex].nextIndex = NO_INDEX;
+	}
+
+addNodeToFree:
+
+	node.ResetIndexes();
+	node.nextIndex = this->firstFreeIndex;
+	firstFreeIndex = node.index;
+	size--;
+}
+
+template<class T>
+inline typename List<T>::Node& List<T>::GetFreeNode(int& index)
+{
+	index = firstFreeIndex;
+	Node& freeNode = array[firstFreeIndex];
+	firstFreeIndex = array[firstFreeIndex].nextIndex;
+	freeNode.ResetIndexes();
+
+	return freeNode;
+}
+
+template<class T>
+inline bool List<T>::LinkAsPrevAndNext(int index1, int index2)
+{
+	if (index1 < 0 || index1 >= capacity || index2 < 0 || index2 >= capacity)
+		return false;
+
+	array[index1].nextIndex = index2;
+	array[index2].prevIndex = index1;
+	return true;
+}
+
+template<class T>
+inline bool List<T>::FindNodeByPos(int& index, int pos)
+{
+	if (pos < 0 || pos >= size)
+		return false;
+
+	bool reverseBypass = false;
+	int curPos = 0;
+	readedElements = 1;
+	int curIndex = startIndex;
+
+	if (pos > size / 2)
+	{
+		curIndex = endIndex;
+		curPos = size - 1;
+		reverseBypass = true;
+	}
+
+	while (curPos != pos)
+	{
+		if (reverseBypass)
+		{
+			curIndex = array[curIndex].prevIndex;
+			curPos--;
+		}
+		else
+		{
+			curIndex = array[curIndex].nextIndex;
+			curPos++;
+		}
+		readedElements++;
+	}
+
+	index = curIndex;
+	return true;
+}
+
+template<class T>
+inline bool List<T>::FindNodeByValue(int& index, int& pos, T value)
+{
+	if (IsEmpty())
+		return false;
+
+	int curIndex = startIndex;
+	int curPos = 0;
+	readedElements = 0;
+	do
+	{
+		readedElements++;
+		if (array[curIndex].value == value)
+		{
+			index = curIndex;
+			pos = curPos;
+			return true;
+		}
+		curPos++;
+		curIndex = array[curIndex].nextIndex;
+	} while (curIndex != NO_INDEX);
+
+	return false;
+}
+
+//методы итератора
 
 template<class T>
 inline List<T>::Iterator::Iterator(List<T>& list, int pos)
