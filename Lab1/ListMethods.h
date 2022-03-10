@@ -364,10 +364,7 @@ inline bool List<T>::Iterator::operator--(int)
 		return false;
 
 	if (current->prevIndex == NO_INDEX)
-	{
-		*this = list->End();
 		return false;
-	}
 
 	current = &list->array[current->prevIndex];
 	return true;
