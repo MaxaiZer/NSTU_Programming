@@ -17,8 +17,8 @@ namespace Lab2
 			Data& operator *();
 			bool operator++(int value);
 			bool operator--(int value);
-			bool operator == (Iterator iterator);
-			bool operator != (Iterator iterator) { return !(*this == iterator); }
+			bool operator == (Iterator iter) { return bst == iter.bst && current == iter.current; }
+			bool operator != (Iterator iter) { return !(*this == iter); }
 		protected:
 			BST* bst = nullptr;
 			Node* current = nullptr;
@@ -26,13 +26,19 @@ namespace Lab2
 			friend class BST;
 		};
 
-		class ReverseIterator : public Iterator
+		class ReverseIterator
 		{
 		public:
 			ReverseIterator() {};
-			ReverseIterator(BST& bst, Node* node) : Iterator(bst, node) {};
-			bool operator++(int value) { return this->Iterator::operator--(value); }
-			bool operator--(int value) { return this->Iterator::operator++(value); }
+			ReverseIterator(BST& bst, Node* node) { this->bst = &bst; current = node; }
+			Data& operator *();
+			bool operator++(int value);
+			bool operator--(int value);
+			bool operator == (ReverseIterator iter) { return bst == iter.bst && current == iter.current; }
+			bool operator != (ReverseIterator iter) { return !(*this == iter); }
+		protected:
+			BST* bst = nullptr;
+			Node* current = nullptr;
 
 			friend class BST;
 		};
@@ -46,7 +52,7 @@ namespace Lab2
 		Data& operator[] (Key key);
 		bool Add(Key key, Data value);
 		bool Remove(Key key);
-		Lab1::List<Key> GetKeysList();
+		Lab1::List<Key> GetKeysList() const;
 		int GetReadedElementsCount() const { return readedElements; }
 		void Print();
 		void MergeWith(const BST<Key,Data>& bst);
@@ -60,18 +66,18 @@ namespace Lab2
 		int readedElements = 0;
 		Node* root = nullptr;
 		Lab1::List <BST<Key, Data>*> copiedTrees;
+		const enum BypassCode { L, T, R };
+
 		void PrintLevels(Node* root, int level);
 		bool FindNodeByKey(Node** resultParent, Node** resultNode, Key key);
-		void TreeBypass(Node* root, Lab1::List<Node*>& list);
-		void GetNodesList(Lab1::List<Node*>& list) ;
-		Node* Join(Node* myRoot, Node* anotherRoot, int& readedElements);
+		void TreeBypass(Node* root, Lab1::List<Node*>& list, BypassCode codes[3]) const;
 		void Remove(Node* node, Node* parent);
-		Node* InsertRoot(Node* root, Key key, Data value, bool& isInserted);
 		Node* RotateRight(Node* node);
 		Node* RotateLeft(Node* node);
 		Node* GetParent(Node* root, Node* node);
 		Node* GetPrev(Node* node);
 		Node* GetNext(Node* node);
+		void CreateFromSortedArray(Node** array, Node* currentNode, int l, int r);
 
 
 		class Node
