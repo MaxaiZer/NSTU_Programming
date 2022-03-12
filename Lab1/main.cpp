@@ -87,7 +87,7 @@ void handleInput(int input, Lab1::List<int>& list, Lab1::List<int>::Iterator ite
 		cout << "Размер: " << list.GetSize() << endl;
 		break;
 	case 9:
-		try { list[inputValue("Индекс")] = inputValue("Значение"); }
+		try { list[inputValue("Номер")] = inputValue("Значение"); }
 		catch (const char* ex)
 		{
 			cout << ex << endl;
