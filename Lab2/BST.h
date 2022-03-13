@@ -65,7 +65,6 @@ namespace Lab2
 		int size = 0;
 		int readedElements = 0;
 		Node* root = nullptr;
-		Lab1::List <BST<Key, Data>*> copiedTrees;
 		const enum BypassCode { L, T, R };
 
 		void PrintLevels(Node* root, int level);

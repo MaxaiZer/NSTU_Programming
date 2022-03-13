@@ -132,12 +132,19 @@ void testOrdinaryTree(int size)
 	delete[] keys;
 } 
 
-void printCommands(vector<string> commands)
+void printCommands()
 {
-	for (int i = 0; i < commands.size(); i++)
-	{
-		cout << i << " - " << commands[i] << endl;
-	}
+	cout << "0 - Вывести дерево" << endl;
+	cout <<	"1 - Очистить дерево" << endl; 
+	cout << "2 - Добавить элемент" << endl; 
+	cout << "3 - Получить элемент по ключу" << endl;
+	cout << "4 - Изменить элемент по ключу" << endl;
+	cout << "5 - Удалить элемент по ключу" << endl; 
+	cout << "6 - Получить размер дерева" << endl; 
+	cout << "7 - Количество просмотренных элементов" << endl; 
+	cout << "8 - Вывести список ключей (L -> R -> t)" << endl;
+	cout << "9 - Тест трудоёмкости случайного дерева" << endl; 
+	cout << "10 - Тест трудоёмкости вырожденного дерева" << endl;
 }
 
 int inputValue(string hintForUser)
@@ -215,25 +222,11 @@ void handleInput(int input, Lab2::BST<int,int>& bst)
 int main()
 {
 	setlocale(LC_ALL, "Russian");
-	vector<string> commands =
-	{
-		"Вывести дерево", //0
-		"Очистить дерево", //1
-		"Добавить элемент", //2
-		"Получить элемент по ключу", //3
-		"Изменить элемент по ключу", //4
-		"Удалить элемент по ключу", //5
-		"Получить размер дерева", //6
-		"Количество просмотренных элементов", //7
-		"Вывести список ключей (L -> R -> t)", //8
-		"Тест трудоёмкости случайного дерева", //9
-		"Тест трудоёмкости вырожденного дерева" //10
-	};
 
 	Lab2::BST<int, int> bst;
 	Lab2::BST<int, int>::Iterator iter;
 
-	printCommands(commands);
+	printCommands();
 	
 	while (true)
 	{

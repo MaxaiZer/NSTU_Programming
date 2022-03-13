@@ -47,14 +47,6 @@ inline void BST<Key, Data>::Clear()
 			delete *iter;
 	} while (iter++);
 
-	
-	for (int i=0; i < copiedTrees.GetSize(); i++)
-	{
-		copiedTrees[i]->size = 0; //т.к. её элементы уже удалены из памяти
-		delete copiedTrees[i]; // чтобы тут не выбросило исключение "нарушение доступа для чтения" из деструктора дерева
-	}
-
-
 	size = 0;
 	root = nullptr;
 }
@@ -151,18 +143,19 @@ inline void BST<Key, Data>::MergeWith(const BST<Key, Data>& bst)
 	if (bst.IsEmpty())
 		return;
 
-	BypassCode codes[3] = { L, T, R };
 	BST<Key, Data> myCopy(*this);
 	Clear();
+
 	Lab1::List<Node*> nodes1(bst.size);
 	Lab1::List<Node*> nodes2(myCopy.size);
 
+	BypassCode codes[3] = { L, T, R };
 	bst.TreeBypass(bst.root, nodes1, codes);
 	myCopy.TreeBypass(myCopy.root, nodes2, codes);
 
 	Node** sortedArray = new Node*[nodes1.GetSize() + nodes2.GetSize()];
 	int sortedArraySize = 0;
-	int _readedElements = nodes1.GetSize() + nodes2.GetSize();
+	int _readedElements = myCopy.GetReadedElementsCount() + nodes1.GetSize() + nodes2.GetSize();
 
 	//добавляем в sortedArray только уникальные ключи из nodes1 и nodes2
 	while (nodes1.GetSize() + nodes2.GetSize() != 0)
@@ -198,6 +191,7 @@ inline void BST<Key, Data>::MergeWith(const BST<Key, Data>& bst)
 
 	readedElements = _readedElements;
 
+	delete sortedArray;
 }
 
 template<class Key, class Data>
