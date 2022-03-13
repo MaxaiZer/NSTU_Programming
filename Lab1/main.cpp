@@ -1,17 +1,29 @@
 ﻿#include <iostream>
-#include <vector>
 #include "list.h"
 
 const int ITERATORS_COUNT = 2;
 
 using namespace std;
 
-void printCommands(vector<string> commands)
+void printCommands()
 {
-	for (int i = 0; i < commands.size(); i++)
-	{
-		cout << i << " - " << commands[i] << endl;
-	}
+	cout << "0 - Вывести список" << endl;
+	cout << "1 - Очистить список" << endl;
+	cout << "2 - Добавить элемент" << endl;
+	cout << "3 - Добавить элемент с номером" << endl;
+	cout << "4 - Получить элемент по номеру" << endl;
+	cout << "5 - Получить номер по элементу" << endl;
+	cout << "6 - Удалить элемент по значению" << endl;
+	cout << "7 - Удалить элемент по номеру" << endl;
+	cout << "8 - Получить размер списка" << endl;
+	cout << "9 - Изменить элемент по номеру" << endl;
+	cout << "10 - Количество просмотренных элементов" << endl;
+	cout << "11 - Установить итератор на начало списка" << endl;
+	cout << "12 - Итератор: следующее значение" << endl;
+	cout << "13 - Итератор: предыдущее значение" << endl;
+	cout << "14 - Разыменовать итератор" << endl;
+	cout << "15 - Равны ли итераторы?" << endl;
+	cout << "16 - Равен ли итератор End()?" << endl;
 }
 
 int inputValue(string hintForUser)
@@ -127,31 +139,11 @@ void handleInput(int input, Lab1::List<int>& list, Lab1::List<int>::Iterator ite
 int main()
 {
 	setlocale(LC_ALL, "Russian");
-	vector<string> commands =
-	{ 
-		"Вывести список", //0
-		"Очистить список", //1
-		"Добавить элемент", //2
-		"Добавить элемент с номером", //3
-		"Получить элемент по номеру", //4
-		"Получить номер по элементу", //5
-		"Удалить элемент по значению", //6
-		"Удалить элемент по номеру", //7
-		"Получить размер списка", //8
-		"Изменить элемент по номеру", //9
-		"Количество просмотренных элементов", //10
-		"Установить итератор на начало списка", //11
-		"Итератор: следующее значение", // 12
-		"Итератор: предыдущее значение", //13
-		"Разыменовать итератор", //14
-		"Равны ли итераторы?", //15
-		"Равен ли итератор End()?" //16
-	};
 
 	Lab1::List<int> list;
 	Lab1::List<int>::Iterator iterators[ITERATORS_COUNT];
 
-	printCommands(commands);
+	printCommands();
 
 	while (true)
 	{
