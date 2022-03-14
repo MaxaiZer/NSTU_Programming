@@ -12,23 +12,7 @@ inline BST<Key, Data>::BST(const BST<Key, Data>& bst)
 	if (bst.IsEmpty())
 		return;
 
-	Node* node = bst.root;
-	std::stack<Node*> _stack;
-	_stack.push(node);
-
-	while (_stack.empty() == false)
-	{
-		node = _stack.top();
-		_stack.pop();
-
-		Add(node->key, node->value);
-
-		if (node->left != nullptr)
-			_stack.push(node->left);
-		if (node->right != nullptr)
-			_stack.push(node->right);
-
-	}
+	BypassNodesWithStack(bst.root, BypassMode::AddToTree);
 }
 
 template<class Key, class Data>
@@ -37,18 +21,9 @@ inline void BST<Key, Data>::Clear()
 	if (IsEmpty())
 		return;
 
-	Lab1::List<Node*> nodes(this->size);
-	BypassCode codes[] = { L, T, R };
-	TreeBypass(this->root, nodes, codes);
-
-	typename Lab1::List<Node*>::Iterator iter = nodes.Begin();
-	do
-	{
-			delete *iter;
-	} while (iter++);
-
 	size = 0;
-	root = nullptr;
+
+	BypassNodesWithStack(this->root, BypassMode::RemoveFromTree);
 }
 
 template<class Key, class Data>
@@ -116,15 +91,15 @@ inline Lab1::List<Key> BST<Key, Data>::GetKeysList() const
 		return Lab1::List<Key>();
 
 	Lab1::List<Key> keys(this->size);
-	Lab1::List<Node*> nodes(this->size);
+	Lab1::List<Node> nodes(this->size);
 
 	BypassCode variant8Codes[] = { L, R, T };
-	TreeBypass(this->root, nodes, variant8Codes);
+	AddNodesToList(this->root, nodes, variant8Codes);
 
-	typename Lab1::List<Node*>::Iterator iter = nodes.Begin();
+	typename Lab1::List<Node>::Iterator iter = nodes.Begin();
 	do
 	{
-		keys.Add((*iter)->key);
+		keys.Add((*iter).key);
 	} while (iter++);
 
 	return keys;
@@ -143,55 +118,46 @@ inline void BST<Key, Data>::MergeWith(const BST<Key, Data>& bst)
 	if (bst.IsEmpty())
 		return;
 
-	BST<Key, Data> myCopy(*this);
-	Clear();
-
-	Lab1::List<Node*> nodes1(bst.size);
-	Lab1::List<Node*> nodes2(myCopy.size);
+	Lab1::List<Node> nodes1(bst.size);
+	Lab1::List<Node> nodes2(this->size);
 
 	BypassCode codes[3] = { L, T, R };
-	bst.TreeBypass(bst.root, nodes1, codes);
-	myCopy.TreeBypass(myCopy.root, nodes2, codes);
 
-	Node** sortedArray = new Node*[nodes1.GetSize() + nodes2.GetSize()];
+	bst.AddNodesToList(bst.root, nodes1, codes);
+	this->AddNodesToList(this->root, nodes2, codes);
+	
+	Clear();
+
+	Node* sortedArray = new Node[nodes1.GetSize() + nodes2.GetSize()];
 	int sortedArraySize = 0;
-	int _readedElements = myCopy.GetReadedElementsCount() + nodes1.GetSize() + nodes2.GetSize();
+	int _readedElements = nodes1.GetSize() + nodes2.GetSize();
 
-	//добавл€ем в sortedArray только уникальные ключи из nodes1 и nodes2
+	//добавл€ем в sortedArray только уникальные ключи из nodes1 и nodes2 в пор€дке возрастани€
 	while (nodes1.GetSize() + nodes2.GetSize() != 0)
 	{
-		if (nodes1.GetSize() == 0)
+		if (nodes1.GetSize() == 0 || nodes1[0].key > nodes2[0].key)
 		{
 			sortedArray[sortedArraySize++] = nodes2[0];
 			nodes2.RemoveByPos(0);
 		}
-		else if (nodes2.GetSize() == 0)
+		else if (nodes2.GetSize() == 0 || nodes1[0].key < nodes2[0].key)
 		{
 			sortedArray[sortedArraySize++] = nodes1[0];
 			nodes1.RemoveByPos(0);
-		}
-		else if (nodes1[0]->key < nodes2[0]->key)
-		{
-			sortedArray[sortedArraySize++] = nodes1[0];
-			nodes1.RemoveByPos(0);
-		}
-		else if (nodes1[0]->key > nodes2[0]->key)
-		{
-			sortedArray[sortedArraySize++] = nodes2[0];
-			nodes2.RemoveByPos(0);
 		}
 		else
 			nodes1.RemoveByPos(0);
 	}
 
 	this->root = new Node();
+
 	_readedElements += sortedArraySize;
 	CreateFromSortedArray(sortedArray, this->root, 0, sortedArraySize - 1);
 	_readedElements += sortedArraySize;
 
 	readedElements = _readedElements;
 
-	delete sortedArray;
+	delete[] sortedArray;
 }
 
 template<class Key, class Data>
@@ -311,30 +277,6 @@ inline void BST<Key, Data>::Remove(Node* node, Node* parent)
 }
 
 template<class Key, class Data>
-inline typename BST<Key, Data>::Node* BST<Key, Data>::RotateRight(Node* node)
-{
-	if (node == nullptr)
-		return nullptr;
-
-	Node* newNode = node->left;
-	node->left = newNode->right;
-	newNode->right = node;
-	return newNode;
-}
-
-template<class Key, class Data>
-inline typename BST<Key, Data>::Node* BST<Key, Data>::RotateLeft(Node* node)
-{
-	if (node == nullptr)
-		return nullptr;
-
-	Node* newNode = node->right;
-	node->right = newNode->left;
-	newNode->left = node;
-	return newNode;
-}
-
-template<class Key, class Data>
 inline typename BST<Key, Data>::Node* BST<Key, Data>::GetPrev(Node* node)
 {
 	if (node->left != nullptr)
@@ -389,12 +331,12 @@ inline typename BST<Key, Data>::Node* BST<Key, Data>::GetNext(Node* node)
 }
 
 template<class Key, class Data>
-inline void Lab2::BST<Key, Data>::CreateFromSortedArray(Node** array, Node* currentNode, int l, int r)
+inline void Lab2::BST<Key, Data>::CreateFromSortedArray(Node* array, Node* currentNode, int l, int r)
 {
 	int mid = (l + r) / 2;
 
-	currentNode->key = array[mid]->key;
-	currentNode->value = array[mid]->value;
+	currentNode->key = array[mid].key;
+	currentNode->value = array[mid].value;
 	size++;
 
 	if (mid - 1 >= l)
@@ -407,6 +349,31 @@ inline void Lab2::BST<Key, Data>::CreateFromSortedArray(Node** array, Node* curr
 	{
 		currentNode->right = new Node();
 		CreateFromSortedArray(array, currentNode->right, mid + 1, r);
+	}
+}
+
+template<class Key, class Data>
+inline void Lab2::BST<Key, Data>::BypassNodesWithStack(Node* root, BypassMode mode)
+{
+	Node* node = root;
+	std::stack<Node*> _stack;
+	_stack.push(node);
+
+	while (_stack.empty() == false)
+	{
+		node = _stack.top();
+		_stack.pop();
+
+		if (mode == BypassMode::AddToTree)
+			Add(node->key, node->value);
+
+		if (node->left != nullptr)
+			_stack.push(node->left);
+		if (node->right != nullptr)
+			_stack.push(node->right);
+
+		if (mode == BypassMode::RemoveFromTree)
+			delete node;
 	}
 }
 
@@ -427,7 +394,7 @@ inline void BST<Key, Data>::PrintLevels(Node* root, int level)
 }
 
 template<class Key, class Data>
-inline void BST<Key, Data>::TreeBypass(Node* root, Lab1::List<Node*>& list, BypassCode codes[3]) const
+inline void BST<Key, Data>::AddNodesToList(Node* root, Lab1::List<Node>& list, BypassCode codes[3]) const
 {
 	if (root == nullptr)
 		return;
@@ -435,11 +402,11 @@ inline void BST<Key, Data>::TreeBypass(Node* root, Lab1::List<Node*>& list, Bypa
 	for (int i = 0; i < 3; i++)
 	{
 		if (codes[i] == BypassCode::L)
-			TreeBypass(root->left, list, codes);
+			AddNodesToList(root->left, list, codes);
 		else if (codes[i] == BypassCode::R)
-			TreeBypass(root->right, list, codes);
+			AddNodesToList(root->right, list, codes);
 		else if (codes[i] == BypassCode::T)
-			list.Add(root);
+			list.Add(*root);
 	}
 }
 

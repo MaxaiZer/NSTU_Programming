@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 #include "BST.h"
 
 using namespace std;

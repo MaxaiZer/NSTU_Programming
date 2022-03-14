@@ -66,17 +66,17 @@ namespace Lab2
 		int readedElements = 0;
 		Node* root = nullptr;
 		const enum BypassCode { L, T, R };
+		const enum BypassMode {AddToTree, RemoveFromTree};
 
 		void PrintLevels(Node* root, int level);
 		bool FindNodeByKey(Node** resultParent, Node** resultNode, Key key);
-		void TreeBypass(Node* root, Lab1::List<Node*>& list, BypassCode codes[3]) const;
+		void AddNodesToList(Node* root, Lab1::List<Node>& list, BypassCode codes[3]) const;
 		void Remove(Node* node, Node* parent);
-		Node* RotateRight(Node* node);
-		Node* RotateLeft(Node* node);
 		Node* GetParent(Node* root, Node* node);
 		Node* GetPrev(Node* node);
 		Node* GetNext(Node* node);
-		void CreateFromSortedArray(Node** array, Node* currentNode, int l, int r);
+		void CreateFromSortedArray(Node* array, Node* currentNode, int l, int r);
+		void BypassNodesWithStack(Node* root, BypassMode mode);
 
 
 		class Node
@@ -85,7 +85,7 @@ namespace Lab2
 			Node() {};
 			Node(Key key, Data value) : key(key), value(value) {};
 			Node& operator=(const Node& node) { 
-				key = node.list; value = node.value;
+				key = node.key; value = node.value;
 				left = node.left; right = node.right;
 				return *this;
 			};
