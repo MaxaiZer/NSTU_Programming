@@ -37,9 +37,9 @@ namespace Lab1
 		int GetSize() const { return size; }//возвращает размер списка
 		void Clear(); //очистка списка
 		bool IsEmpty() const { return size == 0; } //проверка списка на пустоту
-		bool Contains(T value); //опрос наличия заданного значения
+		bool Contains(T value) const; //опрос наличия заданного значения
 		T& operator[] (int index); //чтение/изменение значения с заданным номером в списке
-		int GetPos(T value); //получение позиции в списке для заданного значения
+		int GetPos(T value) const; //получение позиции в списке для заданного значения
 		void Add(T value); //включение нового значения
 		bool Add(T value, int pos); //включение нового значения в позицию с заданным номером		
 		bool RemoveByValue(T value); //удаление заданного значения из списка
@@ -52,7 +52,7 @@ namespace Lab1
 	protected:
 		int capacity; //ёмкость
 		int size = 0; //размер
-		int readedElements = 0; //количество просмотренных элементов последней операцией
+		mutable int readedElements = 0; //количество просмотренных элементов последней операцией
 		int startIndex = NO_INDEX; //индекс первого элемента
 		int endIndex = NO_INDEX; //индекс последнего элемента
 		int firstFreeIndex = 0; //индекс первого свободного места в массиве
@@ -61,8 +61,8 @@ namespace Lab1
 		void IncreaseArray(); //увеличение размера массива на 1
 		void Remove(Node& node); //удаление элемента
 		Node& GetFreeNode(int& index); //возвращает свободный элемент в массиве
-		bool FindNodeByPos(int &index, int pos); //поиск элемента по номеру
-		bool FindNodeByValue(int &index, int& pos, T value); //поиск элемента по значению
+		bool FindNodeByPos(int &index, int pos) const; //поиск элемента по номеру
+		bool FindNodeByValue(int &index, int& pos, T value) const; //поиск элемента по значению
 		bool LinkAsPrevAndNext(int index1, int index2);	 //связка элементов как предыдущий и последующий
 
 		class Node

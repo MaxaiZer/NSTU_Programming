@@ -33,7 +33,7 @@ inline void List<T>::Clear()
 }
 
 template<class T>
-inline bool List<T>::Contains(T value)
+inline bool List<T>::Contains(T value) const
 {
 	int nodeIndex, pos;
 	return FindNodeByValue(nodeIndex, pos, value);
@@ -110,7 +110,7 @@ inline bool List<T>::Add(T value, int pos)
 }
 
 template<class T>
-inline int List<T>::GetPos(T value)
+inline int List<T>::GetPos(T value) const
 {
 	int nodeIndex, pos;
 	if (FindNodeByValue(nodeIndex, pos, value) == false)
@@ -264,7 +264,7 @@ inline bool List<T>::LinkAsPrevAndNext(int index1, int index2)
 }
 
 template<class T>
-inline bool List<T>::FindNodeByPos(int& index, int pos)
+inline bool List<T>::FindNodeByPos(int& index, int pos) const
 {
 	if (pos < 0 || pos >= size)
 		return false;
@@ -301,7 +301,7 @@ inline bool List<T>::FindNodeByPos(int& index, int pos)
 }
 
 template<class T>
-inline bool List<T>::FindNodeByValue(int& index, int& pos, T value)
+inline bool List<T>::FindNodeByValue(int& index, int& pos, T value) const
 {
 	if (IsEmpty())
 		return false;
