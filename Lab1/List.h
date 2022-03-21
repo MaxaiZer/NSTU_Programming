@@ -33,7 +33,7 @@ namespace Lab1
 		List(): List(1) {} //конструктор по умолчанию
 		List(int capacity); //конструктор с параметром
 		List(const List<T>&); //конструктор копирования
-		~List() { delete array; }; //деструктор
+		~List() { delete[] array; }; //деструктор
 		int GetSize() const { return size; }//возвращает размер списка
 		void Clear(); //очистка списка
 		bool IsEmpty() const { return size == 0; } //проверка списка на пустоту
@@ -55,8 +55,8 @@ namespace Lab1
 		mutable int readedElements = 0; //количество просмотренных элементов последней операцией
 		int startIndex = NO_INDEX; //индекс первого элемента
 		int endIndex = NO_INDEX; //индекс последнего элемента
-		int firstFreeIndex = 0; //индекс первого свободного места в массиве
-		Node* array; //динамич. массив
+		int firstFreeIndex = NO_INDEX; //индекс первого свободного места в массиве
+		Node* array = nullptr; //динамич. массив
 		void CreateArrayWithFreeNodes(int capacity); //создание массива со свободными элементами в односвязном списке
 		void IncreaseArray(); //увеличение размера массива на 1
 		void Remove(Node& node); //удаление элемента

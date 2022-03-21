@@ -8,6 +8,10 @@ using namespace Lab1;
 template<class T>
 inline List<T>::List(int capacity)
 {
+	if (capacity <= 0)
+		throw "Invalid capacity";
+
+	firstFreeIndex = 0;
 	CreateArrayWithFreeNodes(capacity);
 }
 
@@ -28,8 +32,13 @@ inline List<T>::List(const List<T>& list)
 template<class T>
 inline void List<T>::Clear()
 {
-	while (size > 0)
-		Remove(array[startIndex]);
+	delete[] array;
+	size = firstFreeIndex = 0;
+	capacity = 1;
+
+	CreateArrayWithFreeNodes(capacity);
+
+	startIndex = endIndex = NO_INDEX;
 }
 
 template<class T>
@@ -203,7 +212,7 @@ inline void List<T>::IncreaseArray()
 
 	firstFreeIndex = capacity - 1;
 
-	delete array;
+	delete[] array;
 	array = newArray;
 }
 
