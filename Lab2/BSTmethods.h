@@ -93,8 +93,8 @@ inline Lab1::List<Key> BST<Key, Data>::GetKeysList() const
 	Lab1::List<Key> keys(this->size);
 	Lab1::List<Node> nodes(this->size);
 
-	BypassCode variant8Codes[] = { L, R, T };
-	AddNodesToList(this->root, nodes, variant8Codes);
+	BypassCode var8Codes[] = { L, R, T};
+	AddNodesToList(this->root, nodes, var8Codes);
 
 	typename Lab1::List<Node>::Iterator iter = nodes.Begin();
 	do
@@ -106,7 +106,7 @@ inline Lab1::List<Key> BST<Key, Data>::GetKeysList() const
 }
 
 template<class Key, class Data>
-inline void BST<Key, Data>::Print()
+inline void BST<Key, Data>::Print() const
 {
 	PrintLevels(root, 0);
 	std::cout << std::endl;
@@ -135,18 +135,29 @@ inline void BST<Key, Data>::MergeWith(const BST<Key, Data>& bst)
 	//добавляем в sortedArray только уникальные ключи из nodes1 и nodes2 в порядке возрастания
 	while (nodes1.GetSize() + nodes2.GetSize() != 0)
 	{
-		if (nodes1.GetSize() == 0 || nodes1[0].key > nodes2[0].key)
+		if (nodes1.IsEmpty())
+			goto addFromNodes1;
+		else if (nodes2.IsEmpty())
+			goto addFromNodes2;
+
+		if (nodes1[0].key == nodes2[0].key)
 		{
-			sortedArray[sortedArraySize++] = nodes2[0];
-			nodes2.RemoveByPos(0);
+			nodes1.RemoveByPos(0);
+			continue;
 		}
-		else if (nodes2.GetSize() == 0 || nodes1[0].key < nodes2[0].key)
+
+		if (nodes1[0].key < nodes2[0].key)
 		{
+			addFromNodes1:
 			sortedArray[sortedArraySize++] = nodes1[0];
 			nodes1.RemoveByPos(0);
 		}
 		else
-			nodes1.RemoveByPos(0);
+		{
+			addFromNodes2:
+			sortedArray[sortedArraySize++] = nodes2[0];
+			nodes2.RemoveByPos(0);
+		}
 	}
 
 	this->root = new Node();
@@ -176,13 +187,6 @@ inline  typename BST<Key, Data>::Iterator BST<Key, Data>::Begin()
 }
 
 template<class Key, class Data>
-inline  typename BST<Key, Data>::Iterator BST<Key, Data>::End()
-{
-	Iterator iter(*this, nullptr);
-	return iter;
-}
-
-template<class Key, class Data>
 inline  typename BST<Key, Data>::ReverseIterator BST<Key, Data>::Rbegin()
 {
 	Node* max;
@@ -197,17 +201,10 @@ inline  typename BST<Key, Data>::ReverseIterator BST<Key, Data>::Rbegin()
 	return iter;
 }
 
-template<class Key, class Data>
-inline  typename BST<Key, Data>::ReverseIterator BST<Key, Data>::Rend()
-{
-	ReverseIterator iter(*this, nullptr);
-	return iter;
-}
-
 //приватные методы дерева
 
 template<class Key, class Data>
-inline bool BST<Key, Data>::FindNodeByKey(Node** resultParent, Node** resultNode, Key key)
+inline bool BST<Key, Data>::FindNodeByKey(Node** resultParent, Node** resultNode, Key key) const
 {
 	if (IsEmpty())
 		return false;
@@ -277,7 +274,7 @@ inline void BST<Key, Data>::Remove(Node* node, Node* parent)
 }
 
 template<class Key, class Data>
-inline typename BST<Key, Data>::Node* BST<Key, Data>::GetPrev(Node* node)
+inline typename BST<Key, Data>::Node* BST<Key, Data>::GetPrev(Node* node) const
 {
 	if (node->left != nullptr)
 		return node->left->GetMaxInChild();
@@ -286,7 +283,7 @@ inline typename BST<Key, Data>::Node* BST<Key, Data>::GetPrev(Node* node)
 }
 
 template<class Key, class Data>
-inline typename BST<Key, Data>::Node* BST<Key, Data>::GetParent(Node* root, Node* node)
+inline typename BST<Key, Data>::Node* BST<Key, Data>::GetParent(Node* root, Node* node) const
 {
 	if (root == node)
 		return nullptr;
@@ -301,7 +298,7 @@ inline typename BST<Key, Data>::Node* BST<Key, Data>::GetParent(Node* root, Node
 }
 
 template<class Key, class Data>
-inline typename BST<Key, Data>::Node* BST<Key, Data>::GetNext(Node* node)
+inline typename BST<Key, Data>::Node* BST<Key, Data>::GetNext(Node* node) const
 {
 	if (node->right != nullptr)
 	{
@@ -364,21 +361,20 @@ inline void Lab2::BST<Key, Data>::BypassNodesWithStack(Node* root, BypassMode mo
 		node = _stack.top();
 		_stack.pop();
 
-		if (mode == BypassMode::AddToTree)
-			Add(node->key, node->value);
-
 		if (node->left != nullptr)
 			_stack.push(node->left);
 		if (node->right != nullptr)
 			_stack.push(node->right);
 
-		if (mode == BypassMode::RemoveFromTree)
+		if (mode == BypassMode::AddToTree)
+			Add(node->key, node->value);
+		else if (mode == BypassMode::RemoveFromTree)
 			delete node;
 	}
 }
 
 template<class Key, class Data>
-inline void BST<Key, Data>::PrintLevels(Node* root, int level)
+inline void BST<Key, Data>::PrintLevels(Node* root, int level) const
 {
 	if (root == nullptr)
 		return;
@@ -425,7 +421,7 @@ inline bool BST<Key, Data>::Iterator::operator--(int value)
 }
 
 template<class Key, class Data>
-inline Data& BST<Key, Data>::Iterator::operator*()
+inline Data& BST<Key, Data>::Iterator::operator*() const
 {
 	if (current != nullptr)
 		return current->value;
@@ -446,7 +442,7 @@ inline bool Lab2::BST<Key, Data>::ReverseIterator::operator--(int value)
 }
 
 template<class Key, class Data>
-inline Data& Lab2::BST<Key, Data>::ReverseIterator::operator*()
+inline Data& Lab2::BST<Key, Data>::ReverseIterator::operator*() const
 {
 	if (current != nullptr)
 		return current->value;

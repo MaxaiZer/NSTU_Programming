@@ -14,11 +14,11 @@ namespace Lab2
 		public:
 			Iterator() {};
 			Iterator(BST& bst, Node* node) { this->bst = &bst; current = node; }
-			Data& operator *();
+			Data& operator *() const;
 			bool operator++(int value);
 			bool operator--(int value);
-			bool operator == (Iterator iter) { return bst == iter.bst && current == iter.current; }
-			bool operator != (Iterator iter) { return !(*this == iter); }
+			bool operator == (Iterator iter) const { return bst == iter.bst && current == iter.current; }
+			bool operator != (Iterator iter) const { return !(*this == iter); }
 		protected:
 			BST* bst = nullptr;
 			Node* current = nullptr;
@@ -31,11 +31,11 @@ namespace Lab2
 		public:
 			ReverseIterator() {};
 			ReverseIterator(BST& bst, Node* node) { this->bst = &bst; current = node; }
-			Data& operator *();
+			Data& operator *() const;
 			bool operator++(int value);
 			bool operator--(int value);
-			bool operator == (ReverseIterator iter) { return bst == iter.bst && current == iter.current; }
-			bool operator != (ReverseIterator iter) { return !(*this == iter); }
+			bool operator == (ReverseIterator iter) const { return bst == iter.bst && current == iter.current; }
+			bool operator != (ReverseIterator iter) const { return !(*this == iter); }
 		protected:
 			BST* bst = nullptr;
 			Node* current = nullptr;
@@ -54,30 +54,31 @@ namespace Lab2
 		bool Remove(Key key);
 		Lab1::List<Key> GetKeysList() const;
 		int GetReadedElementsCount() const { return readedElements; }
-		void Print();
+		void Print() const;
 		void MergeWith(const BST<Key,Data>& bst);
 
 		Iterator Begin();
-		Iterator End();
+		Iterator End() { return Iterator(*this, nullptr); }
 		ReverseIterator Rbegin();
-		ReverseIterator Rend();
+		ReverseIterator Rend() { return ReverseIterator(*this, nullptr); }
 	protected:
 		int size = 0;
-		int readedElements = 0;
+		mutable int readedElements = 0;
 		Node* root = nullptr;
-		const enum BypassCode { L, T, R };
-		const enum BypassMode {AddToTree, RemoveFromTree};
 
-		void PrintLevels(Node* root, int level);
-		bool FindNodeByKey(Node** resultParent, Node** resultNode, Key key);
+		const enum BypassCode { L, T, R };
 		void AddNodesToList(Node* root, Lab1::List<Node>& list, BypassCode codes[3]) const;
-		void Remove(Node* node, Node* parent);
-		Node* GetParent(Node* root, Node* node);
-		Node* GetPrev(Node* node);
-		Node* GetNext(Node* node);
-		void CreateFromSortedArray(Node* array, Node* currentNode, int l, int r);
+
+		const enum BypassMode {AddToTree, RemoveFromTree};
 		void BypassNodesWithStack(Node* root, BypassMode mode);
 
+		void PrintLevels(Node* root, int level) const;
+		bool FindNodeByKey(Node** resultParent, Node** resultNode, Key key) const;
+		void Remove(Node* node, Node* parent);
+		Node* GetParent(Node* root, Node* node) const;
+		Node* GetPrev(Node* node) const;
+		Node* GetNext(Node* node) const;
+		void CreateFromSortedArray(Node* array, Node* currentNode, int l, int r);
 
 		class Node
 		{
@@ -93,7 +94,7 @@ namespace Lab2
 			Data value;
 			Node* left = nullptr;
 			Node* right = nullptr;
-			Node* GetMaxInChild() {
+			Node* GetMaxInChild() const {
 				if (this->right == nullptr)
 					return nullptr;
 
@@ -103,7 +104,7 @@ namespace Lab2
 
 				return max;
 			}
-			Node* GetMinInChild() {
+			Node* GetMinInChild() const {
 				if (this->left == nullptr)
 					return nullptr;
 

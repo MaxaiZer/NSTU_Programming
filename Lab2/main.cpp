@@ -55,6 +55,7 @@ void testTree(Lab2::BST<Key, Data>& tree, Key* keys, Key (*getMissKey)(int), Key
 	int operationsCount = size / 2;
 
 	for (int i = 0; i < operationsCount; i++)
+	{
 		if (i % probabilityOfMiss == 0) //miss
 		{
 			tree.Remove(getMissKey(size));
@@ -63,7 +64,8 @@ void testTree(Lab2::BST<Key, Data>& tree, Key* keys, Key (*getMissKey)(int), Key
 			tree.Add(keys[rand() % size], 1);
 			addReadedElements += tree.GetReadedElementsCount();
 
-			try {
+			try 
+			{
 				tree[getMissKey(size)];
 			}
 			catch (const char* ex) {}
@@ -80,12 +82,14 @@ void testTree(Lab2::BST<Key, Data>& tree, Key* keys, Key (*getMissKey)(int), Key
 			addReadedElements += tree.GetReadedElementsCount();
 
 			keys[index] = key;
-			try {
+			try 
+			{
 				tree[keys[rand() % size]];
 			}
 			catch (const char* ex) {}
 			searchReadedElements += tree.GetReadedElementsCount();
 		}
+	}
 
 	cout << "Размер дерева после теста:" << tree.GetSize() << endl;
 
