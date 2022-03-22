@@ -12,7 +12,7 @@ inline BST<Key, Data>::BST(const BST<Key, Data>& bst)
 	if (bst.IsEmpty())
 		return;
 
-	BypassNodesWithStack(bst.root, BypassMode::AddToTree);
+	BypassTree(bst.root, BypassMode::AddToTree);
 }
 
 template<class Key, class Data>
@@ -23,7 +23,7 @@ inline void BST<Key, Data>::Clear()
 
 	size = 0;
 
-	BypassNodesWithStack(this->root, BypassMode::RemoveFromTree);
+	BypassTree(this->root, BypassMode::DeleteFromMemory);
 }
 
 template<class Key, class Data>
@@ -52,15 +52,15 @@ inline bool BST<Key, Data>::Add(Key key, Data value)
 	Node* prevNode = nullptr;
 	while (curRoot != nullptr)
 	{
+		readedElements++;
+
 		prevNode = curRoot;
 		if (curRoot->key == key)
 			return false;
-		if (curRoot->key > key)
+		if (curRoot->key > key) //спуск в левое поддерево
 			curRoot = curRoot->left;
-		else
+		else					//спуск в правое поддерево
 			curRoot = curRoot->right;
-
-		readedElements++;
 	}
 
 	if (key < prevNode->key)
@@ -93,7 +93,7 @@ inline Lab1::List<Key> BST<Key, Data>::GetKeysList() const
 	Lab1::List<Key> keys(this->size);
 	Lab1::List<Node> nodes(this->size);
 
-	BypassCode var8Codes[] = { L, R, T};
+	BypassCode var8Codes[] = { BypassCode::L, BypassCode::R, BypassCode::T};
 	AddNodesToList(this->root, nodes, var8Codes);
 
 	typename Lab1::List<Node>::Iterator iter = nodes.Begin();
@@ -119,9 +119,11 @@ inline void BST<Key, Data>::MergeWith(const BST<Key, Data>& bst)
 		return;
 
 	Lab1::List<Node> nodes1(bst.size);
-	Lab1::List<Node> nodes2(this->size);
+	Lab1::List<Node> nodes2(this->size + 1); 
 
-	BypassCode codes[3] = { L, T, R };
+	BypassCode codes[3] = { BypassCode::L, BypassCode::T, BypassCode::R };
+
+	//добавляем ключи обоих деревьев в соотв. списки в порядке возрастания
 
 	bst.AddNodesToList(bst.root, nodes1, codes);
 	this->AddNodesToList(this->root, nodes2, codes);
@@ -136,9 +138,9 @@ inline void BST<Key, Data>::MergeWith(const BST<Key, Data>& bst)
 	while (nodes1.GetSize() + nodes2.GetSize() != 0)
 	{
 		if (nodes1.IsEmpty())
-			goto addFromNodes1;
-		else if (nodes2.IsEmpty())
 			goto addFromNodes2;
+		else if (nodes2.IsEmpty())
+			goto addFromNodes1;
 
 		if (nodes1[0].key == nodes2[0].key)
 		{
@@ -231,7 +233,7 @@ inline bool BST<Key, Data>::FindNodeByKey(Node** resultParent, Node** resultNode
 template<class Key, class Data>
 inline void BST<Key, Data>::Remove(Node* node, Node* parent)
 {
-	Node* replaceNode;
+	Node* replaceNode; //узел, который встанет на место удалённого
 	bool noLeft = node->left == nullptr;
 	bool noRight = node->right == nullptr;
 
@@ -242,21 +244,27 @@ inline void BST<Key, Data>::Remove(Node* node, Node* parent)
 	else if (noRight)
 		replaceNode = node->left;
 	else
-	{
+	{	
+		//поиск в правом поддереве узла с мин. ключом
 		parent = node;
-		Node* y = node->right;
+		Node* min = node->right;
 
 		readedElements++;
-		while (y->left != nullptr)
+		while (min->left != nullptr)
 		{
-			parent = y;
-			y = y->left;
+			parent = min;
+			min = min->left;
 			readedElements++;
 		}
-		node->key = y->key;
-		node->value = y->value;
-		replaceNode = y->right;
-		node = y;
+
+		//значения удаляемого узла теперь равны min
+		node->key = min->key;
+		node->value = min->value;
+
+		//теперь удаляемый узел - min
+		//parent и replaceNode указывают на его родителя и замену
+		node = min;
+		replaceNode = min->right;
 	}
 
 
@@ -276,35 +284,37 @@ inline void BST<Key, Data>::Remove(Node* node, Node* parent)
 template<class Key, class Data>
 inline typename BST<Key, Data>::Node* BST<Key, Data>::GetPrev(Node* node) const
 {
+	//если есть левый потомок, предыдущий - либо он, либо элемент с макс. ключом в его потомках
 	if (node->left != nullptr)
-		return node->left->GetMaxInChild();
-
-	return GetParent(this->root, node);
+	{
+		Node* max = node->left->GetMaxInChild();
+		return (max == nullptr ? node->left : max);
+	}
+	//иначе - родитель
+	return GetParent(node);
 }
 
 template<class Key, class Data>
-inline typename BST<Key, Data>::Node* BST<Key, Data>::GetParent(Node* root, Node* node) const
+inline typename BST<Key, Data>::Node* BST<Key, Data>::GetParent(Node* node) const
 {
-	if (root == node)
+	Node* resultParent = nullptr;
+	Node* result = nullptr;
+	if (FindNodeByKey(&resultParent, &result, node->key) == false)
 		return nullptr;
 
-	Node* parent;
-	if (node->key > root->key)
-		parent = GetParent(root->right, node);
-	else
-		parent = GetParent(root->left, node);
-
-	return (parent != nullptr ? parent : root);
+	return resultParent;
 }
 
 template<class Key, class Data>
 inline typename BST<Key, Data>::Node* BST<Key, Data>::GetNext(Node* node) const
 {
-	if (node->right != nullptr)
+	//если есть правый потомок, следующий - либо он, либо элемент с мин. ключом в его потомках
+	if (node->right != nullptr) 
 	{
 		Node* min = node->right->GetMinInChild();
 		return (min == nullptr ? node->right : min);
 	}
+	//иначе - спуск от корня с поиском элемента с мин. ключом, большим, чем у node
 
 	Node* current = this->root;
 	Node* lastSuccessNode = nullptr;
@@ -332,25 +342,29 @@ inline void Lab2::BST<Key, Data>::CreateFromSortedArray(Node* array, Node* curre
 {
 	int mid = (l + r) / 2;
 
+	//текущий узел - середина массива между левой и правой границей
+
 	currentNode->key = array[mid].key;
 	currentNode->value = array[mid].value;
 	size++;
 
 	if (mid - 1 >= l)
 	{
-		currentNode->left = new Node();
+		//вершина левого поддерева - середина массива между левой границей и текущим узлом
+		currentNode->left = new Node(); 
 		CreateFromSortedArray(array, currentNode->left, l, mid - 1);
 	}
 
 	if (mid + 1 <= r)
 	{
+		//вершина правого поддерева - середина массива между текущим узлом и правой границей
 		currentNode->right = new Node();
 		CreateFromSortedArray(array, currentNode->right, mid + 1, r);
 	}
 }
 
 template<class Key, class Data>
-inline void Lab2::BST<Key, Data>::BypassNodesWithStack(Node* root, BypassMode mode)
+inline void Lab2::BST<Key, Data>::BypassTree(Node* root, BypassMode mode)
 {
 	Node* node = root;
 	std::stack<Node*> _stack;
@@ -368,7 +382,7 @@ inline void Lab2::BST<Key, Data>::BypassNodesWithStack(Node* root, BypassMode mo
 
 		if (mode == BypassMode::AddToTree)
 			Add(node->key, node->value);
-		else if (mode == BypassMode::RemoveFromTree)
+		else if (mode == BypassMode::DeleteFromMemory)
 			delete node;
 	}
 }

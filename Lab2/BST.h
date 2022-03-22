@@ -14,14 +14,14 @@ namespace Lab2
 		public:
 			Iterator() {};
 			Iterator(BST& bst, Node* node) { this->bst = &bst; current = node; }
-			Data& operator *() const;
-			bool operator++(int value);
-			bool operator--(int value);
+			Data& operator *() const; //возвращает ссылку на значение текущего узла
+			bool operator++(int value); //переход к следующему узлу при прямом обходе
+			bool operator--(int value); //переход к предыдущему узлу при прямом обходе
 			bool operator == (Iterator iter) const { return bst == iter.bst && current == iter.current; }
 			bool operator != (Iterator iter) const { return !(*this == iter); }
 		protected:
-			BST* bst = nullptr;
-			Node* current = nullptr;
+			BST* bst = nullptr; //указатель на дерево
+			Node* current = nullptr; //указатель на текущий узел дерева
 
 			friend class BST;
 		};
@@ -32,8 +32,8 @@ namespace Lab2
 			ReverseIterator() {};
 			ReverseIterator(BST& bst, Node* node) { this->bst = &bst; current = node; }
 			Data& operator *() const;
-			bool operator++(int value);
-			bool operator--(int value);
+			bool operator++(int value); //переход к предыдущему узлу при прямом обходе
+			bool operator--(int value); // переход к следующему узлу при прямом обходе
 			bool operator == (ReverseIterator iter) const { return bst == iter.bst && current == iter.current; }
 			bool operator != (ReverseIterator iter) const { return !(*this == iter); }
 		protected:
@@ -43,57 +43,54 @@ namespace Lab2
 			friend class BST;
 		};
 
-		BST() {};
+		BST() {}; 
 		BST(const BST<Key, Data>& bst);
 		~BST() { Clear(); }
-		int GetSize() const { return size; }
-		void Clear();
+		int GetSize() const { return size; } 
+		void Clear(); 
 		bool IsEmpty() const { return size == 0; }
-		Data& operator[] (Key key);
-		bool Add(Key key, Data value);
-		bool Remove(Key key);
-		Lab1::List<Key> GetKeysList() const;
-		int GetReadedElementsCount() const { return readedElements; }
+		Data& operator[] (Key key); //чтение/изменение значения с заданным ключом
+		bool Add(Key key, Data value); 
+		bool Remove(Key key); 
+		Lab1::List<Key> GetKeysList() const; //возвращает список ключей по схеме L -> R -> t
+		int GetReadedElementsCount() const { return readedElements; } //опрос числа узлов дерева, просмотренных предыдущей операцией
 		void Print() const;
-		void MergeWith(const BST<Key,Data>& bst);
+		void MergeWith(const BST<Key,Data>& bst);  //объединение с другим деревом
 
-		Iterator Begin();
-		Iterator End() { return Iterator(*this, nullptr); }
-		ReverseIterator Rbegin();
-		ReverseIterator Rend() { return ReverseIterator(*this, nullptr); }
+		Iterator Begin(); //запрос прямого итератора, установленного на узел дерева с минимальным ключом
+		Iterator End() { return Iterator(*this, nullptr); } //запрос «неустановленного» прямого итератора
+		ReverseIterator Rbegin(); //запрос обратного итератора, установленного на узел дерева с максимальным ключом
+		ReverseIterator Rend() { return ReverseIterator(*this, nullptr); } //запрос «неустановленного» обратного итератора
 	protected:
 		int size = 0;
-		mutable int readedElements = 0;
+		mutable int readedElements = 0; //число узлов дерева, просмотренных предыдущей операцией
 		Node* root = nullptr;
 
-		const enum BypassCode { L, T, R };
-		void AddNodesToList(Node* root, Lab1::List<Node>& list, BypassCode codes[3]) const;
+		enum class BypassCode { L, T, R }; //для составления схемы обхода
+		void AddNodesToList(Node* root, Lab1::List<Node>& list, BypassCode codes[3]) const; //добавление узлов в список по схеме обхода
 
-		const enum BypassMode {AddToTree, RemoveFromTree};
-		void BypassNodesWithStack(Node* root, BypassMode mode);
+		enum class BypassMode {AddToTree, DeleteFromMemory}; //режим обхода дерева
+		void BypassTree(Node* root, BypassMode mode); //обход дерева, где для каждого узла выполняется действие согласно режиму обхода
 
-		void PrintLevels(Node* root, int level) const;
+		void PrintLevels(Node* root, int level) const; //рекурсивный вывод дерева
 		bool FindNodeByKey(Node** resultParent, Node** resultNode, Key key) const;
-		void Remove(Node* node, Node* parent);
-		Node* GetParent(Node* root, Node* node) const;
-		Node* GetPrev(Node* node) const;
-		Node* GetNext(Node* node) const;
-		void CreateFromSortedArray(Node* array, Node* currentNode, int l, int r);
+		void Remove(Node* node, Node* parent); 
+		Node* GetParent(Node* node) const;
+		Node* GetPrev(Node* node) const; //следующий узел при прямом обходе
+		Node* GetNext(Node* node) const; //предыдущий узел при прямом обходе
+		void CreateFromSortedArray(Node* array, Node* currentNode, int l, int r); //создание дерева из отсортированного по ключам списка узлов
 
 		class Node
 		{
 		public:
-			Node() {};
-			Node(Key key, Data value) : key(key), value(value) {};
-			Node& operator=(const Node& node) { 
-				key = node.key; value = node.value;
-				left = node.left; right = node.right;
-				return *this;
-			};
 			Key key;
 			Data value;
 			Node* left = nullptr;
 			Node* right = nullptr;
+
+			Node() {};
+			Node(Key key, Data value) : key(key), value(value) {};
+
 			Node* GetMaxInChild() const {
 				if (this->right == nullptr)
 					return nullptr;

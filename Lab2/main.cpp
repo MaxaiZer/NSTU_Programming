@@ -29,14 +29,14 @@ INT_64 randomKey(int treeSize)
 
 INT_64 randomOddKey(int treeSize)
 {
-	int k = lineRand() % (10000 * treeSize);
+	INT_64 k = lineRand() % (10000 * treeSize);
 	k = k + !(k % 2);
 	return k;
 }
 
 INT_64 randomEvenKey(int treeSize)
 {
-	int k = lineRand() % (10000 * treeSize);
+	INT_64 k = lineRand() % (10000 * treeSize);
 	k = k + k % 2;
 	return k;
 }
@@ -44,15 +44,15 @@ INT_64 randomEvenKey(int treeSize)
 template<class Key, class Data>
 void testTree(Lab2::BST<Key, Data>& tree, Key* keys, Key (*getMissKey)(int), Key (*getSuccessKey)(int), double theoreticalComplexity)
 {
-	int size = tree.GetSize();
-	cout << endl << "Размер дерева до теста: " << size << endl;
+	const int size = tree.GetSize();
+	cout << "Размер дерева до теста: " << size << endl;
 
 	int addReadedElements = 0;
 	int removeReadedElements = 0;
 	int searchReadedElements = 0;
 
-	int probabilityOfMiss = 10;
-	int operationsCount = size / 2;
+	const int probabilityOfMiss = 10;
+	const int operationsCount = size / 2;
 
 	for (int i = 0; i < operationsCount; i++)
 	{
@@ -61,7 +61,7 @@ void testTree(Lab2::BST<Key, Data>& tree, Key* keys, Key (*getMissKey)(int), Key
 			tree.Remove(getMissKey(size));
 			removeReadedElements += tree.GetReadedElementsCount();
 
-			tree.Add(keys[rand() % size], 1);
+			tree.Add(keys[lineRand() % size], 1);
 			addReadedElements += tree.GetReadedElementsCount();
 
 			try 
@@ -73,27 +73,28 @@ void testTree(Lab2::BST<Key, Data>& tree, Key* keys, Key (*getMissKey)(int), Key
 		}
 		else //success
 		{
-			int index = rand() % size;
+			int index = lineRand() % size;
 			tree.Remove(keys[index]);
 			removeReadedElements += tree.GetReadedElementsCount();
 
 			Key key = getSuccessKey(size);
 			tree.Add(key, 1);
 			addReadedElements += tree.GetReadedElementsCount();
-
 			keys[index] = key;
+
 			try 
 			{
-				tree[keys[rand() % size]];
+				tree[keys[lineRand() % size]];
 			}
 			catch (const char* ex) {}
 			searchReadedElements += tree.GetReadedElementsCount();
 		}
+
 	}
 
 	cout << "Размер дерева после теста:" << tree.GetSize() << endl;
 
-	cout << "Тёоретическая трудоёмкость:" << theoreticalComplexity << endl;
+	cout << "Теоретическая трудоёмкость:" << theoreticalComplexity << endl;
 
 	cout << "Трудоёмкость вставки: " << addReadedElements * 1.0 / operationsCount << endl;
 	cout << "Трудоёмкость удаления: " << removeReadedElements * 1.0 / operationsCount << endl;
@@ -123,6 +124,8 @@ void testOrdinaryTree(int size)
 {
 	BST< INT_64, int > tree;
 	INT_64* keys = new INT_64[size];
+
+	setFirstRandomDigit();
 
 	for (int i = 0; i < size; i++) {
 		keys[i] = i * 10000;
