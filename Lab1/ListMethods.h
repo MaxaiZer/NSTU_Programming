@@ -49,7 +49,7 @@ inline bool List<T>::Contains(T value) const
 }
 
 template<class T>
-inline T& List<T>::operator[](const int pos)
+inline T& List<T>::operator[](int pos)
 {
 	int nodeIndex;
 	if (FindNodeByPos(nodeIndex, pos))
@@ -348,7 +348,7 @@ inline List<T>::Iterator::Iterator(List<T>& list, int pos)
 }
 
 template<class T>
-inline T& List<T>::Iterator::operator*()
+inline T& List<T>::Iterator::operator*() const
 {
 	if (current != nullptr)
 		return current->value;
@@ -386,7 +386,7 @@ inline bool List<T>::Iterator::operator--(int)
 }
 
 template<class T>
-inline bool  List<T>::Iterator::operator==(List<T>::Iterator iterator)
+inline bool  List<T>::Iterator::operator==(List<T>::Iterator iterator) const
 {
 	return list == iterator.list && current == iterator.current;
 }

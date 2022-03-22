@@ -12,17 +12,17 @@ namespace Lab1
 		class Iterator
 		{
 		public:
-			Iterator() {}; //конструктор по умолчанию
-			Iterator(List<T>& list, int pos); //конструктор с параметрами
-			T& operator *(); //возвращает ссылку на элемент списка
-			Iterator& operator=(const Iterator& iter) { //оператор присваивания
+			Iterator() {}; 
+			Iterator(List<T>& list, int pos);
+			T& operator *() const; //возвращает ссылку на значение текущего элемента
+			Iterator& operator=(const Iterator& iter) {
 				list = iter.list; current = iter.current;
 				return *this;
 			};
-			bool operator++(int value); //постфиксный инкремент
-			bool operator--(int value); //постфиксный декремент
-			bool operator == (Iterator iterator); //операторы сравнения
-			bool operator != (Iterator iterator) { return !(*this == iterator); }
+			bool operator++(int value); //переход к следующему элементу
+			bool operator--(int value); //переход к предыдущему элементу
+			bool operator == (Iterator iterator) const; 
+			bool operator != (Iterator iterator) const { return !(*this == iterator); }
 		protected:
 			List<T>* list = nullptr; //указатель на список
 			Node* current = nullptr; //указатель на текущий элемент списка
@@ -30,52 +30,52 @@ namespace Lab1
 			friend class List;
 		};
 
-		List(): List(1) {} //конструктор по умолчанию
-		List(int capacity); //конструктор с параметром
-		List(const List<T>&); //конструктор копирования
-		~List() { delete[] array; }; //деструктор
-		int GetSize() const { return size; }//возвращает размер списка
-		void Clear(); //очистка списка
-		bool IsEmpty() const { return size == 0; } //проверка списка на пустоту
-		bool Contains(T value) const; //опрос наличия заданного значения
-		T& operator[] (int index); //чтение/изменение значения с заданным номером в списке
-		int GetPos(T value) const; //получение позиции в списке для заданного значения
-		void Add(T value); //включение нового значения
-		bool Add(T value, int pos); //включение нового значения в позицию с заданным номером		
-		bool RemoveByValue(T value); //удаление заданного значения из списка
-		bool RemoveByPos(int pos); //удаление значения из позиции с заданным номером
-		Iterator Begin(); //запрос прямого итератора begin()
-		Iterator End(); //запрос «неустановленного» прямого итератора end()
-		int GetReadedElementsCount() const { return readedElements; } //запрос числа элементов списка, просмотренных предыдущей операцией
-		void Print(); //вывод списка на экран
+		List(): List(1) {} 
+		List(int capacity); 
+		List(const List<T>&);
+		~List() { delete[] array; }; 
+		int GetSize() const { return size; }
+		void Clear(); 
+		bool IsEmpty() const { return size == 0; } 
+		bool Contains(T value) const; 
+		T& operator[] (int pos); //чтение/изменение значения с заданным номером в списке
+		int GetPos(T value) const; 
+		void Add(T value);
+		bool Add(T value, int pos); 
+		bool RemoveByValue(T value); 
+		bool RemoveByPos(int pos); 
+		Iterator Begin(); //запрос прямого итератора
+		Iterator End(); //запрос «неустановленного» прямого итератора
+		int GetReadedElementsCount() const { return readedElements; } //запрос числа элементов, просмотренных последней операцией
+		void Print(); 
 
 	protected:
-		int capacity; //ёмкость
-		int size = 0; //размер
+		int capacity;
+		int size = 0; 
 		mutable int readedElements = 0; //количество просмотренных элементов последней операцией
 		int startIndex = NO_INDEX; //индекс первого элемента
 		int endIndex = NO_INDEX; //индекс последнего элемента
-		int firstFreeIndex = NO_INDEX; //индекс первого свободного места в массиве
-		Node* array = nullptr; //динамич. массив
+		int firstFreeIndex = NO_INDEX; //первый свободный индекс в массиве
+		Node* array = nullptr; //динамич. массив элементов
+
 		void CreateArrayWithFreeNodes(int capacity); //создание массива со свободными элементами в односвязном списке
 		void IncreaseArray(); //увеличение размера массива на 1
-		void Remove(Node& node); //удаление элемента
+		void Remove(Node& node); 
 		Node& GetFreeNode(int& index); //возвращает свободный элемент в массиве
-		bool FindNodeByPos(int &index, int pos) const; //поиск элемента по номеру
-		bool FindNodeByValue(int &index, int& pos, T value) const; //поиск элемента по значению
+		bool FindNodeByPos(int &index, int pos) const;
+		bool FindNodeByValue(int &index, int& pos, T value) const;
 		bool LinkAsPrevAndNext(int index1, int index2);	 //связка элементов как предыдущий и последующий
 
 		class Node
 		{
 		public:
-			Node() { } //конструктор по умолчанию
-			Node(const Node& node) : //конструктор копирования
-				prevIndex(node.prevIndex), nextIndex(node.nextIndex), value(node.value), index(node.index) {}
-			void ResetIndexes() { prevIndex = nextIndex = NO_INDEX; } //сброс индексов
 			int prevIndex = NO_INDEX; //индекс предыдущего элемента
 			int index = NO_INDEX; //собственный индекс 
 			int nextIndex = NO_INDEX; //индекс следующего элемента
-			T value; //значение
+			T value;
+
+			Node() { } 
+			void ResetIndexes() { prevIndex = nextIndex = NO_INDEX; } //сброс индексов
 		};
 
 	};
