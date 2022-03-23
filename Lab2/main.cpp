@@ -151,6 +151,16 @@ void printCommands()
 	cout << "8 - Вывести список ключей (L -> R -> t)" << endl;
 	cout << "9 - Тест трудоёмкости случайного дерева" << endl; 
 	cout << "10 - Тест трудоёмкости вырожденного дерева" << endl;
+	cout << "11 - Прямой итератор: установить на начало дерева" << endl;
+	cout << "12 - Прямой итератор: следующий элемент" << endl;
+	cout << "13 - Прямой итератор: предыдущий элемент" << endl;
+	cout << "14 - Прямой итератор: разыменовать" << endl;
+	cout << "15 - Прямой итератор: равен ли End()?" << endl;
+	cout << "16 - Обратный итератор: установить на конец дерева" << endl;
+	cout << "17 - Обратный итератор: следующий элемент" << endl;
+	cout << "18 - Обратный итератор: предыдущий элемент" << endl;
+	cout << "19 - Обратный итератор: разыменовать" << endl;
+	cout << "20 - Обратный итератор: равен ли Rend()?" << endl;
 }
 
 int inputValue(string hintForUser)
@@ -165,7 +175,13 @@ int inputValue(string hintForUser)
 	return input;
 }
 
-void handleInput(int input, Lab2::BST<int,int>& bst)
+struct Iterators
+{
+	Lab2::BST<int, int>::Iterator forward;
+	Lab2::BST<int, int>::ReverseIterator reverse;
+};
+
+void handleInput(int input, Lab2::BST<int,int>& bst, Iterators& iters)
 {
 	switch (input)
 	{
@@ -219,6 +235,36 @@ void handleInput(int input, Lab2::BST<int,int>& bst)
 	case 10:
 		testOrdinaryTree(inputValue("Размер тестируемого дерева"));
 		break;
+	case 11:
+		iters.forward = bst.Begin();
+		break;
+	case 12:
+		cout << "Метод вернул: " << iters.forward++ << endl;
+		break;
+	case 13:
+		cout << "Метод вернул: " << iters.forward-- << endl;
+		break;
+	case 14:
+		cout << *iters.forward << endl;
+		break;
+	case 15:
+		cout << (iters.forward == bst.End()) << endl;
+		break;
+	case 16:
+		iters.reverse = bst.Rbegin();
+		break;
+	case 17:
+		cout << "Метод вернул: " << iters.reverse++ << endl;
+		break;
+	case 18:
+		cout << "Метод вернул: " << iters.reverse-- << endl;
+		break;
+	case 19:
+		cout << *iters.reverse << endl;
+		break;
+	case 20:
+		cout << (iters.reverse == bst.Rend()) << endl;
+		break;
 	default:
 		cout << "Неправильный номер команды" << endl;
 		break;
@@ -230,13 +276,12 @@ int main()
 	setlocale(LC_ALL, "Russian");
 
 	Lab2::BST<int, int> bst;
-	Lab2::BST<int, int>::Iterator iter;
+	Iterators iters;
 
 	printCommands();
 	
 	while (true)
 	{
-		handleInput(inputValue("Номер команды"), bst);
+		handleInput(inputValue("Номер команды"), bst, iters);
 	}
-
 }

@@ -108,8 +108,13 @@ inline Lab1::List<Key> BST<Key, Data>::GetKeysList() const
 template<class Key, class Data>
 inline void BST<Key, Data>::Print() const
 {
+	if (IsEmpty())
+	{
+		std::cout << "Tree is empty" << std::endl;
+		return;
+	}
+
 	PrintLevels(root, 0);
-	std::cout << std::endl;
 }
 
 template<class Key, class Data>
@@ -284,14 +289,37 @@ inline void BST<Key, Data>::Remove(Node* node, Node* parent)
 template<class Key, class Data>
 inline typename BST<Key, Data>::Node* BST<Key, Data>::GetPrev(Node* node) const
 {
+	if (node == nullptr)
+		return nullptr;
+
 	//если есть левый потомок, предыдущий - либо он, либо элемент с макс. ключом в его потомках
 	if (node->left != nullptr)
 	{
 		Node* max = node->left->GetMaxInChild();
 		return (max == nullptr ? node->left : max);
 	}
-	//иначе - родитель
-	return GetParent(node);
+
+	//иначе - спуск от корня с поиском элемента с макс. ключом, меньшим, чем у node
+	Node* current = this->root;
+	Node* lastSuccessNode = nullptr;
+
+	while (current != nullptr)
+	{
+		if (current->key == node->key)
+			break;
+
+		if (current->key > node->key) //спуск в левое поддерево
+		{		
+			current = current->left;
+		}
+		else //спуск в правое поддерево
+		{	
+			lastSuccessNode = current;
+			current = current->right;
+		}
+	}
+
+	return lastSuccessNode;
 }
 
 template<class Key, class Data>
@@ -308,6 +336,9 @@ inline typename BST<Key, Data>::Node* BST<Key, Data>::GetParent(Node* node) cons
 template<class Key, class Data>
 inline typename BST<Key, Data>::Node* BST<Key, Data>::GetNext(Node* node) const
 {
+	if (node == nullptr)
+		return nullptr;
+
 	//если есть правый потомок, следующий - либо он, либо элемент с мин. ключом в его потомках
 	if (node->right != nullptr) 
 	{
@@ -321,15 +352,16 @@ inline typename BST<Key, Data>::Node* BST<Key, Data>::GetNext(Node* node) const
 
 	while (current != nullptr)
 	{
-		if (current->key > node->key)
-		{ 
-			//спуск в левое поддерево
+		if (current->key == node->key)
+			break;
+
+		if (current->key > node->key) //спуск в левое поддерево
+		{ 	
 			lastSuccessNode = current;
 			current = current->left;
 		}
-		else
-		{
-			//спуск в правое поддерево
+		else //спуск в правое поддерево
+		{		
 			current = current->right;
 		}
 	}
