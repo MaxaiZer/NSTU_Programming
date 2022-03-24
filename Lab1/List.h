@@ -46,8 +46,8 @@ namespace Lab1
 		bool Add(T value, int pos);
 		bool RemoveByValue(T value);
 		bool RemoveByPos(int pos);
-		Iterator Begin(); //запрос прямого итератора
-		Iterator End(); //запрос «неустановленного» прямого итератора
+		Iterator Begin() { return Iterator(*this, 0); }        //запрос прямого итератора
+		Iterator End() { return Iterator(*this, NO_INDEX); }   //запрос «неустановленного» прямого итератора
 		int GetReadedElementsCount() const { return readedElements; } //запрос числа элементов, просмотренных последней операцией
 		void Print();
 
@@ -227,20 +227,6 @@ namespace Lab1
 
 		Remove(array[nodeIndex]);
 		return true;
-	}
-
-	template<class T>
-	inline typename List<T>::Iterator List<T>::Begin()
-	{
-		Iterator iter(*this, 0);
-		return iter;
-	}
-
-	template<class T>
-	inline  typename List<T>::Iterator List<T>::End()
-	{
-		Iterator iter(*this, NO_INDEX);
-		return iter;
 	}
 
 	template<class T>
