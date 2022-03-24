@@ -2,6 +2,7 @@
 
 namespace Lab2
 {
+	#define IterNotInstalledEx "Iterator is not installed"
 
 	template <class Key, class Data> 
 	class BST
@@ -14,9 +15,17 @@ namespace Lab2
 		public:
 			Iterator() {};
 			Iterator(BST& bst, Node* node) { this->bst = &bst; current = node; }
-			Data& operator *() const; //возвращает ссылку на значение текущего узла
-			bool operator++(int value); //переход к следующему узлу при прямом обходе
-			bool operator--(int value); //переход к предыдущему узлу при прямом обходе
+			Data& operator *() const //возвращает ссылку на значение текущего узла
+			{
+				if (current != nullptr)
+					return current->value;
+
+				throw IterNotInstalledEx;
+			}
+			bool operator++(int value) //переход к следующему узлу при прямом обходе
+			{ return (current = bst->GetNext(current)) != nullptr; }	
+			bool operator--(int value)  //переход к предыдущему узлу при прямом обходе
+			{ return (current = bst->GetPrev(current)) != nullptr; }
 			bool operator == (Iterator iter) const { return bst == iter.bst && current == iter.current; }
 			bool operator != (Iterator iter) const { return !(*this == iter); }
 		protected:
@@ -31,9 +40,17 @@ namespace Lab2
 		public:
 			ReverseIterator() {};
 			ReverseIterator(BST& bst, Node* node) { this->bst = &bst; current = node; }
-			Data& operator *() const;
-			bool operator++(int value); //переход к предыдущему узлу при прямом обходе
-			bool operator--(int value); // переход к следующему узлу при прямом обходе
+			Data& operator *() const 
+			{
+				if (current != nullptr)
+					return current->value;
+				
+				throw IterNotInstalledEx;
+			}
+			bool operator++(int value) //переход к предыдущему узлу при прямом обходе
+			{ return (current = bst->GetPrev(current)) != nullptr; }
+			bool operator--(int value) // переход к следующему узлу при прямом обходе
+			{ return (current = bst->GetNext(current)) != nullptr;}
 			bool operator == (ReverseIterator iter) const { return bst == iter.bst && current == iter.current; }
 			bool operator != (ReverseIterator iter) const { return !(*this == iter); }
 		protected:

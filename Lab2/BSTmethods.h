@@ -181,31 +181,25 @@ inline void BST<Key, Data>::MergeWith(const BST<Key, Data>& bst)
 template<class Key, class Data>
 inline  typename BST<Key, Data>::Iterator BST<Key, Data>::Begin()
 {
-	Node* min;
-	if (root == nullptr)
-		min = nullptr;
-	else
-	{
-		min = root->GetMinInChild();
-		min = (min == nullptr ? root : min);
-	}
-	Iterator iter(*this, min);
-	return iter;
+	if (IsEmpty())
+		return End();
+
+	Node* min = min = root->GetMinInChild();
+	min = (min == nullptr ? root : min);
+
+	return Iterator(*this, min);
 }
 
 template<class Key, class Data>
 inline  typename BST<Key, Data>::ReverseIterator BST<Key, Data>::Rbegin()
 {
-	Node* max;
-	if (root == nullptr)
-		max = nullptr;
-	else
-	{
-		max = root->GetMaxInChild();
-		max = (max == nullptr ? root : max);
-	}
-	ReverseIterator iter(*this, max);
-	return iter;
+	if (IsEmpty())
+		return Rend();
+
+	Node* max = root->GetMaxInChild();
+	max = (max == nullptr ? root : max);
+
+	return ReverseIterator(*this, max);
 }
 
 //приватные методы дерева
@@ -450,48 +444,4 @@ inline void BST<Key, Data>::AddNodesToList(Node* root, Lab1::List<Node>& list, B
 		else if (codes[i] == BypassCode::T)
 			list.Add(*root);
 	}
-}
-
-//методы итераторов
-
-template<class Key, class Data>
-inline bool BST<Key, Data>::Iterator::operator++(int value)
-{
-	return (current = bst->GetNext(current)) != nullptr;
-}
-
-template<class Key, class Data>
-inline bool BST<Key, Data>::Iterator::operator--(int value)
-{
-	return (current = bst->GetPrev(current)) != nullptr;
-}
-
-template<class Key, class Data>
-inline Data& BST<Key, Data>::Iterator::operator*() const
-{
-	if (current != nullptr)
-		return current->value;
-	else
-		throw "Iterator is not installed";
-}
-
-template<class Key, class Data>
-inline bool Lab2::BST<Key, Data>::ReverseIterator::operator++(int value)
-{
-	return (current = bst->GetPrev(current)) != nullptr;
-}
-
-template<class Key, class Data>
-inline bool Lab2::BST<Key, Data>::ReverseIterator::operator--(int value)
-{
-	return (current = bst->GetNext(current)) != nullptr;
-}
-
-template<class Key, class Data>
-inline Data& Lab2::BST<Key, Data>::ReverseIterator::operator*() const
-{
-	if (current != nullptr)
-		return current->value;
-	else
-		throw "Iterator is not installed";
 }
