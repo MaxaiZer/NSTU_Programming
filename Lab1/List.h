@@ -15,10 +15,6 @@ namespace Lab1
 			Iterator() {};
 			Iterator(List<T>& list, int pos);
 			T& operator *() const; //возвращает ссылку на значение текущего элемента
-			Iterator& operator=(const Iterator& iter) {
-				list = iter.list; current = iter.current;
-				return *this;
-			};
 			bool operator++(int value); //переход к следующему элементу
 			bool operator--(int value); //переход к предыдущему элементу
 			bool operator == (Iterator iter) const
