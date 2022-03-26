@@ -2,6 +2,7 @@
 #include "BST.h"
 
 using namespace std;
+using namespace Lab2;
 typedef unsigned long long INT_64;
 
 static INT_64 RRand = 15750;
@@ -41,8 +42,8 @@ INT_64 randomEvenKey(int treeSize)
 	return k;
 }
 
-template<class Key, class Data>
-void testTree(Lab2::BST<Key, Data>& tree, Key* keys, Key (*getMissKey)(int), Key (*getSuccessKey)(int), double theoreticalComplexity)
+template<class K, class V>
+void testTree(Lab2::BST<K, V>& tree, K* keys, K (*getMissKey)(int), K (*getSuccessKey)(int), double theoreticalComplexity)
 {
 	const int size = tree.GetSize();
 	cout << "Размер дерева до теста: " << size << endl;
@@ -77,7 +78,7 @@ void testTree(Lab2::BST<Key, Data>& tree, Key* keys, Key (*getMissKey)(int), Key
 			tree.Remove(keys[index]);
 			removeReadedElements += tree.GetReadedElementsCount();
 
-			Key key = getSuccessKey(size);
+			K key = getSuccessKey(size);
 			tree.Add(key, 1);
 			addReadedElements += tree.GetReadedElementsCount();
 			keys[index] = key;

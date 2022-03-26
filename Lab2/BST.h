@@ -1,10 +1,11 @@
+#include <stack>
 #include "../Lab1/List.h"
 
 namespace Lab2
 {
 	#define IterNotInstalledEx "Iterator is not installed"
 
-	template <class Key, class Data> 
+	template <class K, class V>  //Key, Value
 	class BST
 	{
 		class Node;
@@ -15,7 +16,7 @@ namespace Lab2
 		public:
 			Iterator() {};
 			Iterator(BST& bst, Node* node) { this->bst = &bst; current = node; }
-			Data& operator *() const //возвращает ссылку на значение текущего узла
+			V& operator *() const 
 			{
 				if (current != nullptr)
 					return current->value;
@@ -29,8 +30,8 @@ namespace Lab2
 			bool operator == (Iterator iter) const { return bst == iter.bst && current == iter.current; }
 			bool operator != (Iterator iter) const { return !(*this == iter); }
 		protected:
-			BST* bst = nullptr; //указатель на дерево
-			Node* current = nullptr; //указатель на текущий узел дерева
+			BST* bst = nullptr; 
+			Node* current = nullptr; 
 
 			friend class BST;
 		};
@@ -40,7 +41,7 @@ namespace Lab2
 		public:
 			ReverseIterator() {};
 			ReverseIterator(BST& bst, Node* node) { this->bst = &bst; current = node; }
-			Data& operator *() const 
+			V& operator *() const 
 			{
 				if (current != nullptr)
 					return current->value;
@@ -61,18 +62,18 @@ namespace Lab2
 		};
 
 		BST() {}; 
-		BST(const BST<Key, Data>& bst);
+		BST(const BST<K, V>& bst);
 		~BST() { Clear(); }
 		int GetSize() const { return size; } 
 		void Clear(); 
 		bool IsEmpty() const { return size == 0; }
-		Data& operator[] (Key key); //чтение/изменение значения с заданным ключом
-		bool Add(Key key, Data value); 
-		bool Remove(Key key); 
-		Lab1::List<Key> GetKeysList() const; //возвращает список ключей по схеме L -> R -> t
+		V& operator[] (K key); 
+		bool Add(K key, V value); 
+		bool Remove(K key); 
+		Lab1::List<K> GetKeysList() const; //возвращает список ключей по схеме L -> R -> t
 		int GetReadedElementsCount() const { return readedElements; } //опрос числа узлов дерева, просмотренных предыдущей операцией
 		void Print() const;
-		void MergeWith(const BST<Key,Data>& bst);  //объединение с другим деревом
+		void MergeWith(const BST<K,V>& bst);  //объединение с другим деревом
 
 		Iterator Begin(); //запрос прямого итератора, установленного на узел дерева с минимальным ключом
 		Iterator End() { return Iterator(*this, nullptr); } //запрос «неустановленного» прямого итератора
@@ -90,7 +91,7 @@ namespace Lab2
 		void BypassTree(Node* root, BypassMode mode); //обход дерева, где для каждого узла выполняется действие согласно режиму обхода
 
 		void PrintLevels(Node* root, int level) const; //рекурсивный вывод дерева
-		bool FindNodeByKey(Node** resultParent, Node** resultNode, Key key) const;
+		bool FindNodeByKey(Node** resultParent, Node** resultNode, K key) const;
 		void Remove(Node* node, Node* parent); 
 		Node* GetParent(Node* node) const;
 		Node* GetPrev(Node* node) const; //следующий узел при прямом обходе
@@ -100,13 +101,13 @@ namespace Lab2
 		class Node
 		{
 		public:
-			Key key;
-			Data value;
+			K key;
+			V value;
 			Node* left = nullptr;
 			Node* right = nullptr;
 
 			Node() {};
-			Node(Key key, Data value) : key(key), value(value) {};
+			Node(K key, V value) : key(key), value(value) {};
 
 			Node* GetMaxInChild() const {
 				if (this->right == nullptr)
@@ -133,7 +134,445 @@ namespace Lab2
 		friend class Iterator;
 		friend class ReverseIterator;
 	};
-}
 
-#pragma once 
-#include "BSTmethods.h"
+	//публичные методы дерева
+
+	template<class K, class V>
+	inline BST<K, V>::BST(const BST<K, V>& bst)
+	{
+		if (bst.IsEmpty())
+			return;
+
+		BypassTree(bst.root, BypassMode::AddToTree);
+	}
+
+	template<class K, class V>
+	inline void BST<K, V>::Clear()
+	{
+		if (IsEmpty())
+			return;
+
+		size = 0;
+		BypassTree(this->root, BypassMode::DeleteFromMemory);
+	}
+
+	template<class K, class V>
+	inline V& BST<K, V>::operator[](K key)
+	{
+		Node* parent = nullptr;
+		Node* node = nullptr;
+		if (FindNodeByKey(&parent, &node, key) == false)
+			throw "Wrong key";
+		else
+			return node->value;
+	}
+
+	template<class K, class V>
+	inline bool BST<K, V>::Add(K key, V value)
+	{
+		readedElements = 0;
+		if (IsEmpty())
+		{
+			root = new Node(key, value);
+			size++;
+			return true;
+		}
+
+		Node* curRoot = root;
+		Node* prevNode = nullptr;
+		while (curRoot != nullptr)
+		{
+			readedElements++;
+
+			prevNode = curRoot;
+			if (curRoot->key == key)
+				return false;
+			if (curRoot->key > key) //спуск в левое поддерево
+				curRoot = curRoot->left;
+			else					//спуск в правое поддерево
+				curRoot = curRoot->right;
+		}
+
+		if (key < prevNode->key)
+			prevNode->left = new Node(key, value);
+		else
+			prevNode->right = new Node(key, value);
+
+		size++;
+		return true;
+	}
+
+	template<class K, class V>
+	inline bool BST<K, V>::Remove(K key)
+	{
+		Node* parent = nullptr;
+		Node* nodeToRemove = nullptr;
+		if (FindNodeByKey(&parent, &nodeToRemove, key) == false)
+			return false;
+
+		Remove(nodeToRemove, parent);
+		return true;
+	}
+
+	template<class K, class V>
+	inline Lab1::List<K> BST<K, V>::GetKeysList() const
+	{
+		if (IsEmpty())
+			return Lab1::List<K>();
+
+		Lab1::List<K> keys(this->size);
+		Lab1::List<Node> nodes(this->size);
+
+		BypassCode var8Codes[] = { BypassCode::L, BypassCode::R, BypassCode::T };
+		AddNodesToList(this->root, nodes, var8Codes);
+
+		typename Lab1::List<Node>::Iterator iter = nodes.Begin();
+		do
+		{
+			keys.Add((*iter).key);
+		} while (iter++);
+
+		return keys;
+	}
+
+	template<class K, class V>
+	inline void BST<K, V>::Print() const
+	{
+		if (IsEmpty())
+		{
+			std::cout << "Tree is empty" << std::endl;
+			return;
+		}
+
+		PrintLevels(root, 0);
+	}
+
+	template<class K, class V>
+	inline void BST<K, V>::MergeWith(const BST<K, V>& bst)
+	{
+		if (bst.IsEmpty())
+			return;
+
+		readedElements = 0;
+
+		Lab1::List<Node> nodes1(bst.size);
+		Lab1::List<Node> nodes2(this->size + 1);
+
+		//добавляем ключи обоих деревьев в соотв. списки в порядке возрастания
+
+		BypassCode codes[3] = { BypassCode::L, BypassCode::T, BypassCode::R };
+		bst.AddNodesToList(bst.root, nodes1, codes);
+		this->AddNodesToList(this->root, nodes2, codes);
+
+		readedElements += nodes1.GetSize() + nodes2.GetSize() + this->size;
+
+		Clear();
+
+		Node* sortedArray = new Node[nodes1.GetSize() + nodes2.GetSize()];
+		int sortedArraySize = 0;
+
+		//добавляем в sortedArray только уникальные ключи из nodes1 и nodes2 в порядке возрастания
+		while (nodes1.GetSize() + nodes2.GetSize() != 0)
+		{
+			if (nodes1.IsEmpty())
+				goto addFromNodes2;
+			else if (nodes2.IsEmpty())
+				goto addFromNodes1;
+
+			if (nodes1[0].key == nodes2[0].key)
+			{
+				nodes1.RemoveByPos(0);
+				continue;
+			}
+
+			if (nodes1[0].key < nodes2[0].key)
+			{
+			addFromNodes1:
+				sortedArray[sortedArraySize++] = nodes1[0];
+				nodes1.RemoveByPos(0);
+			}
+			else
+			{
+			addFromNodes2:
+				sortedArray[sortedArraySize++] = nodes2[0];
+				nodes2.RemoveByPos(0);
+			}
+		}
+
+		this->root = new Node();
+
+		CreateFromSortedArray(sortedArray, this->root, 0, sortedArraySize - 1);
+
+		readedElements += 2 * sortedArraySize;
+
+		delete[] sortedArray;
+	}
+
+	template<class K, class V>
+	inline  typename BST<K, V>::Iterator BST<K, V>::Begin()
+	{
+		if (IsEmpty())
+			return End();
+
+		Node* min = root->GetMinInChild();
+		min = (min == nullptr ? root : min);
+
+		return Iterator(*this, min);
+	}
+
+	template<class K, class V>
+	inline  typename BST<K, V>::ReverseIterator BST<K, V>::Rbegin()
+	{
+		if (IsEmpty())
+			return Rend();
+
+		Node* max = root->GetMaxInChild();
+		max = (max == nullptr ? root : max);
+
+		return ReverseIterator(*this, max);
+	}
+
+	//приватные методы дерева
+
+	template<class K, class V>
+	inline bool BST<K, V>::FindNodeByKey(Node** resultParent, Node** resultNode, K key) const
+	{
+		if (IsEmpty())
+			return false;
+
+		Node* curRoot = this->root;
+		Node* curParent = nullptr;
+		readedElements = 1;
+
+		while (curRoot != nullptr && curRoot->key != key)
+		{
+			curParent = curRoot;
+			curRoot = (key < curRoot->key ? curRoot->left : curRoot->right);
+			readedElements++;
+		}
+
+		if (curRoot == nullptr)
+			return false;
+
+		*resultNode = curRoot;
+		*resultParent = curParent;
+		return true;
+	}
+
+	template<class K, class V>
+	inline void BST<K, V>::Remove(Node* node, Node* parent)
+	{
+		Node* replaceNode; //узел, который встанет на место удалённого
+		bool noLeft = node->left == nullptr;
+		bool noRight = node->right == nullptr;
+
+		if (noLeft && noRight)
+			replaceNode = nullptr;
+		else if (noLeft)
+			replaceNode = node->right;
+		else if (noRight)
+			replaceNode = node->left;
+		else
+		{
+			//поиск в правом поддереве узла с мин. ключом
+			parent = node;
+			Node* min = node->right;
+
+			readedElements++;
+			while (min->left != nullptr)
+			{
+				parent = min;
+				min = min->left;
+				readedElements++;
+			}
+
+			//значения удаляемого узла теперь равны min
+			node->key = min->key;
+			node->value = min->value;
+
+			//теперь удаляемый узел - min
+			//parent и replaceNode указывают на его родителя и замену
+			node = min;
+			replaceNode = min->right;
+		}
+
+
+		if (parent == nullptr)
+			this->root = replaceNode;
+		else
+		{
+			if (node->key < parent->key)
+				parent->left = replaceNode;
+			else
+				parent->right = replaceNode;
+		}
+		delete node;
+		size--;
+	}
+
+	template<class K, class V>
+	inline typename BST<K, V>::Node* BST<K, V>::GetPrev(Node* node) const
+	{
+		if (node == nullptr)
+			return nullptr;
+
+		//если есть левый потомок, предыдущий - либо он, либо элемент с макс. ключом в его потомках
+		if (node->left != nullptr)
+		{
+			Node* max = node->left->GetMaxInChild();
+			return (max == nullptr ? node->left : max);
+		}
+
+		//иначе - спуск от корня с поиском элемента с макс. ключом, меньшим, чем у node
+		Node* current = this->root;
+		Node* lastSuccessNode = nullptr;
+
+		while (current != nullptr)
+		{
+			if (current->key == node->key)
+				break;
+
+			if (current->key > node->key) //спуск в левое поддерево
+			{
+				current = current->left;
+			}
+			else //спуск в правое поддерево
+			{
+				lastSuccessNode = current;
+				current = current->right;
+			}
+		}
+
+		return lastSuccessNode;
+	}
+
+	template<class K, class V>
+	inline typename BST<K, V>::Node* BST<K, V>::GetParent(Node* node) const
+	{
+		Node* resultParent = nullptr;
+		Node* result = nullptr;
+
+		FindNodeByKey(&resultParent, &result, node->key);
+		return resultParent;
+	}
+
+	template<class K, class V>
+	inline typename BST<K, V>::Node* BST<K, V>::GetNext(Node* node) const
+	{
+		if (node == nullptr)
+			return nullptr;
+
+		//если есть правый потомок, следующий - либо он, либо элемент с мин. ключом в его потомках
+		if (node->right != nullptr)
+		{
+			Node* min = node->right->GetMinInChild();
+			return (min == nullptr ? node->right : min);
+		}
+		//иначе - спуск от корня с поиском элемента с мин. ключом, большим, чем у node
+
+		Node* current = this->root;
+		Node* lastSuccessNode = nullptr;
+
+		while (current != nullptr)
+		{
+			if (current->key == node->key)
+				break;
+
+			if (current->key > node->key) //спуск в левое поддерево
+			{
+				lastSuccessNode = current;
+				current = current->left;
+			}
+			else //спуск в правое поддерево
+			{
+				current = current->right;
+			}
+		}
+
+		return lastSuccessNode;
+	}
+
+	template<class K, class V>
+	inline void Lab2::BST<K, V>::CreateFromSortedArray(Node* array, Node* currentNode, int l, int r)
+	{
+		int mid = (l + r) / 2;
+
+		//текущий узел - середина массива между левой и правой границей
+
+		currentNode->key = array[mid].key;
+		currentNode->value = array[mid].value;
+		size++;
+
+		if (mid - 1 >= l)
+		{
+			//вершина левого поддерева - середина массива между левой границей и текущим узлом
+			currentNode->left = new Node();
+			CreateFromSortedArray(array, currentNode->left, l, mid - 1);
+		}
+
+		if (mid + 1 <= r)
+		{
+			//вершина правого поддерева - середина массива между текущим узлом и правой границей
+			currentNode->right = new Node();
+			CreateFromSortedArray(array, currentNode->right, mid + 1, r);
+		}
+	}
+
+	template<class K, class V>
+	inline void Lab2::BST<K, V>::BypassTree(Node* root, BypassMode mode)
+	{
+		Node* node = root;
+		std::stack<Node*> _stack;
+		_stack.push(node);
+
+		while (_stack.empty() == false)
+		{
+			node = _stack.top();
+			_stack.pop();
+
+			if (node->left != nullptr)
+				_stack.push(node->left);
+			if (node->right != nullptr)
+				_stack.push(node->right);
+
+			if (mode == BypassMode::AddToTree)
+				Add(node->key, node->value);
+			else if (mode == BypassMode::DeleteFromMemory)
+				delete node;
+		}
+	}
+
+	template<class K, class V>
+	inline void BST<K, V>::PrintLevels(Node* root, int level) const
+	{
+		if (root == nullptr)
+			return;
+
+		int levelOffset = 3;
+		PrintLevels(root->right, level + 1);
+		for (int i = 0; i <= levelOffset * level; i++)
+		{
+			printf(" ");
+		}
+		std::cout << root->key << std::endl;
+		PrintLevels(root->left, level + 1);
+	}
+
+	template<class K, class V>
+	inline void BST<K, V>::AddNodesToList(Node* root, Lab1::List<Node>& list, BypassCode codes[3]) const
+	{
+		if (root == nullptr)
+			return;
+
+		for (int i = 0; i < 3; i++)
+		{
+			if (codes[i] == BypassCode::L)
+				AddNodesToList(root->left, list, codes);
+			else if (codes[i] == BypassCode::R)
+				AddNodesToList(root->right, list, codes);
+			else if (codes[i] == BypassCode::T)
+				list.Add(*root);
+		}
+	}
+
+}
