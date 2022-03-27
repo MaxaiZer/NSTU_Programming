@@ -198,7 +198,7 @@ namespace Lab1
 	{
 		int nodeIndex, pos;
 		if (FindNodeByValue(nodeIndex, pos, value) == false)
-			throw "Wrong value";
+			return NO_INDEX;
 
 		return pos;
 	}
@@ -206,12 +206,26 @@ namespace Lab1
 	template<class T>
 	inline bool List<T>::RemoveByValue(T value)
 	{
-		int nodeIndex, pos;
-		if (FindNodeByValue(nodeIndex, pos, value) == false)
+		if (IsEmpty())
 			return false;
 
-		Remove(array[nodeIndex]);
-		return true;
+		bool removedOnce = false;
+
+		int curIndex = startIndex;
+
+		while (curIndex != NO_INDEX)
+		{
+			int prevIndex = curIndex;
+			curIndex = array[prevIndex].nextIndex;
+
+			if (array[prevIndex].value == value)
+			{
+				Remove(array[prevIndex]);
+				removedOnce = true;
+			}
+		}
+
+		return removedOnce;
 	}
 
 	template<class T>
@@ -267,10 +281,12 @@ namespace Lab1
 		for (int i = 0; i < capacity - 1; i++)
 			newArray[i] = array[i];
 
+		newArray[capacity - 1].index = capacity - 1;
+
 		if (firstFreeIndex != NO_INDEX)
 			array[firstFreeIndex].nextIndex = capacity - 1;
-
-		firstFreeIndex = capacity - 1;
+		else
+			firstFreeIndex = capacity - 1;
 
 		delete[] array;
 		array = newArray;
@@ -313,6 +329,9 @@ namespace Lab1
 	template<class T>
 	inline typename List<T>::Node& List<T>::GetFreeNode(int& index)
 	{
+		if (firstFreeIndex == NO_INDEX)
+			throw "Where is no free node";
+
 		index = firstFreeIndex;
 		Node& freeNode = array[firstFreeIndex];
 		firstFreeIndex = array[firstFreeIndex].nextIndex;
