@@ -18,9 +18,13 @@ namespace Lab1
 			bool operator++(int value); //переход к следующему элементу
 			bool operator--(int value); //переход к предыдущему элементу
 			bool operator == (Iterator iter) const
-			{ return list == iter.list && current == iter.current; }
-			bool operator != (Iterator iter) const 
-			{ return !(*this == iter); }
+			{
+				return list == iter.list && current == iter.current;
+			}
+			bool operator != (Iterator iter) const
+			{
+				return !(*this == iter);
+			}
 		protected:
 			List<T>* list = nullptr; //указатель на список
 			Node* current = nullptr; //указатель на текущий элемент списка
@@ -28,7 +32,7 @@ namespace Lab1
 			friend class List;
 		};
 
-		List(): List(1) {}
+		List() : List(1) {}
 		List(int capacity);
 		List(const List<T>&);
 		~List() { delete[] array; };
@@ -44,13 +48,13 @@ namespace Lab1
 		bool RemoveByPos(int pos);
 		Iterator Begin() { return Iterator(*this, 0); }        //запрос прямого итератора
 		Iterator End() { return Iterator(*this, NO_INDEX); }   //запрос «неустановленного» прямого итератора
-		int GetReadedElementsCount() const { return readedElements; } //запрос числа элементов, просмотренных последней операцией
+		int GetReadElementsCount() const { return readElements; } //запрос числа элементов, просмотренных последней операцией
 		void Print();
 
 	protected:
 		int capacity;
 		int size = 0;
-		mutable int readedElements = 0; //количество просмотренных элементов последней операцией
+		mutable int readElements = 0; //количество просмотренных элементов последней операцией
 		int startIndex = NO_INDEX; //индекс первого элемента
 		int endIndex = NO_INDEX; //индекс последнего элемента
 		int firstFreeIndex = NO_INDEX; //первый свободный индекс в массиве
@@ -78,7 +82,7 @@ namespace Lab1
 
 	};
 
-	//публичные методы списка
+	//открытые методы списка
 
 	template<class T>
 	inline List<T>::List(int capacity)
@@ -242,18 +246,19 @@ namespace Lab1
 	template<class T>
 	inline void List<T>::Print()
 	{
-		Iterator iter = this->Begin();
-		std::cout << "{ ";
-
 		if (IsEmpty())
-			goto end;
+		{
+			std::cout << "List is empty" << std::endl;
+			return;
+		}
+
+		Iterator iter = this->Begin();
+
 		do
 		{
 			std::cout << "[" << *iter << "] ";
 		} while (iter++);
 
-	end:
-		std::cout << "}";
 		std::cout << std::endl;
 	}
 
@@ -359,7 +364,7 @@ namespace Lab1
 
 		bool reverseBypass = false;
 		int curPos = 0;
-		readedElements = 1;
+		readElements = 1;
 		int curIndex = startIndex;
 
 		if (pos > size / 2)
@@ -381,7 +386,7 @@ namespace Lab1
 				curIndex = array[curIndex].nextIndex;
 				curPos++;
 			}
-			readedElements++;
+			readElements++;
 		}
 
 		index = curIndex;
@@ -396,10 +401,10 @@ namespace Lab1
 
 		int curIndex = startIndex;
 		int curPos = 0;
-		readedElements = 0;
+		readElements = 0;
 		do
 		{
-			readedElements++;
+			readElements++;
 			if (array[curIndex].value == value)
 			{
 				index = curIndex;

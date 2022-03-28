@@ -1,8 +1,6 @@
 ﻿#include <iostream>
 #include "list.h"
 
-const int ITERATORS_COUNT = 2;
-
 using namespace std;
 
 void printCommands()
@@ -21,9 +19,9 @@ void printCommands()
 	cout << "11 - Установить итератор на начало списка" << endl;
 	cout << "12 - Итератор: следующее значение" << endl;
 	cout << "13 - Итератор: предыдущее значение" << endl;
-	cout << "14 - Разыменовать итератор" << endl;
-	cout << "15 - Равны ли итераторы?" << endl;
-	cout << "16 - Равен ли итератор End()?" << endl;
+	cout << "14 - Получить значение по итератору" << endl;
+	cout << "15 - Равен ли итератор End()?" << endl;
+	cout << "16 - Вывод команд" << endl;
 }
 
 int inputValue(string hintForUser)
@@ -38,18 +36,7 @@ int inputValue(string hintForUser)
 	return input;
 }
 
-int inputIterNumber()
-{
-	int number = inputValue("Номер итератора");
-	while (0 > number || number >= ITERATORS_COUNT)
-	{
-		cout << "Неправильный номер" << endl;
-		number = inputValue("Номер итератора");
-	}
-	return number;
-}
-
-void handleInput(int input, Lab1::List<int>& list, Lab1::List<int>::Iterator iters[ITERATORS_COUNT])
+void handleInput(int input, Lab1::List<int>& list, Lab1::List<int>::Iterator& iter)
 {
 	switch (input)
 	{
@@ -68,7 +55,7 @@ void handleInput(int input, Lab1::List<int>& list, Lab1::List<int>::Iterator ite
 	case 4:
 	{
 		int e;
-		try { e = list[inputValue("Номер")];  }
+		try { e = list[inputValue("Номер")]; }
 		catch (const char* ex)
 		{
 			cout << ex << endl;
@@ -106,29 +93,30 @@ void handleInput(int input, Lab1::List<int>& list, Lab1::List<int>::Iterator ite
 		}
 		break;
 	case 10:
-		cout << list.GetReadedElementsCount() << endl;
+		cout << list.GetReadElementsCount() << endl;
 		break;
 	case 11:
-		iters[inputIterNumber()] = list.Begin();
+		iter = list.Begin();
 		break;
 	case 12:
-		cout << "Метод вернул " << iters[inputIterNumber()]++ << endl;
+		cout << "Метод вернул " << iter++ << endl;
 		break;
 	case 13:
-		cout << "Метод вернул " << iters[inputIterNumber()]-- << endl;
+		cout << "Метод вернул " << iter-- << endl;
 		break;
 	case 14:
-		try { cout << *iters[inputIterNumber()] << endl; }
+		try { cout << *iter << endl; }
 		catch (const char* ex)
 		{
 			cout << ex << endl;
 		}
 		break;
 	case 15:
-		cout << (iters[0] == iters[1]) << endl;
+		cout << (iter == list.End()) << endl;
 		break;
 	case 16:
-		cout << (iters[inputIterNumber()] == list.End()) << endl;
+		system("CLS");
+		printCommands();
 		break;
 	default:
 		cout << "Неправильный номер команды" << endl;
@@ -141,13 +129,13 @@ int main()
 	setlocale(LC_ALL, "Russian");
 
 	Lab1::List<int> list;
-	Lab1::List<int>::Iterator iterators[ITERATORS_COUNT];
+	Lab1::List<int>::Iterator iterator;
 
 	printCommands();
 
 	while (true)
 	{
-		handleInput(inputValue("Номер команды"), list, iterators);
+		handleInput(inputValue("Номер команды"), list, iterator);
 	}
 
 }
