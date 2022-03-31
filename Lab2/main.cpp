@@ -1,8 +1,14 @@
 #include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
 #include "BST.h"
+
+#define commandView pair<Command, const char*>
 
 using namespace std;
 using namespace Lab2;
+
 typedef unsigned long long INT_64;
 
 static INT_64 RRand = 15750;
@@ -48,9 +54,9 @@ void testTree(Lab2::BST<K, V>& tree, K* keys, K (*getMissKey)(int), K (*getSucce
 	const int size = tree.GetSize();
 	cout << "Размер дерева до теста: " << size << endl;
 
-	int addReadedElements = 0;
-	int removeReadedElements = 0;
-	int searchReadedElements = 0;
+	int addReadElements = 0;
+	int removeReadElements = 0;
+	int searchReadElements = 0;
 
 	const int probabilityOfMiss = 10;
 	const int operationsCount = size / 2;
@@ -60,27 +66,27 @@ void testTree(Lab2::BST<K, V>& tree, K* keys, K (*getMissKey)(int), K (*getSucce
 		if (i % probabilityOfMiss == 0) //miss
 		{
 			tree.Remove(getMissKey(size));
-			removeReadedElements += tree.GetReadedElementsCount();
+			removeReadElements += tree.GetReadElementsCount();
 
 			tree.Add(keys[lineRand() % size], 1);
-			addReadedElements += tree.GetReadedElementsCount();
+			addReadElements += tree.GetReadElementsCount();
 
 			try 
 			{
 				tree[getMissKey(size)];
 			}
 			catch (const char* ex) {}
-			searchReadedElements += tree.GetReadedElementsCount();
+			searchReadElements += tree.GetReadElementsCount();
 		}
 		else //success
 		{
 			int index = lineRand() % size;
 			tree.Remove(keys[index]);
-			removeReadedElements += tree.GetReadedElementsCount();
+			removeReadElements += tree.GetReadElementsCount();
 
 			K key = getSuccessKey(size);
 			tree.Add(key, 1);
-			addReadedElements += tree.GetReadedElementsCount();
+			addReadElements += tree.GetReadElementsCount();
 			keys[index] = key;
 
 			try 
@@ -88,7 +94,7 @@ void testTree(Lab2::BST<K, V>& tree, K* keys, K (*getMissKey)(int), K (*getSucce
 				tree[keys[lineRand() % size]];
 			}
 			catch (const char* ex) {}
-			searchReadedElements += tree.GetReadedElementsCount();
+			searchReadElements += tree.GetReadElementsCount();
 		}
 
 	}
@@ -97,9 +103,9 @@ void testTree(Lab2::BST<K, V>& tree, K* keys, K (*getMissKey)(int), K (*getSucce
 
 	cout << "Теоретическая трудоёмкость:" << theoreticalComplexity << endl;
 
-	cout << "Трудоёмкость вставки: " << addReadedElements * 1.0 / operationsCount << endl;
-	cout << "Трудоёмкость удаления: " << removeReadedElements * 1.0 / operationsCount << endl;
-	cout << "Трудоёмкость поиска: " << searchReadedElements * 1.0 / operationsCount << endl;
+	cout << "Трудоёмкость вставки: " << addReadElements * 1.0 / operationsCount << endl;
+	cout << "Трудоёмкость удаления: " << removeReadElements * 1.0 / operationsCount << endl;
+	cout << "Трудоёмкость поиска: " << searchReadElements * 1.0 / operationsCount << endl;
 }
 
 void testRandomTree(int size)
@@ -139,29 +145,67 @@ void testOrdinaryTree(int size)
 	delete[] keys;
 } 
 
+enum class Command { Fulfill, Print, Clear,  Add, GetByKey, ChangeByKey,
+					RemoveByKey, GetSize, GetReadElemsCount, 
+					GetKeys, TestRandomTree, TestOrdinaryTree,
+					IterSetBegin, IterNext, IterPrev, IterGet, IsIterEnd,
+					RIterSetRBegin, RIterNext, RIterPrev, RIterGet, IsRIterRend, PrintCommands, Exit};
+
+vector<pair<Command, const char*>> commandsView = { 
+{Command::Fulfill, "Заполнить дерево для теста"},
+{Command::IterSetBegin, "Прямой итератор: установить на начало дерева"},
+{Command::Print, "Вывести дерево"},
+{Command::IterNext, "Прямой итератор: следующий элемент"},
+{Command::Clear, "Очистить дерево"},
+{Command::IterPrev, "Прямой итератор: предыдущий элемент"},
+{Command::Add, "Добавить элемент"},
+{Command::IterGet, "Прямой итератор: получить значение"},
+{Command::GetByKey, "Получить элемент по ключу"},
+{Command::IterGet, "Прямой итератор: получить значение"},
+{Command::ChangeByKey, "Изменить элемент по ключу"},
+{Command::IsIterEnd, "Прямой итератор: равен ли End()?"},
+{Command::RemoveByKey, "Удалить элемент по ключу"},
+{Command::RIterSetRBegin, "Обратный итератор: установить на конец дерева"},
+{Command::GetSize, "Получить размер дерева"},
+{Command::RIterNext, "Обратный итератор: следующий элемент"},
+{Command::GetReadElemsCount, "Количество просмотренных элементов"},
+{Command::RIterPrev, "Обратный итератор: предыдущий элемент"},
+{Command::GetKeys, "Вывести список ключей (L -> R -> t)"},
+{Command::RIterGet, "Обратный итератор: получить значение"},
+{Command::TestRandomTree, "Тест трудоёмкости случайного дерева"},
+{Command::IsRIterRend, "Обратный итератор: равен ли Rend()?"},
+{Command::TestOrdinaryTree, "Тест трудоёмкости вырожденного дерева"},
+{Command::PrintCommands, "Вывести команды"},
+{Command::Exit, "Выход"}
+};
+
 void printCommands()
 {
-	cout << "0 - Вывести дерево" << endl;
-	cout <<	"1 - Очистить дерево" << endl; 
-	cout << "2 - Добавить элемент" << endl; 
-	cout << "3 - Получить элемент по ключу" << endl;
-	cout << "4 - Изменить элемент по ключу" << endl;
-	cout << "5 - Удалить элемент по ключу" << endl; 
-	cout << "6 - Получить размер дерева" << endl; 
-	cout << "7 - Количество просмотренных элементов" << endl; 
-	cout << "8 - Вывести список ключей (L -> R -> t)" << endl;
-	cout << "9 - Тест трудоёмкости случайного дерева" << endl; 
-	cout << "10 - Тест трудоёмкости вырожденного дерева" << endl;
-	cout << "11 - Прямой итератор: установить на начало дерева" << endl;
-	cout << "12 - Прямой итератор: следующий элемент" << endl;
-	cout << "13 - Прямой итератор: предыдущий элемент" << endl;
-	cout << "14 - Прямой итератор: разыменовать" << endl;
-	cout << "15 - Прямой итератор: равен ли End()?" << endl;
-	cout << "16 - Обратный итератор: установить на конец дерева" << endl;
-	cout << "17 - Обратный итератор: следующий элемент" << endl;
-	cout << "18 - Обратный итератор: предыдущий элемент" << endl;
-	cout << "19 - Обратный итератор: разыменовать" << endl;
-	cout << "20 - Обратный итератор: равен ли Rend()?" << endl;
+	auto printCommand = [](commandView view)
+	{ 
+		cout << (int)view.first << " - " << view.second; 
+	};
+
+	for (int i = 0, j = commandsView.size() / 2; i < commandsView.size() / 2; i++, j++)
+	{
+		printCommand(commandsView[i]);
+
+		int k = (int)commandsView[i].first / 10;
+		int len = 1;
+		
+		while (k != 0)
+		{
+			len++; k /= 10;
+		}
+
+		for (int s = strlen(commandsView[i].second); s < 60 - len; s++)
+			cout << " ";
+
+		if (j < commandsView.size())
+			printCommand(commandsView[j]);
+
+		cout << endl;
+	}
 }
 
 int inputValue(string hintForUser)
@@ -186,16 +230,16 @@ void handleInput(int input, Lab2::BST<int,int>& bst, Iterators& iters)
 {
 	switch (input)
 	{
-	case 0:
+	case (int)Command::Print:
 		bst.Print();
 		break;
-	case 1:
+	case (int)Command::Clear:
 		bst.Clear();
 		break;
-	case 2:
+	case (int)Command::Add:
 		cout << "Метод вернул: " << bst.Add(inputValue("Ключ"), inputValue("Значение")) << endl;
 		break;
-	case 3:
+	case (int)Command::GetByKey:
 	{
 		int e;
 		try { e = bst[inputValue("Ключ")]; }
@@ -207,7 +251,7 @@ void handleInput(int input, Lab2::BST<int,int>& bst, Iterators& iters)
 		cout << e << endl;
 		break;
 	}
-	case 4:
+	case (int)Command::ChangeByKey:
 		try { bst[inputValue("Ключ")] = inputValue("Значение"); }
 		catch (const char* ex)
 		{
@@ -215,57 +259,110 @@ void handleInput(int input, Lab2::BST<int,int>& bst, Iterators& iters)
 			break;
 		};
 		break;
-	case 5:
+	case (int)Command::RemoveByKey:
 		cout << "Метод вернул: " << bst.Remove(inputValue("Ключ")) << endl;
 		break;
-	case 6:
+	case (int)Command::GetSize:
 		cout << bst.GetSize() << endl;
 		break;
-	case 7:
-		cout << bst.GetReadedElementsCount() << endl;
+	case (int)Command::GetReadElemsCount:
+		cout << bst.GetReadElementsCount() << endl;
 		break;
-	case 8:
+	case (int)Command::GetKeys:
 	{
 		Lab1::List<int> keys = bst.GetKeysList();
 		keys.Print();
 		break;
 	}
-	case 9:
+	case (int)Command::TestRandomTree:
 		testRandomTree(inputValue("Размер тестируемого дерева"));
 		break;
-	case 10:
+	case (int)Command::TestOrdinaryTree:
 		testOrdinaryTree(inputValue("Размер тестируемого дерева"));
 		break;
-	case 11:
+		case (int)Command::IterSetBegin:
 		iters.forward = bst.Begin();
 		break;
-	case 12:
+	case (int)Command::IterNext:
 		cout << "Метод вернул: " << iters.forward++ << endl;
 		break;
-	case 13:
+	case (int)Command::IterPrev:
 		cout << "Метод вернул: " << iters.forward-- << endl;
 		break;
-	case 14:
+	case (int)Command::IterGet:
 		cout << *iters.forward << endl;
 		break;
-	case 15:
+	case (int)Command::IsIterEnd:
 		cout << (iters.forward == bst.End()) << endl;
 		break;
-	case 16:
+	case (int)Command::RIterSetRBegin:
 		iters.reverse = bst.Rbegin();
 		break;
-	case 17:
+	case (int)Command::RIterNext:
 		cout << "Метод вернул: " << iters.reverse++ << endl;
 		break;
-	case 18:
+	case (int)Command::RIterPrev:
 		cout << "Метод вернул: " << iters.reverse-- << endl;
 		break;
-	case 19:
+	case (int)Command::RIterGet:
 		cout << *iters.reverse << endl;
 		break;
-	case 20:
+	case (int)Command::IsRIterRend:
 		cout << (iters.reverse == bst.Rend()) << endl;
 		break;
+	case (int)Command::PrintCommands:
+		system("CLS");
+		printCommands();
+		break;
+	case(int)Command::Fulfill:
+	{
+		int size = inputValue("Размер");
+		if (size <= 1)
+			return;
+
+		bst.Clear();
+
+		int* keys = new int[size];
+		bool* isAdded = new bool[size];
+		for (int i = 0; i < size; i++)
+		{
+			keys[i] = i+1; isAdded[i] = false;
+		}
+
+		bst.Add(keys[size / 2], keys[size / 2]);
+		isAdded[size / 2] = true;
+
+		int distance = 0;
+		int inserts = 0;
+		while (inserts != size - 1)
+		{
+			for (int i = 0; i < size; i++)
+			{
+				if (isAdded[i] || i == size - 1)
+				{
+					if (distance == 0 && i != size - 1)
+						continue;
+					int id = i - (distance+1) / 2;
+
+					if (isAdded[id])
+						continue;
+
+					inserts++;
+					bst.Add(keys[id], keys[id]);
+					isAdded[id] = true;
+					distance = 0;
+				}
+				else distance++;
+			}
+		}
+
+		break;
+	}
+	case(int)Command::Exit:
+	{
+		exit(0);
+		break;
+	}
 	default:
 		cout << "Неправильный номер команды" << endl;
 		break;
@@ -275,6 +372,12 @@ void handleInput(int input, Lab2::BST<int,int>& bst, Iterators& iters)
 int main()
 {
 	setlocale(LC_ALL, "Russian");
+
+	auto sortCommands = [](commandView p1, commandView p2)
+	{
+		return (int)p1.first < (int)p2.first;
+	};
+	sort(commandsView.begin(), commandsView.end(), sortCommands);
 
 	Lab2::BST<int, int> bst;
 	Iterators iters;

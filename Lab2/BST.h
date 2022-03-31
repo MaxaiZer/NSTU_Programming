@@ -62,7 +62,7 @@ namespace Lab2
 		};
 
 		BST() {}; 
-		BST(const BST<K, V>& bst);
+		BST(const BST<K, V>& bst) { MergeWith(bst); };
 		~BST() { Clear(); }
 		int GetSize() const { return size; } 
 		void Clear(); 
@@ -71,7 +71,7 @@ namespace Lab2
 		bool Add(K key, V value); 
 		bool Remove(K key); 
 		Lab1::List<K> GetKeysList() const; //возвращает список ключей по схеме L -> R -> t
-		int GetReadedElementsCount() const { return readedElements; } //опрос числа узлов дерева, просмотренных предыдущей операцией
+		int GetReadElementsCount() const { return readElements; } //опрос числа узлов дерева, просмотренных предыдущей операцией
 		void Print() const;
 		void MergeWith(const BST<K,V>& bst);  //объединение с другим деревом
 
@@ -81,14 +81,14 @@ namespace Lab2
 		ReverseIterator Rend() { return ReverseIterator(*this, nullptr); } //запрос «неустановленного» обратного итератора
 	protected:
 		int size = 0;
-		mutable int readedElements = 0; //число узлов дерева, просмотренных предыдущей операцией
+		mutable int readElements = 0; //число узлов дерева, просмотренных предыдущей операцией
 		Node* root = nullptr;
 
 		enum class BypassCode { L, T, R }; //для составления схемы обхода
 		void AddNodesToList(Node* root, Lab1::List<Node>& list, BypassCode codes[3]) const; //добавление узлов в список по схеме обхода
 
 		enum class BypassMode {AddToTree, DeleteFromMemory}; //режим обхода дерева
-		void BypassTree(Node* root, BypassMode mode); //обход дерева, где для каждого узла выполняется действие согласно режиму обхода
+		int BypassTree(Node* root, BypassMode mode); //обход дерева, где для каждого узла выполняется действие согласно режиму обхода
 
 		void PrintLevels(Node* root, int level) const; //рекурсивный вывод дерева
 		bool FindNodeByKey(Node** resultParent, Node** resultNode, K key) const;
@@ -96,7 +96,6 @@ namespace Lab2
 		Node* GetParent(Node* node) const;
 		Node* GetPrev(Node* node) const; //следующий узел при прямом обходе
 		Node* GetNext(Node* node) const; //предыдущий узел при прямом обходе
-		void CreateFromSortedArray(Node* array, Node* currentNode, int l, int r); //создание дерева из отсортированного по ключам списка узлов
 
 		class Node
 		{
@@ -135,16 +134,7 @@ namespace Lab2
 		friend class ReverseIterator;
 	};
 
-	//публичные методы дерева
-
-	template<class K, class V>
-	inline BST<K, V>::BST(const BST<K, V>& bst)
-	{
-		if (bst.IsEmpty())
-			return;
-
-		BypassTree(bst.root, BypassMode::AddToTree);
-	}
+	//открытые методы дерева
 
 	template<class K, class V>
 	inline void BST<K, V>::Clear()
@@ -170,7 +160,7 @@ namespace Lab2
 	template<class K, class V>
 	inline bool BST<K, V>::Add(K key, V value)
 	{
-		readedElements = 0;
+		readElements = 0;
 		if (IsEmpty())
 		{
 			root = new Node(key, value);
@@ -182,7 +172,7 @@ namespace Lab2
 		Node* prevNode = nullptr;
 		while (curRoot != nullptr)
 		{
-			readedElements++;
+			readElements++;
 
 			prevNode = curRoot;
 			if (curRoot->key == key)
@@ -253,59 +243,7 @@ namespace Lab2
 		if (bst.IsEmpty())
 			return;
 
-		readedElements = 0;
-
-		Lab1::List<Node> nodes1(bst.size);
-		Lab1::List<Node> nodes2(this->size + 1);
-
-		//добавляем ключи обоих деревьев в соотв. списки в порядке возрастания
-
-		BypassCode codes[3] = { BypassCode::L, BypassCode::T, BypassCode::R };
-		bst.AddNodesToList(bst.root, nodes1, codes);
-		this->AddNodesToList(this->root, nodes2, codes);
-
-		readedElements += nodes1.GetSize() + nodes2.GetSize() + this->size;
-
-		Clear();
-
-		Node* sortedArray = new Node[nodes1.GetSize() + nodes2.GetSize()];
-		int sortedArraySize = 0;
-
-		//добавляем в sortedArray только уникальные ключи из nodes1 и nodes2 в порядке возрастания
-		while (nodes1.GetSize() + nodes2.GetSize() != 0)
-		{
-			if (nodes1.IsEmpty())
-				goto addFromNodes2;
-			else if (nodes2.IsEmpty())
-				goto addFromNodes1;
-
-			if (nodes1[0].key == nodes2[0].key)
-			{
-				nodes1.RemoveByPos(0);
-				continue;
-			}
-
-			if (nodes1[0].key < nodes2[0].key)
-			{
-			addFromNodes1:
-				sortedArray[sortedArraySize++] = nodes1[0];
-				nodes1.RemoveByPos(0);
-			}
-			else
-			{
-			addFromNodes2:
-				sortedArray[sortedArraySize++] = nodes2[0];
-				nodes2.RemoveByPos(0);
-			}
-		}
-
-		this->root = new Node();
-
-		CreateFromSortedArray(sortedArray, this->root, 0, sortedArraySize - 1);
-
-		readedElements += 2 * sortedArraySize;
-
-		delete[] sortedArray;
+		readElements = BypassTree(bst.root, BypassMode::AddToTree);
 	}
 
 	template<class K, class V>
@@ -342,13 +280,13 @@ namespace Lab2
 
 		Node* curRoot = this->root;
 		Node* curParent = nullptr;
-		readedElements = 1;
+		readElements = 1;
 
 		while (curRoot != nullptr && curRoot->key != key)
 		{
 			curParent = curRoot;
 			curRoot = (key < curRoot->key ? curRoot->left : curRoot->right);
-			readedElements++;
+			readElements++;
 		}
 
 		if (curRoot == nullptr)
@@ -378,12 +316,12 @@ namespace Lab2
 			parent = node;
 			Node* min = node->right;
 
-			readedElements++;
+			readElements++;
 			while (min->left != nullptr)
 			{
 				parent = min;
 				min = min->left;
-				readedElements++;
+				readElements++;
 			}
 
 			//значения удаляемого узла теперь равны min
@@ -493,34 +431,9 @@ namespace Lab2
 	}
 
 	template<class K, class V>
-	inline void Lab2::BST<K, V>::CreateFromSortedArray(Node* array, Node* currentNode, int l, int r)
+	inline int BST<K, V>::BypassTree(Node* root, BypassMode mode)
 	{
-		int mid = (l + r) / 2;
-
-		//текущий узел - середина массива между левой и правой границей
-
-		currentNode->key = array[mid].key;
-		currentNode->value = array[mid].value;
-		size++;
-
-		if (mid - 1 >= l)
-		{
-			//вершина левого поддерева - середина массива между левой границей и текущим узлом
-			currentNode->left = new Node();
-			CreateFromSortedArray(array, currentNode->left, l, mid - 1);
-		}
-
-		if (mid + 1 <= r)
-		{
-			//вершина правого поддерева - середина массива между текущим узлом и правой границей
-			currentNode->right = new Node();
-			CreateFromSortedArray(array, currentNode->right, mid + 1, r);
-		}
-	}
-
-	template<class K, class V>
-	inline void Lab2::BST<K, V>::BypassTree(Node* root, BypassMode mode)
-	{
+		int _readElements = 0;
 		Node* node = root;
 		std::stack<Node*> _stack;
 		_stack.push(node);
@@ -536,10 +449,14 @@ namespace Lab2
 				_stack.push(node->right);
 
 			if (mode == BypassMode::AddToTree)
+			{
 				Add(node->key, node->value);
+				_readElements += readElements;
+			}
 			else if (mode == BypassMode::DeleteFromMemory)
 				delete node;
 		}
+		return _readElements;
 	}
 
 	template<class K, class V>
@@ -550,11 +467,13 @@ namespace Lab2
 
 		int levelOffset = 3;
 		PrintLevels(root->right, level + 1);
+
 		for (int i = 0; i <= levelOffset * level; i++)
 		{
 			printf(" ");
 		}
 		std::cout << root->key << std::endl;
+
 		PrintLevels(root->left, level + 1);
 	}
 
