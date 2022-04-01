@@ -290,7 +290,8 @@ void handleInput(int input, Lab2::BST<int,int>& bst, Iterators& iters)
 		cout << "Метод вернул: " << iters.forward-- << endl;
 		break;
 	case (int)Command::IterGet:
-		cout << *iters.forward << endl;
+		try { cout << *iters.forward << endl; }
+		catch (const char* ex) { cout << ex << endl; }
 		break;
 	case (int)Command::IsIterEnd:
 		cout << (iters.forward == bst.End()) << endl;
@@ -305,7 +306,8 @@ void handleInput(int input, Lab2::BST<int,int>& bst, Iterators& iters)
 		cout << "Метод вернул: " << iters.reverse-- << endl;
 		break;
 	case (int)Command::RIterGet:
-		cout << *iters.reverse << endl;
+		try { cout << *iters.reverse << endl; }
+		catch (const char* ex) { cout << ex << endl; }
 		break;
 	case (int)Command::IsRIterRend:
 		cout << (iters.reverse == bst.Rend()) << endl;
