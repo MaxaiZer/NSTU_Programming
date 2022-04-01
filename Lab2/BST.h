@@ -96,6 +96,7 @@ namespace Lab2
 		Node* GetParent(Node* node) const;
 		Node* GetPrev(Node* node) const; //следующий узел при прямом обходе
 		Node* GetNext(Node* node) const; //предыдущий узел при прямом обходе
+		void CreateFromSortedArray(Node* array, Node* currentNode, int l, int r); //создание дерева из отсортированного по ключам списка узлов
 
 		class Node
 		{
@@ -243,7 +244,61 @@ namespace Lab2
 		if (bst.IsEmpty())
 			return;
 
-		readElements = BypassTree(bst.root, BypassMode::AddToTree);
+		//сравниваем трудоёмкость объединения через вставку элементов по одному и 
+		//через отсортированный список ключей обоих деревьев
+		if (bst.size * log2(this->size) < bst.size + this->size)
+		{
+			readElements = BypassTree(bst.root, BypassMode::AddToTree);
+			return;
+		}
+
+		Lab1::List<Node> nodes1(bst.size);
+		Lab1::List<Node> nodes2(this->size + 1);
+		
+		BypassCode codes[3] = { BypassCode::L, BypassCode::T, BypassCode::R };
+		bst.AddNodesToList(bst.root, nodes1, codes);
+		this->AddNodesToList(this->root, nodes2, codes); //получаем узлы обоих деревьев по схеме прямого обхода
+
+		Clear();
+
+		readElements = nodes1.GetSize() + nodes2.GetSize() + this->size;
+
+		Node* sortedArray = new Node[nodes1.GetSize() + nodes2.GetSize()];
+		int sortedArraySize = 0;
+
+		//добавляем в sortedArray только уникальные ключи из nodes1 и nodes2 в порядке возрастания
+		while (nodes1.GetSize() + nodes2.GetSize() != 0)
+		{
+			if (nodes1.IsEmpty())
+				goto addFromNodes2;
+			else if (nodes2.IsEmpty())
+				goto addFromNodes1;
+
+			if (nodes1[0].key == nodes2[0].key)
+			{
+				nodes1.RemoveByPos(0);
+				continue;
+			}
+
+			if (nodes1[0].key < nodes2[0].key)
+			{
+			addFromNodes1:
+				sortedArray[sortedArraySize++] = nodes1[0];
+				nodes1.RemoveByPos(0);
+			}
+			else
+			{
+			addFromNodes2:
+				sortedArray[sortedArraySize++] = nodes2[0];
+				nodes2.RemoveByPos(0);
+			}
+		}
+
+		this->root = new Node();
+		CreateFromSortedArray(sortedArray, this->root, 0, sortedArraySize - 1);
+
+		readElements += 2 * sortedArraySize;
+		delete[] sortedArray;
 	}
 
 	template<class K, class V>
@@ -428,6 +483,31 @@ namespace Lab2
 		}
 
 		return lastSuccessNode;
+	}
+
+	template<class K, class V>
+	inline void Lab2::BST<K, V>::CreateFromSortedArray(Node* array, Node* currentNode, int l, int r)
+	{
+		int mid = (l + r) / 2;
+
+		//текущий узел - середина массива между текущей левой и правой границей
+		currentNode->key = array[mid].key;
+		currentNode->value = array[mid].value;
+		size++;
+
+		if (mid - 1 >= l)
+		{
+			//вершина левого поддерева - середина массива между левой границей и текущим узлом
+			currentNode->left = new Node();
+			CreateFromSortedArray(array, currentNode->left, l, mid - 1);
+		}
+
+		if (mid + 1 <= r)
+		{
+			//вершина правого поддерева - середина массива между текущим узлом и правой границей
+			currentNode->right = new Node();
+			CreateFromSortedArray(array, currentNode->right, mid + 1, r);
+		}
 	}
 
 	template<class K, class V>

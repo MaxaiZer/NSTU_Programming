@@ -161,7 +161,6 @@ vector<pair<Command, const char*>> commandsView = {
 {Command::Add, "Добавить элемент"},
 {Command::IterGet, "Прямой итератор: получить значение"},
 {Command::GetByKey, "Получить элемент по ключу"},
-{Command::IterGet, "Прямой итератор: получить значение"},
 {Command::ChangeByKey, "Изменить элемент по ключу"},
 {Command::IsIterEnd, "Прямой итератор: равен ли End()?"},
 {Command::RemoveByKey, "Удалить элемент по ключу"},
@@ -206,6 +205,7 @@ void printCommands()
 
 		cout << endl;
 	}
+
 }
 
 int inputValue(string hintForUser)
@@ -317,45 +317,19 @@ void handleInput(int input, Lab2::BST<int,int>& bst, Iterators& iters)
 	case(int)Command::Fulfill:
 	{
 		int size = inputValue("Размер");
-		if (size <= 1)
+		if (size < 1)
 			return;
 
 		bst.Clear();
 
-		int* keys = new int[size];
-		bool* isAdded = new bool[size];
-		for (int i = 0; i < size; i++)
+		BST<int, int> another;
+		for (int i = 1; i <= size; i++)
 		{
-			keys[i] = i+1; isAdded[i] = false;
+			bst.Add(i, i);
+			another.Add(i, i);
 		}
 
-		bst.Add(keys[size / 2], keys[size / 2]);
-		isAdded[size / 2] = true;
-
-		int distance = 0;
-		int inserts = 0;
-		while (inserts != size - 1)
-		{
-			for (int i = 0; i < size; i++)
-			{
-				if (isAdded[i] || i == size - 1)
-				{
-					if (distance == 0 && i != size - 1)
-						continue;
-					int id = i - (distance+1) / 2;
-
-					if (isAdded[id])
-						continue;
-
-					inserts++;
-					bst.Add(keys[id], keys[id]);
-					isAdded[id] = true;
-					distance = 0;
-				}
-				else distance++;
-			}
-		}
-
+		bst.MergeWith(another);
 		break;
 	}
 	case(int)Command::Exit:
