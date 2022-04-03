@@ -1,5 +1,8 @@
 #include <stack>
-#include "../Lab1/List.h"
+#include <list>
+
+using std::list;
+//#include "../Lab1/List.h"
 
 namespace Lab2
 {
@@ -70,7 +73,7 @@ namespace Lab2
 		V& operator[] (K key); 
 		bool Add(K key, V value); 
 		bool Remove(K key); 
-		Lab1::List<K> GetKeysList() const; //возвращает список ключей по схеме L -> R -> t
+		std::list<K> GetKeysList() const; //возвращает список ключей по схеме L -> R -> t
 		int GetReadElementsCount() const { return readElements; } //опрос числа узлов дерева, просмотренных предыдущей операцией
 		void Print() const;
 		void MergeWith(const BST<K,V>& bst);  //объединение с другим деревом
@@ -85,7 +88,7 @@ namespace Lab2
 		Node* root = nullptr;
 
 		enum class BypassCode { L, T, R }; //для составления схемы обхода
-		void AddNodesToList(Node* root, Lab1::List<Node>& list, BypassCode codes[3]) const; //добавление узлов в список по схеме обхода
+		void AddNodesToList(Node* root, list<Node>& list, BypassCode codes[3]) const; //добавление узлов в список по схеме обхода
 
 		enum class BypassMode {AddToTree, DeleteFromMemory}; //режим обхода дерева
 		int BypassTree(Node* root, BypassMode mode); //обход дерева, где для каждого узла выполняется действие согласно режиму обхода
@@ -206,22 +209,19 @@ namespace Lab2
 	}
 
 	template<class K, class V>
-	inline Lab1::List<K> BST<K, V>::GetKeysList() const
+	inline list<K> BST<K, V>::GetKeysList() const
 	{
 		if (IsEmpty())
-			return Lab1::List<K>();
+			return list<K>();
 
-		Lab1::List<K> keys(this->size);
-		Lab1::List<Node> nodes(this->size);
+		list<K> keys;
+		list<Node> nodes;
 
 		BypassCode var8Codes[] = { BypassCode::L, BypassCode::R, BypassCode::T };
 		AddNodesToList(this->root, nodes, var8Codes);
 
-		typename Lab1::List<Node>::Iterator iter = nodes.Begin();
-		do
-		{
-			keys.Add((*iter).key);
-		} while (iter++);
+		for (auto it = nodes.begin(); it != nodes.end(); it++)
+			keys.push_back((*it).key);
 
 		return keys;
 	}
@@ -252,45 +252,44 @@ namespace Lab2
 			return;
 		}
 
-		Lab1::List<Node> nodes1(bst.size);
-		Lab1::List<Node> nodes2(this->size + 1);
+		list<Node> nodes1, nodes2;
 		
 		BypassCode codes[3] = { BypassCode::L, BypassCode::T, BypassCode::R };
 		bst.AddNodesToList(bst.root, nodes1, codes);
 		this->AddNodesToList(this->root, nodes2, codes); //получаем узлы обоих деревьев по схеме прямого обхода
 
+		readElements = nodes1.size() + nodes2.size() + this->size;
+
 		Clear();
 
-		readElements = nodes1.GetSize() + nodes2.GetSize() + this->size;
-
-		Node* sortedArray = new Node[nodes1.GetSize() + nodes2.GetSize()];
+		Node* sortedArray = new Node[nodes1.size() + nodes2.size()];
 		int sortedArraySize = 0;
 
 		//добавляем в sortedArray только уникальные ключи из nodes1 и nodes2 в порядке возрастания
-		while (nodes1.GetSize() + nodes2.GetSize() != 0)
+		while (nodes1.size() + nodes2.size() != 0)
 		{
-			if (nodes1.IsEmpty())
+			if (nodes1.empty())
 				goto addFromNodes2;
-			else if (nodes2.IsEmpty())
+			else if (nodes2.empty())
 				goto addFromNodes1;
 
-			if (nodes1[0].key == nodes2[0].key)
+			if (nodes1.front().key == nodes2.front().key)
 			{
-				nodes1.RemoveByPos(0);
+				nodes1.pop_front();
 				continue;
 			}
 
-			if (nodes1[0].key < nodes2[0].key)
+			if (nodes1.front().key < nodes2.front().key)
 			{
 			addFromNodes1:
-				sortedArray[sortedArraySize++] = nodes1[0];
-				nodes1.RemoveByPos(0);
+				sortedArray[sortedArraySize++] = nodes1.front();
+				nodes1.pop_front();
 			}
 			else
 			{
 			addFromNodes2:
-				sortedArray[sortedArraySize++] = nodes2[0];
-				nodes2.RemoveByPos(0);
+				sortedArray[sortedArraySize++] = nodes2.front();
+				nodes2.pop_front();
 			}
 		}
 
@@ -486,7 +485,7 @@ namespace Lab2
 	}
 
 	template<class K, class V>
-	inline void Lab2::BST<K, V>::CreateFromSortedArray(Node* array, Node* currentNode, int l, int r)
+	inline void BST<K, V>::CreateFromSortedArray(Node* array, Node* currentNode, int l, int r)
 	{
 		int mid = (l + r) / 2;
 
@@ -558,7 +557,7 @@ namespace Lab2
 	}
 
 	template<class K, class V>
-	inline void BST<K, V>::AddNodesToList(Node* root, Lab1::List<Node>& list, BypassCode codes[3]) const
+	inline void BST<K, V>::AddNodesToList(Node* root, list<Node>& list, BypassCode codes[3]) const
 	{
 		if (root == nullptr)
 			return;
@@ -570,7 +569,7 @@ namespace Lab2
 			else if (codes[i] == BypassCode::R)
 				AddNodesToList(root->right, list, codes);
 			else if (codes[i] == BypassCode::T)
-				list.Add(*root);
+				list.push_back(*root);
 		}
 	}
 

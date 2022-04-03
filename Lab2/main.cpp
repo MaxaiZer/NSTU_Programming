@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <list>
 #include "BST.h"
 
 #define commandView pair<Command, const char*>
@@ -270,8 +271,15 @@ void handleInput(int input, Lab2::BST<int,int>& bst, Iterators& iters)
 		break;
 	case (int)Command::GetKeys:
 	{
-		Lab1::List<int> keys = bst.GetKeysList();
-		keys.Print();
+		std::list<int> keys = bst.GetKeysList();
+
+		if (keys.empty())
+			cout << "List is empty";
+
+		for (auto it = keys.begin(); it != keys.end(); it++)
+			cout << *it << " ";
+
+		cout << endl;
 		break;
 	}
 	case (int)Command::TestRandomTree:
