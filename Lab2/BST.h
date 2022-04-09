@@ -2,7 +2,6 @@
 #include <list>
 
 using std::list;
-//#include "../Lab1/List.h"
 
 namespace Lab2
 {
@@ -96,7 +95,6 @@ namespace Lab2
 		void PrintLevels(Node* root, int level) const; //рекурсивный вывод дерева
 		bool FindNodeByKey(Node** resultParent, Node** resultNode, K key) const;
 		void Remove(Node* node, Node* parent); 
-		Node* GetParent(Node* node) const;
 		Node* GetPrev(Node* node) const; //следующий узел при прямом обходе
 		Node* GetNext(Node* node) const; //предыдущий узел при прямом обходе
 		void CreateFromSortedArray(Node* array, Node* currentNode, int l, int r); //создание дерева из отсортированного по ключам списка узлов
@@ -112,7 +110,8 @@ namespace Lab2
 			Node() {};
 			Node(K key, V value) : key(key), value(value) {};
 
-			Node* GetMaxInChild() const {
+			Node* GetMaxInR() const //нахождение узла с макс. ключом в правом поддереве
+			{
 				if (this->right == nullptr)
 					return nullptr;
 
@@ -122,7 +121,8 @@ namespace Lab2
 
 				return max;
 			}
-			Node* GetMinInChild() const {
+			Node* GetMinInL() const //нахождение узла с мин. ключом в левом поддереве
+			{
 				if (this->left == nullptr)
 					return nullptr;
 
@@ -306,7 +306,7 @@ namespace Lab2
 		if (IsEmpty())
 			return End();
 
-		Node* min = root->GetMinInChild();
+		Node* min = root->GetMinInL();
 		min = (min == nullptr ? root : min);
 
 		return Iterator(*this, min);
@@ -318,7 +318,7 @@ namespace Lab2
 		if (IsEmpty())
 			return Rend();
 
-		Node* max = root->GetMaxInChild();
+		Node* max = root->GetMaxInR();
 		max = (max == nullptr ? root : max);
 
 		return ReverseIterator(*this, max);
@@ -411,7 +411,7 @@ namespace Lab2
 		//если есть левый потомок, предыдущий - либо он, либо элемент с макс. ключом в его потомках
 		if (node->left != nullptr)
 		{
-			Node* max = node->left->GetMaxInChild();
+			Node* max = node->left->GetMaxInR();
 			return (max == nullptr ? node->left : max);
 		}
 
@@ -439,16 +439,6 @@ namespace Lab2
 	}
 
 	template<class K, class V>
-	inline typename BST<K, V>::Node* BST<K, V>::GetParent(Node* node) const
-	{
-		Node* resultParent = nullptr;
-		Node* result = nullptr;
-
-		FindNodeByKey(&resultParent, &result, node->key);
-		return resultParent;
-	}
-
-	template<class K, class V>
 	inline typename BST<K, V>::Node* BST<K, V>::GetNext(Node* node) const
 	{
 		if (node == nullptr)
@@ -457,7 +447,7 @@ namespace Lab2
 		//если есть правый потомок, следующий - либо он, либо элемент с мин. ключом в его потомках
 		if (node->right != nullptr)
 		{
-			Node* min = node->right->GetMinInChild();
+			Node* min = node->right->GetMinInL();
 			return (min == nullptr ? node->right : min);
 		}
 		//иначе - спуск от корня с поиском элемента с мин. ключом, большим, чем у node
