@@ -1,3 +1,4 @@
+#pragma once
 #include <stack>
 #include <list>
 
@@ -5,7 +6,7 @@ using std::list;
 
 namespace Lab2
 {
-	#define IterNotInstalledEx "Iterator is not installed"
+	#define IterNotInstalledEx "Iterator out of range"
 
 	template <class K, class V>  //Key, Value
 	class BST
@@ -69,10 +70,11 @@ namespace Lab2
 		int GetSize() const { return size; } 
 		void Clear(); 
 		bool IsEmpty() const { return size == 0; }
-		V& operator[] (K key); 
+		V Get(K key) const; 
+		void Set(K key, V newValue);
 		bool Add(K key, V value); 
 		bool Remove(K key); 
-		std::list<K> GetKeysList() const; //возвращает список ключей по схеме L -> R -> t
+		list<K> GetKeysList() const; //возвращает список ключей по схеме L -> R -> t
 		int GetReadElementsCount() const { return readElements; } //опрос числа узлов дерева, просмотренных предыдущей операцией
 		void Print() const;
 		void MergeWith(const BST<K,V>& bst);  //объединение с другим деревом
@@ -151,7 +153,7 @@ namespace Lab2
 	}
 
 	template<class K, class V>
-	inline V& BST<K, V>::operator[](K key)
+	inline V BST<K, V>::Get(K key) const
 	{
 		Node* parent = nullptr;
 		Node* node = nullptr;
@@ -159,6 +161,17 @@ namespace Lab2
 			throw "Wrong key";
 		else
 			return node->value;
+	}
+
+	template<class K, class V>
+	inline void BST<K, V>::Set(K key, V newValue)
+	{
+		Node* parent = nullptr;
+		Node* node = nullptr;
+		if (FindNodeByKey(&parent, &node, key) == false)
+			throw "Wrong key";
+
+		node->value = newValue;
 	}
 
 	template<class K, class V>
