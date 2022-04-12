@@ -1,4 +1,5 @@
-﻿#include <vector>
+﻿#pragma once
+#include <vector>
 #include <algorithm>
 #include <stack>
 #include <iostream>
@@ -9,7 +10,7 @@ using std::endl;
 namespace Lab3
 {
 	#define WrongKeyEx "Wrong key" 
-	#define IterNotInstalledEx "Iterator is not installed"
+	#define IterOutOfRangeEx "Iterator out of range"
 
 	template <class K, class V>
 	class Tree23
@@ -31,7 +32,7 @@ namespace Lab3
 				if (current != nullptr)
 					return current->value;
 
-				throw IterNotInstalledEx;
+				throw IterOutOfRangeEx;
 			}
 			bool operator++(int value) //переход к следующему узлу при прямом обходе
 			{ 
@@ -62,7 +63,7 @@ namespace Lab3
 				if (current != nullptr)
 					return current->value;
 
-				throw IterNotInstalledEx;
+				throw IterOutOfRangeEx;
 			}
 			bool operator++(int value) //переход к предыдущему узлу при прямом обходе
 			{ 
@@ -83,12 +84,13 @@ namespace Lab3
 		};
 
 		Tree23() {};
-		Tree23(const Tree23<K, V>& tree);
+		Tree23(const Tree23<K, V>& tree) { BypassTree(tree.root, BypassMode::AddToTree); };
 		~Tree23() { Clear(); }
 		int GetSize() const { return size; }
 		void Clear();
 		bool IsEmpty() const { return size == 0; }
-		V& operator[] (K key); 
+		V Get(K key) const { return GetValue(key); };
+		void Set(K key, V newValue) { GetValue(key) = newValue; }
 		bool Add(K key, V value);
 		bool Remove(K key);
 		int GetReadElementsCount() const { return readElements; } 
@@ -107,12 +109,13 @@ namespace Lab3
 		void BypassTree(Node* root, BypassMode mode); //обход дерева, где для каждого узла выполняется действие согласно режиму обхода
 
 		void PrintLevels(Node* root, int level) const; //рекурсивный вывод дерева
+		V& GetValue(K key) const;
 		bool FindNodeByKey(Internal* curRoot, Internal** parent, int* sonId, K key) const;
 		bool Remove(Internal* curRoot, K key);
 		void GetPrev(Internal** parent, Leaf** leaf) const; //следующий узел при прямом обходе
 		void GetNext(Internal** parent, Leaf** leaf) const; //предыдущий узел при прямом обходе
 		bool Insert(Internal* curRoot, Internal* curRootParent, Leaf* leaf);
-		void Split(Internal* nodeToSplit, Internal* parent, int sonId);
+		void Split(Internal* nodeToSplit, Internal* parent);
 		void Merge(Internal* nodeToMerge, Internal* parent, int sonId);
 		
 		class Node
@@ -179,7 +182,7 @@ namespace Lab3
 						minKeys[1] = static_cast<Internal*>(sons[2])->min;
 				}
 			}
-			int GetSonIdWithKey(K key)
+			int GetLeafIdWithKey(K key)
 			{
 				if (AreSonsLeafs() == false)
 					return -1;
@@ -191,19 +194,6 @@ namespace Lab3
 				}
 
 				return -1;
-			}
-			int GetSonIdForNewNode(K key) const
-			{
-				if (key < minKeys[0]) return 0;
-				else if (key == minKeys[0]) return -1;
-				else
-				{
-					if (sons.size() == 2) return 1;
-
-					if (key < minKeys[1]) return 1;
-					else if (key == minKeys[1]) return -1;
-					else return 2;
-				}
 			}
 			int GetSonIdToFindNode(K key) const
 			{
@@ -218,6 +208,14 @@ namespace Lab3
 					else return 2;
 				}
 			}
+			int GetSonIdForNewNode(K key) const
+			{
+				if (key == minKeys[0] || (sons.size() == 3 && key == minKeys[1]))
+					return -1;
+
+				return GetSonIdToFindNode(key);
+			}
+
 		};
 
 		friend class Iterator;
@@ -228,41 +226,11 @@ namespace Lab3
 	//открытые методы дерева
 
 	template<class K, class V>
-	inline Tree23<K, V>::Tree23(const Tree23<K, V>& tree)
-	{
-		BypassTree(tree.root, BypassMode::AddToTree);
-	}
-
-	template<class K, class V>
 	inline void Tree23<K, V>::Clear()
 	{
 		size = 0;
 		BypassTree(this->root, BypassMode::DeleteFromMemory);
 		root = nullptr;
-	}
-
-	template<class K, class V>
-	inline V& Tree23<K, V>::operator[](K key)
-	{
-		if (IsEmpty())
-			throw WrongKeyEx;
-
-		if (dynamic_cast<Leaf*>(root))
-		{
-			Leaf* rootLeaf = static_cast<Leaf*>(root);
-			if (rootLeaf->key == key)
-				return rootLeaf->value;
-			throw WrongKeyEx;
-		}
-
-		Internal* parent = nullptr;
-		int sonId;
-		if (FindNodeByKey(static_cast<Internal*>(root), &parent, &sonId, key))
-		{
-			return static_cast<Leaf*>(parent->sons[sonId])->value;
-		}
-
-		throw WrongKeyEx;
 	}
 
 	template<class K, class V>
@@ -296,7 +264,6 @@ namespace Lab3
 			newRoot->SortSons();
 			newRoot->SetMinKeys();
 
-
 			root = newRoot;
 			size++;
 			readElements++;
@@ -309,7 +276,7 @@ namespace Lab3
 		{
 			if (internalRoot->sons.size() > Internal::maxSonsCount)
 			{
-				Split(internalRoot, nullptr, 0);
+				Split(internalRoot, nullptr);
 				internalRoot->SetMinKeys();
 			}
 			static_cast<Internal*>(root)->SetMinKeys();
@@ -323,6 +290,7 @@ namespace Lab3
 	template<class K, class V>
 	inline bool Tree23<K, V>::Remove(K key)
 	{
+		readElements = 0;
 		if (dynamic_cast<Leaf*>(root))
 		{
 			if (static_cast<Leaf*>(root)->key == key)
@@ -336,23 +304,22 @@ namespace Lab3
 		}
 
 		Internal* internalRoot = static_cast<Internal*>(root);
+		if (Remove(internalRoot, key) == false)
+			return false;
 
-		if (Remove(internalRoot, key))
+		if (internalRoot->sons.size() < Internal::minSonsCount)
 		{
-			if (internalRoot->sons.size() < Internal::minSonsCount)
-			{
-				Merge(internalRoot, nullptr, 0);
-				return true;
-			}
-			else if (internalRoot->sons.size() > Internal::maxSonsCount)
-			{
-				Split(internalRoot, nullptr, 0);
-				internalRoot->SetMinKeys();
-			}
-			static_cast<Internal*>(root)->SetMinKeys();
+			Merge(internalRoot, nullptr, 0);
 			return true;
 		}
-		return false;
+		else if (internalRoot->sons.size() > Internal::maxSonsCount)
+		{
+			Split(internalRoot, nullptr);
+			internalRoot->SetMinKeys();
+		}
+
+		static_cast<Internal*>(root)->SetMinKeys();
+		return true;
 	}
 
 	template<class K, class V>
@@ -404,16 +371,13 @@ namespace Lab3
 			return ReverseIterator(*this, parent, leaf);
 		}
 
-		Internal* curRoot = static_cast<Internal*>(root);
-
-		while (curRoot->AreSonsLeafs() == false)
+		parent = static_cast<Internal*>(root);
+		while (parent->AreSonsLeafs() == false)
 		{
-			curRoot = static_cast<Internal*>(curRoot->sons.back());
+			parent = static_cast<Internal*>(parent->sons.back()); //спуск по самому правому сыну
 		}
 
-		parent = curRoot;
-		leaf = static_cast<Leaf*>(curRoot->sons.back());
-
+		leaf = static_cast<Leaf*>(parent->sons.back());
 		return ReverseIterator(*this, parent, leaf);
 	}
 
@@ -426,7 +390,7 @@ namespace Lab3
 
 		if (curRoot->AreSonsLeafs())
 		{
-			if (curRoot->GetSonIdWithKey(node->key) >= 0)
+			if (curRoot->GetLeafIdWithKey(node->key) >= 0)
 				return false;
 
 			curRoot->sons.push_back(node);
@@ -447,22 +411,20 @@ namespace Lab3
 			return false;
 
 		nodeToInsert = static_cast<Internal*>(curRoot->sons[sonId]);
-
 		if (Insert(nodeToInsert, curRoot, node) == false)
 			return false;
 
 		if (nodeToInsert->sons.size() > Internal::maxSonsCount)
 		{
-			Split(nodeToInsert, curRoot, sonId);
+			Split(nodeToInsert, curRoot);
 		}
 
 		curRoot->SetMinKeys();
-
 		return true;
 	}
 
 	template<class K, class V>
-	inline void Tree23<K, V>::Split(Internal* nodeToSplit, Internal* parent, int sonId)
+	inline void Tree23<K, V>::Split(Internal* nodeToSplit, Internal* parent)
 	{
 		Internal* second = new Internal();
 
@@ -487,7 +449,8 @@ namespace Lab3
 			parent->sons.insert(parent->sons.begin(), nodeToSplit);
 		}
 
-		parent->sons.insert(parent->sons.begin() + sonId + 1, second);  //вставляем новый узел справа от разделяемого
+		typename std::vector<Node*>::iterator it = find(parent->sons.begin(), parent->sons.end(), static_cast<Node*>(nodeToSplit));
+		parent->sons.insert(it + 1, second);  //вставляем новый узел справа от разделяемого
 	}
 
 	template<class K, class V>
@@ -497,19 +460,23 @@ namespace Lab3
 
 		if (parent == nullptr)
 		{
-			root = static_cast<Leaf*>(onlySon);
+			root = onlySon;
 			return;
 		}
 
-		int sonIdToMerge = (sonId == parent->sons.size() - 1 ? sonId - 1 : sonId + 1);
+		bool mergeLeft = sonId == parent->sons.size() - 1;
+		int sonIdToMerge = (mergeLeft ? sonId - 1 : sonId + 1); //если мы последний сын, объединяемся с предыдущим, иначе - со следующим
 		Internal* sonToMerge = static_cast<Internal*>(parent->sons[sonIdToMerge]);
-		sonToMerge->sons.push_back(onlySon);
 
-		if (sonToMerge->sons.size() > Internal::maxSonsCount)
-			Split(sonToMerge, parent, sonIdToMerge);
+		sonToMerge->sons.insert((mergeLeft ? sonToMerge->sons.end() : sonToMerge->sons.begin()), onlySon);
 
 		parent->sons.erase(parent->sons.begin() + sonId);
 		delete nodeToMerge;
+
+		if (sonToMerge->sons.size() > Internal::maxSonsCount)
+			Split(sonToMerge, parent);
+		else
+			sonToMerge->SetMinKeys();
 	}
 
 	template<class K, class V>
@@ -555,7 +522,7 @@ namespace Lab3
 	{
 		if (curRoot->AreSonsLeafs())
 		{
-			int id = curRoot->GetSonIdWithKey(key);
+			int id = curRoot->GetLeafIdWithKey(key);
 			if (id >= 0)
 			{
 				*parent = curRoot;
@@ -566,7 +533,6 @@ namespace Lab3
 		}
 
 		int id;
-
 		if ((id = curRoot->GetSonIdToFindNode(key)) < 0)
 			return false;
 
@@ -580,7 +546,7 @@ namespace Lab3
 
 		if (curRoot->AreSonsLeafs())
 		{
-			int nodeId = curRoot->GetSonIdWithKey(key);
+			int nodeId = curRoot->GetLeafIdWithKey(key);
 			if (nodeId < 0)
 				return false;
 
@@ -599,7 +565,6 @@ namespace Lab3
 		Internal* nodeToInsert = nullptr;
 
 		int sonId = curRoot->GetSonIdToFindNode(key);
-
 		nodeToInsert = static_cast<Internal*>(curRoot->sons[sonId]);
 
 		if (Remove(nodeToInsert, key) == false)
@@ -611,7 +576,7 @@ namespace Lab3
 		}
 		else if (nodeToInsert->sons.size() > Internal::maxSonsCount)
 		{
-			Split(nodeToInsert, curRoot, sonId);
+			Split(nodeToInsert, curRoot);
 		}
 		else
 			curRoot->SetMinKeys();
@@ -632,7 +597,7 @@ namespace Lab3
 		Internal* _parent = *parent;
 		Leaf* _leaf = *leaf;
 
-		int sonId = _parent->GetSonIdToFindNode(_leaf->key);
+		int sonId = _parent->GetLeafIdWithKey(_leaf->key);
 		if (sonId != _parent->sons.size() - 1) //если узел не последний сын своего родителя, возвращаем следующего сына
 		{
 			*leaf = static_cast<Leaf*>(_parent->sons[++sonId]);
@@ -650,11 +615,9 @@ namespace Lab3
 		Internal* curRoot = static_cast<Internal*>(root);
 		Internal* lastSuccessRoot = nullptr;
 		int lastSuccessId;
-		K keyToFind = _leaf->key;
 		while (curRoot->AreSonsLeafs() == false)
 		{
-			int id = curRoot->GetSonIdToFindNode(keyToFind);
-
+			int id = curRoot->GetSonIdToFindNode(_leaf->key);
 			if (id != curRoot->sons.size() - 1)
 			{
 				lastSuccessId = id;
@@ -709,10 +672,9 @@ namespace Lab3
 
 		//внутр. узел левее текущего, если в нём происходит поиск узла с ключом, меньше мин. у текущего
 		Internal* curRoot = static_cast<Internal*>(root);
-		K keyToFind = _parent->min - 1;
 		while (curRoot->AreSonsLeafs() == false)
 		{
-			int id = curRoot->GetSonIdToFindNode(keyToFind);
+			int id = curRoot->GetSonIdToFindNode(_parent->min - 1);
 			curRoot = static_cast<Internal*>(curRoot->sons[id]);
 		}
 		*parent = curRoot;
@@ -751,6 +713,30 @@ namespace Lab3
 
 		root->Print(); 
 		cout << std::endl;
+	}
+
+	template<class K, class V>
+	inline V& Tree23<K, V>::GetValue(K key) const
+	{
+		if (IsEmpty())
+			throw WrongKeyEx;
+
+		if (dynamic_cast<Leaf*>(root))
+		{
+			Leaf* rootLeaf = static_cast<Leaf*>(root);
+			if (rootLeaf->key == key)
+				return rootLeaf->value;
+			throw WrongKeyEx;
+		}
+
+		Internal* parent = nullptr;
+		int sonId;
+		if (FindNodeByKey(static_cast<Internal*>(root), &parent, &sonId, key))
+		{
+			return static_cast<Leaf*>(parent->sons[sonId])->value;
+		}
+
+		throw WrongKeyEx;
 	}
 
 }
