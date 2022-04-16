@@ -62,11 +62,8 @@ void printCommands()
 			len++; k /= 10;
 		}
 
-		for (int s = strlen(commandsView[i].second); s < 60 - len; s++)
-			cout << " ";
-
-		if (j < commandsView.size())
-			printCommand(commandsView[j]);
+		cout << string(60 - len - strlen(commandsView[i].second), ' ');
+		printCommand(commandsView[j]);
 
 		cout << endl;
 	}
@@ -76,6 +73,7 @@ void printCommands()
 		printCommand(commandsView.back());
 		cout << endl;
 	}
+
 }
 
 int inputValue(string hintForUser)
