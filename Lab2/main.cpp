@@ -64,12 +64,15 @@ void printCommands()
 			len++; k /= 10;
 		}
 
-		for (int s = strlen(commandsView[i].second); s < 60 - len; s++)
-			cout << " ";
+		cout << string(60 - len - strlen(commandsView[i].second), ' ');
+		printCommand(commandsView[j]);
 
-		if (j < commandsView.size())
-			printCommand(commandsView[j]);
+		cout << endl;
+	}
 
+	if (commandsView.size() % 2 != 0)
+	{
+		printCommand(commandsView.back());
 		cout << endl;
 	}
 
