@@ -196,11 +196,19 @@ namespace Lab4
 			return;
 
 		Form* _form = nullptr;
+		int size = std::max(form->GetCapacity(), form->GetSize());
 
 		if (newForm == FormName::OpenAddressing)
-			_form = new OpenAddressing(*(this->form));
+		{
+			_form = new OpenAddressing(size);
+		}
 		else if (newForm == FormName::ChainsOfCollisions)
-			_form = new ChainsOfCollisions(*(this->form));
+		{
+			_form = new ChainsOfCollisions(size);
+		}
+
+		for (Iterator iter = this->Begin(); iter != this->End(); iter++)
+			_form->Add(iter.cell->key, iter.cell->value);
 
 		delete form;
 		form = _form;
@@ -233,9 +241,19 @@ namespace Lab4
 		const int maxBits = sizeof(INT_64) * CHAR_BIT;
 		std::bitset<maxBits> bits;
 		const int bitsPerChar = 5;
+
+		correctLength:
 		
+		int i = 0;
 		while (key.length() * bitsPerChar > maxBits)
-			key.erase(key.begin());
+		{
+			key[i] = (key[i] + key[i + 1]) % ('a'+ 5) + 'a';
+			key.erase(key.begin() + i + 1);
+			i++;
+			if (i == key.length() - 1) break;
+		}
+
+		if (key.length() & bitsPerChar > maxBits) goto correctLength;		
 
 		for (int i = 0; i < key.length(); ++i)
 		{
@@ -257,20 +275,8 @@ namespace Lab4
 	template<class K, class V>
 	inline int HashTable<K, V>::Form::Hashing(INT_64 digit, int i)
 	{
-		INT_64 d = GetHash(digit) + i * GetHash2(digit);
+		INT_64 d = GetHash(digit) + (INT_64)(i * GetHash2(digit));
 		return d % this->capacity; //модульное хэширование
-	}
-
-	template<class K, class V>
-	inline HashTable<K, V>::Form::Form(const Form& form)
-	{
-	//	Iterator iter = form.Begin();
-
-	//	while (iter != form.End())
-	//	{
-	//		Add(iter.current->key, iter.current->value);
-	//		iter++;
-	//	}
 	}
 
 	template<class K, class V>
@@ -342,9 +348,11 @@ namespace Lab4
 
 		while (iter != Form::End())
 		{
-			iter.cell->state == Cell::State::Free;
+			iter.cell->state = Cell::State::Free;
 			iter++;
 		}
+
+		Form::size = 0;
 	}
 
 	template<class K, class V>
@@ -362,15 +370,25 @@ namespace Lab4
 		Form::trialsCount = 1;
 		int index = Form::GetHash(key);
 
+		Cell* cellDeleted = nullptr;
+
 		*lastCell = &array[index];
-		while (array[index].state == Cell::State::Busy || array[index].state == Cell::State::Deleted)
+		while (array[index].state != Cell::State::Free)
 		{
-			if (array[index].key == key)
+			if (Form::trialsCount == Form::capacity)
+				break;
+
+			if (array[index].state == Cell::State::Deleted)
+				cellDeleted = &array[index];
+			else if (array[index].state == Cell::State::Busy && array[index].key == key)
 				return true;
 
 			index = Form::Hashing(index, Form::trialsCount++);
 			*lastCell = &array[index];
 		}
+
+		if (cellDeleted != nullptr)
+			*lastCell = cellDeleted;
 		return false;
 	}
 
@@ -395,7 +413,7 @@ namespace Lab4
 	inline HashTable<K, V>::ChainsOfCollisions::ChainsOfCollisions(int elems): Form(elems)
 	{
 		PrimeNumbers numbers;
-		Form::capacity = numbers.FindLastLE(elems);
+		Form::capacity = numbers.FindFirstGE(elems);
 		array = (CellChain*)calloc(Form::capacity, sizeof(CellChain));
 	}
 
@@ -509,8 +527,9 @@ namespace Lab4
 			else
 			{
 				prevIndex = iter.cellIndex;
-				iter.cell->state == Cell::State::Free;
+				iter.cell->state = Cell::State::Free;
 				iter++;
+				array[prevIndex].next = nullptr;
 			}
 		}
 

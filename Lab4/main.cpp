@@ -5,20 +5,20 @@
 #include "HashTable.h"
 #include "TableTest.h"
 
-#define commandView pair<Command, const char*>
+#define commandView pair<Command, string>
 
 using namespace std;
 using namespace Lab4;
 
 enum class Command {
 	Print, Clear, Add, GetByKey, ChangeByKey, RemoveByKey, 
-	GetSize, SwitchToOpenAddr, SwitchToChainsColl,
+	GetSize, GetForm, SwitchToOpenAddr, SwitchToChainsColl,
 	TestOpenAddr, TestChainsColl,
 	GetTrialsCount, IterSetBegin, IterNext, 
 	IterGet, IsIterEnd, PrintCommands, Exit
 };
 
-vector<pair<Command, const char*>> commandsView = {
+vector<commandView> commandsView = {
 {Command::IterSetBegin, "Прямой итератор: установить на начало таблицы"},
 {Command::Print, "Вывести таблицу"},
 {Command::IterNext, "Прямой итератор: следующий элемент"},
@@ -37,6 +37,7 @@ vector<pair<Command, const char*>> commandsView = {
 {Command::TestOpenAddr, "Тестирование таблицы: открытая адресация"},
 {Command::TestChainsColl, "Тестирование таблицы: цепочки коллизий"},
 {Command::ChangeByKey, "Изменить элемент по ключу"},
+{Command::GetForm, "Опрос формы представления"}
 };
 
 void printCommands()
@@ -58,7 +59,7 @@ void printCommands()
 			len++; k /= 10;
 		}
 
-		cout << string(60 - len - strlen(commandsView[i].second), ' ');
+		cout << string(60 - len - commandsView[i].second.length(), ' ');
 		printCommand(commandsView[j]);
 
 		cout << endl;
@@ -90,8 +91,24 @@ int inputInt(string hintForUser)
 string inputString(string hintForUser)
 {
 	cout << hintForUser << ":";
+
 	string input;
-	getline(cin, input);
+
+	do
+	{
+		getline(cin, input);
+
+		for (int i = 0; i < input.length(); i++)
+		{
+			if ('a' > input[i] || 'z' < input[i])
+				goto error;
+		}
+		break;
+
+	error:
+		cout << "Required only small letters of the Latin alphabet" << endl;
+	} while (true);
+	
 	return input;
 }
 
@@ -168,6 +185,12 @@ void handleInput(int input, HashTable<string, int>& table, HashTable<string,int>
 		testChainsColl(keysCount);
 		break;
 	}
+	case (int)Command::GetForm:
+		if (table.GetForm() == FormName::OpenAddressing)
+			cout << "Открытая адресация" << endl;
+		else
+			cout << "С цепочками коллизий" << endl;
+		break;
 	case (int)Command::PrintCommands:
 		system("CLS");
 		printCommands();
