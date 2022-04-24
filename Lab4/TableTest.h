@@ -124,8 +124,7 @@ void testOpenAddr(int keysCount)
 
 	string* keys = new string[keysCount];
 
-	//setFirstRandomDigit();
-	srand(0);
+	setFirstRandomDigit();
 
 	for (int i = 0; i < keysCount; i++)
 	{
@@ -166,7 +165,7 @@ void testChainsColl(int keysCount)
 
 	float alpha = table.GetSize() * 1.0 / table.GetCapacity();
 	cout << "Коэффициент заполнения после теста:" << alpha << endl;
-	cout << "Теоретическая трудоёмкость:" << 1 << endl;
+	cout << "Теоретическая трудоёмкость:" << 1 + alpha / 2 << endl;
 
 	delete[] keys;
 }

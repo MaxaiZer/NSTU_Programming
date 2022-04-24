@@ -275,7 +275,7 @@ namespace Lab4
 	template<class K, class V>
 	inline int HashTable<K, V>::Form::Hashing(INT_64 digit, int i)
 	{
-		INT_64 d = GetHash(digit) + (INT_64)(i * GetHash2(digit));
+		INT_64 d = (INT_64)GetHash(digit) + i * (INT_64)GetHash2(digit);
 		return d % this->capacity; //модульное хэширование
 	}
 
@@ -441,29 +441,18 @@ namespace Lab4
 	template<class K, class V>
 	inline bool HashTable<K, V>::ChainsOfCollisions::Add(K key, V value)
 	{
-		Form::trialsCount = 1;
-		int index = Form::GetHash(key);
+		CellChain* cellPrev;
+		CellChain* cell;
 
-		CellChain* cell = &array[index];
-
-		if (cell->key == key)
+		if (Find(key, &cell, &cellPrev))
 			return false;
 
-		while (cell->next != nullptr)
-		{
-			cell = cell->next;
-
-			if (cell->key == key)
-				return false;
-		}
-
-		if (cell == &array[index] && cell->state != Cell::State::Busy)
+		if (cellPrev == nullptr && cell->state == Cell::State::Free)
 			*cell = CellChain(key, value);
 		else
 			cell->next = new CellChain(key, value);
 
 		Form::size++;
-
 		return true;
 	}
 
@@ -560,6 +549,7 @@ namespace Lab4
 
 		while ((*lastCell)->next != nullptr)
 		{
+			Form::trialsCount++;
 			*lastCellPrev = *lastCell;
 			*lastCell = (*lastCell)->next;
 
