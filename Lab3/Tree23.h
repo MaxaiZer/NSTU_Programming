@@ -276,6 +276,9 @@ namespace Lab3
 	template<class K, class V>
 	inline bool Tree23<K, V>::Remove(K key)
 	{
+		if (IsEmpty())
+			return false;
+
 		readElements = 0;
 		if (dynamic_cast<Leaf*>(root))
 		{
@@ -459,7 +462,7 @@ namespace Lab3
 		Internal* nodeToInsert = nullptr;
 
 		int sonId = curRoot->GetSonIdToFindNode(key);
-		nodeToInsert = static_cast<Internal*>(curRoot->sons[sonId]);
+		nodeToInsert = static_cast<Internal*>(curRoot->sons[sonId]);		
 
 		if (Remove(nodeToInsert, key) == false)
 			return false;
@@ -513,7 +516,7 @@ namespace Lab3
 		}
 
 		//вставляем новый узел в вектор сыновей родителя справа от разделяемого
-		parent->sons.insert(parent->sons.begin() + parent->Find(nodeToSplit) + 1, second);  
+		parent->sons.insert(parent->sons.begin() + parent->Find(nodeToSplit) + 1, second);
 	}
 
 	template<class K, class V>
@@ -542,6 +545,9 @@ namespace Lab3
 			Split(sonToMerge, parent);
 		else
 			sonToMerge->SetMinKeys();
+
+		if (parent->sons.size() >= Internal::minSonsCount)
+			parent->SetMinKeys();
 	}
 
 	template<class K, class V>
