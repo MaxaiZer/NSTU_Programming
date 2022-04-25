@@ -18,7 +18,7 @@ namespace Lab4
 	#define WrongKeyEx "Wrong key" 
 	#define IterOutOfRangeEx "Iterator out of range"
 
-	typedef unsigned long long INT_64;
+	using INT_64 = unsigned long long;
 
 	enum class FormName { OpenAddressing, ChainsOfCollisions };
 
@@ -139,7 +139,7 @@ namespace Lab4
 
 			virtual void FindFirstBusyCell(int startIndex, int* index, Cell** cell) const = 0;
 			virtual void GetNextCell(int* index, Cell** cell) const = 0;
-			
+
 			int size = 0;
 			int capacity;
 			int trialsCount = 0;
@@ -160,11 +160,11 @@ namespace Lab4
 			virtual bool Remove(K key);
 			virtual V& operator[](K key);
 		private:
+			Cell* array;
+
 			bool Find(K key, Cell** lastCell);
 			virtual void FindFirstBusyCell(int startIndex, int* index, Cell** cell) const;
 			virtual void GetNextCell(int* index, Cell** cell) const { FindFirstBusyCell(*index + 1, index, cell); }
-
-			Cell* array;
 		};
 
 		class ChainsOfCollisions : public Form
@@ -180,11 +180,11 @@ namespace Lab4
 			virtual bool Remove(K key);
 			virtual V& operator[](K key);
 		private:
+			CellChain* array;
+
 			bool Find(K key, CellChain** lastCell, CellChain** lastCellPrev);
 			virtual void GetNextCell(int* index, Cell** cell) const;
 			virtual void FindFirstBusyCell(int startIndex, int* index, Cell** cell) const;
-
-			CellChain* array;
 		};
 
 	};
@@ -268,7 +268,7 @@ namespace Lab4
 			}
 		}
 
-		unsigned long long digit = bits.to_ullong();
+		INT_64 digit = bits.to_ullong();
 		return GetHash(digit);
 	}
 
@@ -478,7 +478,7 @@ namespace Lab4
 			cellToRemove->key = next->key;
 			cellToRemove->value = next->value;
 
-			prev = cellToRemove;
+			prev = cellToRemove; //теперь удал€ема€ €чейка - следующа€
 			cellToRemove = next;
 			next = cellToRemove->next;
 

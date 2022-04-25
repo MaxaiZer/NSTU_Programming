@@ -5,7 +5,7 @@
 using namespace Lab4;
 using namespace std;
 
-typedef unsigned long long INT_64;
+using INT_64 = unsigned long long;
 
 static INT_64 RRand = 15750;
 const INT_64 mRand = (1 << 63) - 1;
