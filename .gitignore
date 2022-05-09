@@ -340,6 +340,7 @@ ASALocalRun/
 healthchecksdb
 
 UnitTest*
+GraphTest
 *.sln
 *.vcxproj
 *.filters

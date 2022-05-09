@@ -1,0 +1,538 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include "Graph.h"
+#include "VertexMap.h"
+#include "Input.h"
+#include "Task.h"
+
+using namespace std;
+
+using commandView = pair<int, string>;
+using _Vertex = Vertex<string, int>;
+using _Edge = Edge<_Vertex, int, string>;
+using RGZGraph = Graph<_Vertex, _Edge>;
+
+#define SUCCESS_INPUT 0
+#define BACK_TO_MENU -1
+
+RGZGraph* graph = new RGZGraph();
+VertexMap<_Vertex, _Edge> vertexMap(*graph);
+RGZGraph::VertexesIterator vIterator(*graph);
+RGZGraph::EdgesIterator eIterator(*graph);
+RGZGraph::OutputEdgesIterator outEIterator(*graph, nullptr);
+
+Task1v13<_Vertex, _Edge>* task1 = nullptr;
+Task2v14<_Vertex, _Edge>* task2 = nullptr;
+
+void printCommands(vector<commandView> commandsView)
+{
+	auto printCommand = [](commandView view)
+	{
+		cout << (int)view.first << " - " << view.second;
+	};
+
+	for (int i = 0, j = commandsView.size() / 2; i < commandsView.size() / 2; i++, j++)
+	{
+		printCommand(commandsView[i]);
+
+		int k = (int)commandsView[i].first / 10;
+		int len = 1;
+
+		while (k != 0)
+		{
+			len++; k /= 10;
+		}
+
+		cout << string(70 - len - commandsView[i].second.length(), ' ');
+		printCommand(commandsView[j]);
+
+		cout << endl;
+	}
+
+	if (commandsView.size() % 2 != 0)
+	{
+		printCommand(commandsView.back());
+		cout << endl;
+	}
+
+}
+
+bool GetVertex(_Vertex** vertex, string hint)
+{
+	*vertex = vertexMap.GetVertex(Input<string>::Get(hint));
+
+	if (*vertex == nullptr)
+	{
+		cout << "Вершина не найдена\n";
+		return false;
+	}
+	return true;
+}
+
+bool GetTwoVertixes(_Vertex** array)
+{
+	for (int i = 0; i < 2; i++)
+	{
+		if (!GetVertex(&array[i], "Имя вершины #" + to_string(i + 1)))
+			return false;
+	}
+	return true;
+}
+
+bool GetEdge(_Edge** edge)
+{
+	_Vertex* vertexes[2];
+
+	if (!GetTwoVertixes(vertexes))
+		return false;
+
+	*edge = graph->GetEdge(vertexes[0], vertexes[1]);
+
+	if (edge == nullptr)
+	{
+		cout << "Ребро не найдено\n";
+		return false;
+	}
+		
+	return true;
+}
+
+void UpdateGraphHelpers()
+{
+	vIterator = RGZGraph::VertexesIterator(*graph);
+	eIterator = RGZGraph::EdgesIterator(*graph);
+	outEIterator = RGZGraph::OutputEdgesIterator(*graph, nullptr);
+	vertexMap = VertexMap <_Vertex, _Edge>(*graph);
+}
+
+class CommandsHandler
+{
+public:
+	virtual int HandleInput() = 0;
+protected:
+	virtual void PrintCommands() = 0;
+};
+
+class GraphCommands : public CommandsHandler
+{
+public:
+	GraphCommands() { PrintCommands(); }
+
+	enum class Command { Create, CreateVDF, CreateVEDF, IsDirected, GetForm, SetForm, 
+		GetEdgesCount, AddEdge, GetEdge, SetEdgeData, GetEdgeData, SetEdgeWeight, GetEdgeWeight,
+		RemoveEdge, GetVertexCount, AddVertex, SetVertexData, GetVertexData, RemoveVertex, 
+		Print, PrintCommands, ReturnToMenu
+	};
+
+	int HandleInput()
+	{
+		int input = Input<int>::Get("Номер команды");
+
+		#define TRY_GET_EDGE _Edge* edge; if (!GetEdge(&edge)) break;
+		#define TRY_GET_VERTEX _Vertex* vertex = vertexMap.GetVertex(Input<string>::Get("Имя вершины")); if (vertex == nullptr) break;
+
+		switch (input)
+		{
+		case (int)Command::Create:
+			delete graph;
+			graph = new RGZGraph();
+			UpdateGraphHelpers();
+			break;
+		case (int)Command::CreateVDF:
+		{
+			delete graph;
+			RGZGraph::Form form = (RGZGraph::Form)(Input<bool>::Get("Форма графа L/M"));
+			graph = new RGZGraph(Input<int>::Get("Количество вершин"), Input<bool>::Get("Направленный ли граф"), form);
+			UpdateGraphHelpers();
+			vertexMap.SetNamesToAllVertexes();
+			break;
+		}
+		case (int)Command::CreateVEDF:
+		{
+			delete graph;
+			RGZGraph::Form form = (RGZGraph::Form)(Input<bool>::Get("Форма графа L/M"));
+			graph = new RGZGraph(Input<int>::Get("Количество вершин"), Input<int>::Get("Количество случайных рёбер"), Input<bool>::Get("Направленный ли граф"), form);
+			UpdateGraphHelpers();
+			vertexMap.SetNamesToAllVertexes();
+			break;
+		}
+		case (int)Command::PrintCommands:
+			PrintCommands();
+			break;
+		case (int)Command::ReturnToMenu:
+			return BACK_TO_MENU;
+		case (int)Command::IsDirected:
+			cout << graph->IsDirected() << endl;
+			break;
+		case (int)Command::GetForm:
+			cout << (graph->GetForm() == RGZGraph::Form::L ? "L\n" : "M\n");
+			break;
+		case (int)Command::Print:
+			graph->Print();
+			break;
+		case (int)Command::SetForm:
+			graph->SetForm(RGZGraph::Form(Input<bool>::Get("Форма графа (L/M)")));
+			break;
+		case (int)Command::AddVertex:
+		{
+			cout << "Метод вернул: " << vertexMap.AddVertex(Input<string>::Get("Имя вершины")) << endl;
+			break;
+		}
+		case (int)Command::RemoveVertex:
+		{
+			cout << "Метод вернул: " << vertexMap.RemoveVertex(Input<string>::Get("Имя вершины")) << endl;
+			break;
+		}
+		case (int)Command::AddEdge:
+		{
+			_Vertex* vertexes[2];
+			if (!GetTwoVertixes(vertexes))
+				break;
+
+			_Edge* edge = graph->AddEdge(vertexes[0], vertexes[1]);
+			cout << (edge == nullptr ? "Fail\n" : "Success\n");
+			break;
+		}
+		case (int)Command::RemoveEdge:
+		{
+			_Vertex* vertexes[2];
+			if (!GetTwoVertixes(vertexes))
+				break;
+
+			cout << "Метод вернул: " << graph->RemoveEdge(vertexes[0], vertexes[1]) << endl;
+			break;
+		}
+		case (int)Command::GetEdge:
+		{
+			TRY_GET_EDGE
+				edge->Print();
+			cout << endl;
+			break;
+		}
+		case (int)Command::SetEdgeData:
+		{
+			TRY_GET_EDGE
+				edge->SetData(Input<string>::Get("Данные"));
+			break;
+		}
+		case (int)Command::GetEdgeData:
+		{
+			TRY_GET_EDGE
+				if (edge->HasData())
+					cout << edge->GetData() << endl;
+				else
+					cout << "Данные не заданы\n";
+			break;
+		}
+		case (int)Command::SetEdgeWeight:
+		{
+			TRY_GET_EDGE
+				edge->SetWeight(Input<int>::Get("Вес"));
+			break;
+		}
+		case (int)Command::GetEdgeWeight:
+		{
+			TRY_GET_EDGE
+				if (edge->HasWeight())
+					cout << edge->GetWeight() << endl;
+				else
+					cout << "Вес не задан\n";;
+			break;
+		}
+		case (int)Command::SetVertexData:
+		{
+			TRY_GET_VERTEX
+				vertex->SetData(Input<int>::Get("Данные"));
+			break;
+		}
+		case (int)Command::GetVertexData:
+		{
+			TRY_GET_VERTEX
+				if (vertex->HasData())
+					cout << vertex->GetData() << endl;
+				else
+					cout << "Данные не заданы\n";
+			break;
+		}
+		case (int)Command::GetEdgesCount:
+			cout << graph->GetEdgesCount() << endl;
+			break;
+		case (int)Command::GetVertexCount:
+			cout << graph->GetVertexCount() << endl;
+			break;
+		default:
+			cout << "Неверный номер команды\n";
+		};
+
+		return SUCCESS_INPUT;
+	}
+
+protected:
+
+	vector<commandView> commands = {
+	{(int)Command::Create, "Создать путой L-граф"},
+	{(int)Command::CreateVDF, "Создать граф и задать кол-во вершин, тип, форму"},
+	{(int)Command::CreateVEDF, "Создать граф и задать кол-во вершин и случ. рёбер, тип, форму"},
+	{(int)Command::IsDirected, "Ориентированный ли граф"},
+	{(int)Command::GetForm, "Получить форму"},
+	{(int)Command::SetForm, "Задать форму"},
+	{(int)Command::GetEdgesCount, "Количество рёбер"},
+	{(int)Command::AddEdge, "Добавить ребро"},
+	{(int)Command::GetEdge, "Получить ребро"},
+	{(int)Command::SetEdgeData, "Задать данные ребра"},
+	{(int)Command::GetEdgeData, "Получить данные ребра"},
+	{(int)Command::SetEdgeWeight, "Задать вес ребра"},
+	{(int)Command::GetEdgeWeight, "Получить вес ребра"},
+	{(int)Command::RemoveEdge, "Удалить ребро"},
+	{(int)Command::GetVertexCount, "Количество вершин"},
+	{(int)Command::AddVertex, "Добавить вершину"},
+	{(int)Command::SetVertexData, "Задать данные вершины"},
+	{(int)Command::GetVertexData, "Получить данные вершины"},
+	{(int)Command::RemoveVertex, "Удалить вершину"},
+	{(int)Command::Print, "Вывести граф"},
+	{(int)Command::PrintCommands, "Очистить экран и вывести команды"},
+	{(int)Command::ReturnToMenu, "Выйти из текущего меню"} };
+
+	void PrintCommands() { system("CLS"); printCommands(commands); }
+};
+
+class IteratorsCommands : public CommandsHandler
+{
+public:
+	IteratorsCommands() { PrintCommands(); }
+
+	enum class Command {
+		VIteratorBegin, VIteratorValue, VIteratorInc, VIteratorEnd,
+		EIteratorBegin, EIteratorValue, EIteratorInc, EIteratorEnd,
+		OutEIteratorBegin, OutEIteratorValue, OutEIteratorInc, OutEIteratorEnd, 
+		PrintCommands, ReturnToMenu
+	};
+
+	int HandleInput()
+	{
+		int input = Input<int>::Get("Номер команды");
+
+		switch (input)
+		{
+		case (int)Command::VIteratorBegin:
+			vIterator = vIterator.Begin();
+			break;
+		case (int)Command::VIteratorValue:
+		{
+			try { (*vIterator).Print(); }
+			catch (const char* ex) { cout << ex; }
+			cout << endl;
+			break;
+		}
+		case (int)Command::VIteratorInc:
+			cout << "Метод вернул: " << vIterator++ << endl;
+			break;
+		case (int)Command::VIteratorEnd:
+			vIterator = vIterator.End();
+			break;
+		case (int)Command::EIteratorBegin:
+			eIterator = eIterator.Begin();
+			break;
+		case (int)Command::EIteratorValue:
+		{
+			try { (*eIterator).Print(); }
+			catch (const char* ex) { cout << ex; }
+			cout << endl;
+			break;
+		}
+		case (int)Command::EIteratorInc:
+			cout << "Метод вернул: " << eIterator++ << endl;
+			break;
+		case (int)Command::EIteratorEnd:
+			eIterator = eIterator.End();
+			break;
+		case (int)Command::OutEIteratorBegin:
+		{
+			_Vertex* vertex;
+
+			if (!GetVertex(&vertex, "Имя вершины"))
+				break;
+			
+			outEIterator = RGZGraph::OutputEdgesIterator(*graph, vertex);
+			break;
+		}
+		case (int)Command::OutEIteratorValue:
+		{
+			try { (*outEIterator).Print(); }
+			catch (const char* ex) { cout << ex; }
+			cout << endl;
+			break;
+		}
+		case (int)Command::OutEIteratorInc:
+			cout << "Метод вернул: " << outEIterator++ << endl;
+			break;
+		case (int)Command::OutEIteratorEnd:
+			outEIterator = outEIterator.End();
+			break;
+		case (int)Command::PrintCommands:
+			PrintCommands();
+			break;
+		case (int)Command::ReturnToMenu:
+			return BACK_TO_MENU;
+		default:
+			cout << "Неверный номер команды\n";
+		};
+
+		return SUCCESS_INPUT;
+	}
+
+protected:
+
+	vector<commandView> commands = {
+	{(int)Command::VIteratorBegin, "Итератор вершин: установить в начало"},
+	{(int)Command::VIteratorValue, "Итератор вершин: получить значение"},
+	{(int)Command::VIteratorInc, "Итератор вершин: следующая вершина"},
+	{(int)Command::EIteratorBegin, "Итератор рёбер: установить в начало"},
+	{(int)Command::EIteratorValue, "Итератор рёбер: получить значение"},
+	{(int)Command::EIteratorInc, "Итератор рёбер: следующее ребро"},
+	{(int)Command::OutEIteratorBegin, "Итератор исх. рёбер: установить в начало"},
+	{(int)Command::OutEIteratorValue, "Итератор исх. рёбер: получить значение"},
+	{(int)Command::OutEIteratorInc, "Итератор исх. рёбер: следующее ребро"},
+	{(int)Command::PrintCommands, "Очистить экран и вывести команды"},
+	{(int)Command::ReturnToMenu, "Выйти из текущего меню"} };
+
+	void PrintCommands() { system("CLS"); printCommands(commands); }
+};
+
+template <class T>
+class TaskCommands : public CommandsHandler
+{
+public:
+	TaskCommands(T** task, string description): task(task), taskDescription(description) { PrintCommands(); }
+
+	enum class Command {
+		Create, Restart, Result, PrintCommands, ReturnToMenu
+	};
+
+	int HandleInput()
+	{
+		int input = Input<int>::Get("Номер команды");
+
+		switch (input)
+		{
+		case (int)Command::Create:
+		{
+			delete* task;
+			*task = new T(*graph);
+			break;
+		}
+		case (int)Command::Restart:
+			if (*task == nullptr)
+			{
+				cout << "Создайте объект задания\n";
+				break;
+			}
+			static_cast<Task<_Vertex, _Edge>*>(*task)->Restart();
+			break;
+		case (int)Command::Result:
+			if (*task == nullptr)
+			{
+				cout << "Создайте объект задания\n";
+				break;
+			}
+			static_cast<Task<_Vertex, _Edge>*>(*task)->Result();
+			break;
+		case (int)Command::PrintCommands:
+			PrintCommands();
+			break;
+		case (int)Command::ReturnToMenu:
+			return BACK_TO_MENU;
+		default:
+			cout << "Неверный номер команды\n";
+		};
+
+		return SUCCESS_INPUT;
+	}
+
+protected:
+
+	vector<commandView> commands = {
+	{(int)Command::Create, "Создать объект, привязанный к графу и решить"},
+	{(int)Command::Restart, "Решить задание заново"},
+	{(int)Command::Result, "Вывести результат"},
+	{(int)Command::PrintCommands, "Очистить экран и вывести команды"},
+	{(int)Command::ReturnToMenu, "Выйти из текущего меню"} };
+
+	T** task;
+	string taskDescription;
+
+	void PrintCommands() { system("CLS"); cout << taskDescription << endl; printCommands(commands); }
+};
+
+class MainMenu
+{
+public:
+
+	void HandleCurrentMenuInput()
+	{
+		if (handler != nullptr)
+		{
+			int code = handler->HandleInput();
+
+			if (code == BACK_TO_MENU)
+			{
+				delete handler;
+				handler = nullptr;
+				system("CLS");
+			}
+
+			return;
+		}
+
+		cout << "1 - Граф\n";
+		cout << "2 - Команды для итераторов\n";
+		cout << "3 - Задание №2\n";
+		cout << "4 - Задание №3\n";
+		cout << "5 - Выход\n";
+
+		int input = Input<int>::Get("Номер команды");
+
+		switch (input)
+		{
+		case 1:
+			handler = new GraphCommands();
+			break;
+		case 2:
+			handler = new IteratorsCommands();
+			break;
+		case 3:
+			handler = new TaskCommands<Task1v13<_Vertex, _Edge>>(&task1, task1Description);
+			break;
+		case 4:
+			handler = new TaskCommands<Task2v14<_Vertex, _Edge>>(&task2, task2Description);
+			break;
+		case 5:
+			exit(0);
+			break;
+		default:
+			cout << "Неправильный номер команды\n";
+			break;
+		}
+
+	}
+
+protected:
+
+	CommandsHandler* handler = nullptr;
+};
+
+int main()
+{
+	setlocale(LC_ALL, "Russian");
+
+	srand(time(NULL));
+
+	MainMenu menu;
+
+	while (true)
+	{
+		menu.HandleCurrentMenuInput();
+	}
+}
