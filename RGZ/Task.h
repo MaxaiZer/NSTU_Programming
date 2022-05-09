@@ -149,7 +149,7 @@ protected:
 	vector<Vertex*> result;
 	vector<vector<int>> GetWeightMatrix();
 	vector<Vertex*> GetAllVertexes();
-	int GetMaxWeight(vector<int> weights, int rowIndex);
+	int GetMaxWeight(vector<vector<int>> weights, int vertexIndex);
 };
 
 template<class Vertex, class Edge>
@@ -194,9 +194,12 @@ inline void Task2v14<Vertex, Edge>::Restart()
 	int min = numeric_limits<int>::max();
 	for (int i = 0; i < vertexes; i++)
 	{
-		mins[i] = GetMaxWeight(weights[i], i);
+		mins[i] = GetMaxWeight(weights, i);
 		min = std::min(min, mins[i]);
 	}
+
+	if (min == numeric_limits<int>::max())
+		return;
 
 	vector<Vertex*> graphVertexes = GetAllVertexes();
 
@@ -252,15 +255,16 @@ inline vector<Vertex*> Task2v14<Vertex, Edge>::GetAllVertexes()
 }
 
 template<class Vertex, class Edge>
-inline int Task2v14<Vertex, Edge>::GetMaxWeight(vector<int> weights, int rowIndex)
+inline int Task2v14<Vertex, Edge>::GetMaxWeight(vector<vector<int>> weights, int vertexIndex)
 {
-	int max = (rowIndex == 0 ? -1 : weights[0]);
+	int max = (vertexIndex == 0 ? -1 : weights[0][vertexIndex]);
+	if (weights.size() == 1) max = weights[0][0];
 
 	for (int i = 0; i < weights.size(); i++)
-	{
-		if (i == rowIndex) continue;
+	{	
+		if (i == vertexIndex) continue;
 
-		max = std::max(max, weights[i]);
+		max = std::max(max, weights[i][vertexIndex]);
 	}
 
 	return max;

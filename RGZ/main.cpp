@@ -90,7 +90,7 @@ bool GetEdge(_Edge** edge)
 
 	*edge = graph->GetEdge(vertexes[0], vertexes[1]);
 
-	if (edge == nullptr)
+	if (*edge == nullptr)
 	{
 		cout << "Ребро не найдено\n";
 		return false;
