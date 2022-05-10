@@ -152,6 +152,7 @@ public:
 	int GetVertexesCount() const { return form->GetVertexesCount(); }
 	int GetEdgesCount() const { return form->GetEdgesCount(); }
 	bool IsDirected() const { return form->IsDirected(); }
+	float GetSaturation() const;
 	Form GetForm() const { return curForm; }
 	void SetForm(Form newForm);
 	Vertex* AddVertex() 
@@ -267,7 +268,7 @@ inline Graph<Vertex, Edge>::Graph(int vertexes, int randomEdges, bool isDirected
 	if (vertexes <= 1)
 		return;
 
-	int maxEdges = vertexes * (vertexes - 1);
+	int maxEdges = vertexes * (vertexes - 1) / 2;
 	if (randomEdges > maxEdges)
 		randomEdges = maxEdges;
 
@@ -318,6 +319,15 @@ inline Graph<Vertex, Edge>::Graph(const Graph& graph)
 		it2++;
 	}
 
+}
+
+template<class Vertex, class Edge>
+inline float Graph<Vertex, Edge>::GetSaturation() const
+{
+	if (vertexes.size() <= 1) 
+		return 0;
+
+	return (float)GetEdgesCount() / ((float)vertexes.size() * (vertexes.size() - 1) / 2);
 }
 
 template<class Vertex, class Edge>

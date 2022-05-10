@@ -120,7 +120,7 @@ class GraphCommands : public CommandsHandler
 public:
 	GraphCommands() { PrintCommands(); }
 
-	enum class Command { Create, CreateVDF, CreateVEDF, IsDirected, GetForm, SetForm, 
+	enum class Command { Create, CreateVDF, CreateVEDF, IsDirected, GetSaturation, GetForm, SetForm, 
 		GetEdgesCount, AddEdge, GetEdge, SetEdgeData, GetEdgeData, SetEdgeWeight, GetEdgeWeight,
 		RemoveEdge, GetVertexesCount, AddVertex, SetVertexData, GetVertexData, RemoveVertex, 
 		Print, PrintCommands, ReturnToMenu
@@ -265,6 +265,9 @@ public:
 		case (int)Command::GetVertexesCount:
 			cout << graph->GetVertexesCount() << endl;
 			break;
+		case (int)Command::GetSaturation:
+			cout << graph->GetSaturation() << endl;
+			break;
 		default:
 			cout << "Неверный номер команды\n";
 		};
@@ -279,6 +282,7 @@ protected:
 	{(int)Command::CreateVDF, "Создать граф и задать кол-во вершин, тип, форму"},
 	{(int)Command::CreateVEDF, "Создать граф и задать кол-во вершин и случ. рёбер, тип, форму"},
 	{(int)Command::IsDirected, "Ориентированный ли граф"},
+	{(int)Command::GetSaturation, "Коэф. насыщенности"},
 	{(int)Command::GetForm, "Получить форму"},
 	{(int)Command::SetForm, "Задать форму"},
 	{(int)Command::GetEdgesCount, "Количество рёбер"},
