@@ -145,7 +145,7 @@ public:
 	Task2v14(Graph<Vertex, Edge>& graph) : Task<Vertex, Edge>(graph) 
 	{
 		if (graph.IsDirected() == false) 
-			throw "Граф должен быть взвешенным";  
+			throw "Граф должен быть направленным";  
 		Restart();
 	};
 	virtual void Restart();

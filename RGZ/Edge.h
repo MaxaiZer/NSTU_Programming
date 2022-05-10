@@ -19,7 +19,7 @@ public:
 	Vertex* V2() const { return v2; };
 	Edge* CreateReversedCopy();
 	void Print() const;
-	void operator=(Edge& edge);
+	void CopyDataWeight(const Edge& edge);
 
 protected:
 	std::shared_ptr<bool> hasWeight;
@@ -70,7 +70,7 @@ inline void Edge<Vertex, Weight, Data>::Print() const
 }
 
 template<class Vertex, class Weight, class Data>
-inline void Edge<Vertex, Weight, Data>::operator=(Edge& edge)
+inline void Edge<Vertex, Weight, Data>::CopyDataWeight(const Edge& edge)
 {
 	if (edge.HasData())
 		SetData(edge.GetData());

@@ -19,15 +19,15 @@ public:
 	class VertexesIterator
 	{
 	public:
-		VertexesIterator(Graph& graph) : vertexes(&graph.vertexes), graph(&graph) { it = vertexes->begin(); };
+		VertexesIterator(const Graph& graph) : vertexes(&graph.vertexes), graph(&graph) { it = vertexes->begin(); };
 		Vertex& operator *() const
 		{
 			if (it == vertexes->end())
 				throw IterOutOfRangeEx;
 			return **it;
 		}
-		VertexesIterator Begin() { return VertexesIterator(*graph); }
-		VertexesIterator End() { VertexesIterator iter(*graph); iter.it = graph->vertexes.end(); return iter; }
+		VertexesIterator Begin() const { return VertexesIterator(*graph); }
+		VertexesIterator End() const { VertexesIterator iter(*graph); iter.it = graph->vertexes.end(); return iter; }
 		bool operator++(int value)
 		{
 			if (it == vertexes->end())
@@ -38,23 +38,23 @@ public:
 		bool operator==(VertexesIterator iter) { return graph == iter.graph && it == iter.it; }
 		bool operator!=(VertexesIterator iter) { return !(*this == iter); }
 	protected:
-		Graph* graph;
-		vector<Vertex*>* vertexes;
-		typename vector<Vertex*>::iterator it;
+		const Graph* graph;
+		const vector<Vertex*>* vertexes;
+		typename vector<Vertex*>::const_iterator it;
 	};
 
 	class OutputEdgesIterator
 	{
 	public:
-		OutputEdgesIterator(Graph& graph, Vertex* vertex) : graph(&graph), vertex(vertex) { graph.form->FindNextEdge(vertex, &curEdge); };
+		OutputEdgesIterator(const Graph& graph, Vertex* vertex) : graph(&graph), vertex(vertex) { graph.form->FindNextEdge(vertex, &curEdge); };
 		Edge& operator *() const
 		{
 			if (curEdge == nullptr)
 				throw IterOutOfRangeEx;
 			return *curEdge;
 		}
-		OutputEdgesIterator Begin() { return OutputEdgesIterator(*graph, vertex); }
-		OutputEdgesIterator End()
+		OutputEdgesIterator Begin() const { return OutputEdgesIterator(*graph, vertex); }
+		OutputEdgesIterator End() const
 		{
 			OutputEdgesIterator iter(*graph, vertex);
 			iter.curEdge = nullptr;
@@ -68,7 +68,7 @@ public:
 		bool operator==(OutputEdgesIterator iter) { return graph == iter.graph && vertex == iter.vertex && curEdge == iter.curEdge; }
 		bool operator!=(OutputEdgesIterator iter) { return !(*this == iter); }
 	protected:
-		Graph* graph;
+		const Graph* graph;
 		Vertex* vertex;
 		Edge* curEdge = nullptr;
 	};
@@ -76,7 +76,7 @@ public:
 	class EdgesIterator
 	{
 	public:
-		EdgesIterator(Graph& graph) : iterVertex(graph), graph(&graph), iterOutEdge(graph, nullptr)
+		EdgesIterator(const Graph& graph) : iterVertex(graph), graph(&graph), iterOutEdge(graph, nullptr)
 		{
 			if (graph.vertexes.size() != 0)
 			{
@@ -94,8 +94,8 @@ public:
 		{
 			return *iterOutEdge;
 		}
-		EdgesIterator Begin() { return EdgesIterator(*graph); }
-		EdgesIterator End() { EdgesIterator it(*graph);  it.iterVertex = iterVertex.End();  it.iterOutEdge = iterOutEdge.End(); return it; }
+		EdgesIterator Begin() const { return EdgesIterator(*graph); }
+		EdgesIterator End() const { EdgesIterator it(*graph);  it.iterVertex = iterVertex.End();  it.iterOutEdge = iterOutEdge.End(); return it; }
 		bool operator++(int value)
 		{
 			if (graph->IsDirected())
@@ -130,7 +130,7 @@ public:
 
 			return true;
 		}
-		Graph* graph;
+		const Graph* graph;
 		VertexesIterator iterVertex;
 		OutputEdgesIterator iterOutEdge;
 	};
@@ -145,8 +145,8 @@ public:
 	Graph(const Graph& graph);
 	~Graph()
 	{
-		for (int i = 0; i < vertexes.size(); i++)
-			delete vertexes[i];
+		for (auto vertex : vertexes)
+			delete vertex;
 		delete form;
 	}
 	int GetVertexesCount() const { return form->GetVertexesCount(); }
@@ -174,7 +174,7 @@ public:
 	Edge* AddEdge(Vertex* v1, Vertex* v2) { return (v1 == v2 ? nullptr : form->AddEdge(v1, v2)  );  }
 	bool RemoveEdge(Vertex* v1, Vertex* v2) { return form->RemoveEdge(v1, v2); }
 	Edge* GetEdge(Vertex* v1, Vertex* v2) { return form->GetEdge(v1, v2); };
-	void Print() { VertexesIterator it(*this);  form->Print(it); };
+	void Print() const { VertexesIterator it(*this);  form->Print(it); };
 
 protected:
 
@@ -201,7 +201,7 @@ protected:
 		virtual Edge* AddEdge(Vertex* v1, Vertex* v2) = 0;
 		virtual bool RemoveEdge(Vertex* v1, Vertex* v2) = 0;
 		virtual Edge* GetEdge(Vertex* v1, Vertex* v2) = 0;
-		virtual void FindNextEdge(Vertex* v, Edge** current) = 0;
+		virtual void FindNextEdge(Vertex* v, Edge** current) const = 0;
 		virtual void Print(VertexesIterator& iter) const = 0;
 	protected:
 		int vertexes = 0;
@@ -219,7 +219,7 @@ protected:
 		virtual Edge* AddEdge(Vertex* v1, Vertex* v2);
 		virtual bool RemoveEdge(Vertex* v1, Vertex* v2);
 		virtual Edge* GetEdge(Vertex* v1, Vertex* v2) { return edges[v1->index][v2->index].get(); };
-		virtual void FindNextEdge(Vertex* v, Edge** current);
+		virtual void FindNextEdge(Vertex* v, Edge** current) const;
 		virtual void Print(VertexesIterator& iter) const;
 	protected:
 		vector<vector<ptrEdge>> edges;
@@ -237,7 +237,7 @@ protected:
 		virtual Edge* AddEdge(Vertex* v1, Vertex* v2);
 		virtual bool RemoveEdge(Vertex* v1, Vertex* v2);
 		virtual Edge* GetEdge(Vertex* v1, Vertex* v2);
-		virtual void FindNextEdge(Vertex* v, Edge** current);
+		virtual void FindNextEdge(Vertex* v, Edge** current) const;
 		virtual void Print(VertexesIterator& iter) const;
 	protected:
 		vector<vector<ptrEdge>> edges;
@@ -289,6 +289,9 @@ inline Graph<Vertex, Edge>::Graph(int vertexes, int randomEdges, bool isDirected
 template<class Vertex, class Edge>
 inline Graph<Vertex, Edge>::Graph(const Graph& graph)
 {
+	this->form = CreateForm(graph.GetForm(), graph.IsDirected());
+	curForm = graph.GetForm();
+
 	if (graph.GetVertexesCount() == 0)
 		return;
 
@@ -297,20 +300,22 @@ inline Graph<Vertex, Edge>::Graph(const Graph& graph)
 	{
 		Vertex* vertex = AddVertex();
 		*vertex = *(it);
+		it++;
 	}
 
 	EdgesIterator it2(graph);
 
 	while (it2 != it2.End())
 	{
-		Edge* edge = (*it2);
+		Edge& edge = (*it2);
 
-		Vertex* v1 = vertexes[edge->V1()->index];
-		Vertex* v2 = vertexes[edge->V2()->index];
+		Vertex* v1 = vertexes[edge.V1()->index];
+		Vertex* v2 = vertexes[edge.V2()->index];
 
 		Edge* newEdge = AddEdge(v1, v2);
 
-		newEdge = edge;
+		newEdge->CopyDataWeight(edge);
+		it2++;
 	}
 
 }
@@ -339,7 +344,7 @@ inline void Graph<Vertex, Edge>::SetForm(Form newForm)
 
 		Edge* edgeCopy = _form->AddEdge(v1, v2);
 
-		*edgeCopy = edge;
+		edgeCopy->CopyDataWeight(edge);
 		it++;
 	}
 
@@ -420,16 +425,16 @@ inline bool Graph<Vertex, Edge>::MatrixForm::RemoveEdge(Vertex* v1, Vertex* v2)
 }
 
 template<class Vertex, class Edge>
-inline void Graph<Vertex, Edge>::MatrixForm::FindNextEdge(Vertex* v, Edge** current)
+inline void Graph<Vertex, Edge>::MatrixForm::FindNextEdge(Vertex* v, Edge** current) const
 {
 	if (v == nullptr) return;
 
 	int startIndex = 0;
-	vector<ptrEdge>& row = edges[v->index];
+	const vector<ptrEdge>& row = edges[v->index];
 
 	if (*current != nullptr)
 	{
-		auto it = std::find_if(row.begin(), row.end(), [current](ptrEdge& ptr) { return ptr.get() == *current; });
+		auto it = std::find_if(row.begin(), row.end(), [current](const ptrEdge& ptr) { return ptr.get() == *current; });
 		startIndex = std::distance(row.begin(), it) + 1;
 	}
 
@@ -605,11 +610,11 @@ inline Edge* Graph<Vertex, Edge>::ListForm::GetEdge(Vertex* v1, Vertex* v2)
 }
 
 template<class Vertex, class Edge>
-inline void Graph<Vertex, Edge>::ListForm::FindNextEdge(Vertex* v, Edge** current)
+inline void Graph<Vertex, Edge>::ListForm::FindNextEdge(Vertex* v, Edge** current) const
 {
 	if (v == nullptr) return;
 
-	vector<ptrEdge>& row = edges[v->index];
+	const vector<ptrEdge>& row = edges[v->index];
 
 	if (*current == nullptr)
 	{
@@ -617,7 +622,7 @@ inline void Graph<Vertex, Edge>::ListForm::FindNextEdge(Vertex* v, Edge** curren
 		return;
 	}
 
-	auto it = std::find_if(row.begin(), row.end(), [current](ptrEdge& ptr) { return ptr.get() == *current;  });
+	auto it = std::find_if(row.begin(), row.end(), [current](const ptrEdge& ptr) { return ptr.get() == *current;  });
 
 	if (*it == row.back())
 		*current = nullptr;
