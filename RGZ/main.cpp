@@ -5,7 +5,7 @@
 #include "Graph.h"
 #include "VertexMap.h"
 #include "Input.h"
-#include "Task.h"
+#include "Tasks.h"
 
 using namespace std;
 
@@ -122,7 +122,7 @@ public:
 
 	enum class Command { Create, CreateVDF, CreateVEDF, IsDirected, GetForm, SetForm, 
 		GetEdgesCount, AddEdge, GetEdge, SetEdgeData, GetEdgeData, SetEdgeWeight, GetEdgeWeight,
-		RemoveEdge, GetVertexCount, AddVertex, SetVertexData, GetVertexData, RemoveVertex, 
+		RemoveEdge, GetVertexesCount, AddVertex, SetVertexData, GetVertexData, RemoveVertex, 
 		Print, PrintCommands, ReturnToMenu
 	};
 
@@ -259,8 +259,8 @@ public:
 		case (int)Command::GetEdgesCount:
 			cout << graph->GetEdgesCount() << endl;
 			break;
-		case (int)Command::GetVertexCount:
-			cout << graph->GetVertexCount() << endl;
+		case (int)Command::GetVertexesCount:
+			cout << graph->GetVertexesCount() << endl;
 			break;
 		default:
 			cout << "Неверный номер команды\n";
@@ -286,7 +286,7 @@ protected:
 	{(int)Command::SetEdgeWeight, "Задать вес ребра"},
 	{(int)Command::GetEdgeWeight, "Получить вес ребра"},
 	{(int)Command::RemoveEdge, "Удалить ребро"},
-	{(int)Command::GetVertexCount, "Количество вершин"},
+	{(int)Command::GetVertexesCount, "Количество вершин"},
 	{(int)Command::AddVertex, "Добавить вершину"},
 	{(int)Command::SetVertexData, "Задать данные вершины"},
 	{(int)Command::GetVertexData, "Получить данные вершины"},
@@ -420,7 +420,12 @@ public:
 		case (int)Command::Create:
 		{
 			delete* task;
-			*task = new T(*graph);
+			try { *task = new T(*graph); }
+			catch (const char* ex) 
+			{ 
+			cout << ex << endl; 
+			*task = nullptr;
+			}		
 			break;
 		}
 		case (int)Command::Restart:

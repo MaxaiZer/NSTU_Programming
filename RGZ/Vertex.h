@@ -7,15 +7,15 @@ public:
 	Vertex() {};
 	Vertex(Name name, Data data) { SetName(name); SetData(data); };
 
-	Name GetName() { return name; }
+	Name GetName() const { return name; }
 	void SetName(Name name) { hasName = true; this->name = name; }
-	bool HasName() { return hasName; }
+	bool HasName() const { return hasName; }
 
-	Data GetData() { return data; } 
+	Data GetData() const { return data; } 
 	void SetData(Data data) { hasData = true; this->data = data; }
-	bool HasData() { return hasData; }
+	bool HasData() const { return hasData; }
 
-	void Print();
+	void Print() const;
 
 	int index = -1;
 protected:
@@ -28,7 +28,7 @@ protected:
 };
 
 template<class Name, class Data>
-inline void Vertex<Name, Data>::Print()
+inline void Vertex<Name, Data>::Print() const
 {
 	if (hasName)
 		std::cout << name;

@@ -9,16 +9,16 @@ public:
 	Edge(Vertex* v1, Vertex* v2, Weight weight) : Edge() { this->v1 = v1; this->v2 = v2; SetWeight(weight); }
 	Edge(Vertex* v1, Vertex* v2, Weight weight, Data data) : Edge(v1, v1, weight) { SetData(data); }
 
-	Weight GetWeight() { return *weight; };
+	Weight GetWeight() const { return *weight; };
 	void SetWeight(Weight newW) { *hasWeight = true; *weight = newW; }
-	bool HasWeight() { return *hasWeight; }
-	Data GetData() { return *data; };
+	bool HasWeight() const { return *hasWeight; }
+	Data GetData() const { return *data; };
 	void SetData(Data newD) { *hasData = true; *data = newD; }
-	bool HasData() { return *hasData; }
-	Vertex* V1() { return v1; };
-	Vertex* V2() { return v2; };
+	bool HasData() const{ return *hasData; }
+	Vertex* V1() const { return v1; };
+	Vertex* V2() const { return v2; };
 	Edge* CreateReversedCopy();
-	void Print();
+	void Print() const;
 	void operator=(Edge& edge);
 
 protected:
@@ -54,7 +54,7 @@ inline typename Edge<Vertex, Weight, Data>* Edge<Vertex, Weight, Data>::CreateRe
 }
 
 template<class Vertex, class Weight, class Data>
-inline void Edge<Vertex, Weight, Data>::Print()
+inline void Edge<Vertex, Weight, Data>::Print() const
 {
 	std::cout << v1->GetName() << "->" << v2->GetName() << ": ";
 

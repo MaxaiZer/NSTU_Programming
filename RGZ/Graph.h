@@ -2,6 +2,7 @@
 #include "Edge.h"
 #include "Vertex.h"
 #include <vector>
+#include <memory>
 
 using namespace std;
 #define IterOutOfRangeEx "Iterator out of range"
@@ -12,6 +13,8 @@ class Graph
 	class GraphForm;
 
 public:
+
+	#pragma region iterators
 
 	class VertexesIterator
 	{
@@ -132,6 +135,8 @@ public:
 		OutputEdgesIterator iterOutEdge;
 	};
 
+	#pragma endregion
+
 	enum class Form { L = 0, M = 1 };
 
 	Graph() { form = new ListForm(); }
@@ -144,10 +149,10 @@ public:
 			delete vertexes[i];
 		delete form;
 	}
-	int GetVertexCount() { return form->GetVertexCount(); }
-	int GetEdgesCount() { return form->GetEdgesCount(); }
-	bool IsDirected() { return form->IsDirected(); }
-	Form GetForm() { return curForm; }
+	int GetVertexesCount() const { return form->GetVertexesCount(); }
+	int GetEdgesCount() const { return form->GetEdgesCount(); }
+	bool IsDirected() const { return form->IsDirected(); }
+	Form GetForm() const { return curForm; }
 	void SetForm(Form newForm);
 	Vertex* AddVertex() 
 	{ 
@@ -174,18 +179,22 @@ public:
 protected:
 
 	Form curForm = Form::L;
-	GraphForm* form;
+	GraphForm* form = nullptr;
 	vector<Vertex*> vertexes;
 
 	GraphForm* CreateForm(Form form, bool isDirected);
+
+	#pragma region graphForms
+
+	using ptrEdge = unique_ptr<Edge>;
 
 	class GraphForm
 	{
 	public:
 		GraphForm(bool isDirected = false) : isDirected(isDirected) {};
-		bool IsDirected() { return isDirected; }
-		int GetVertexCount() { return vertexes; }
-		int GetEdgesCount() { return edges; }
+		bool IsDirected() const { return isDirected; }
+		int GetVertexesCount() const { return vertexes; }
+		int GetEdgesCount() const { return edges; }
 		virtual ~GraphForm() = default;
 		virtual Vertex* AddVertex() = 0;
 		virtual void RemoveVertex(Vertex* v) = 0;
@@ -193,7 +202,7 @@ protected:
 		virtual bool RemoveEdge(Vertex* v1, Vertex* v2) = 0;
 		virtual Edge* GetEdge(Vertex* v1, Vertex* v2) = 0;
 		virtual void FindNextEdge(Vertex* v, Edge** current) = 0;
-		virtual void Print(VertexesIterator& iter) = 0;
+		virtual void Print(VertexesIterator& iter) const = 0;
 	protected:
 		int vertexes = 0;
 		int edges = 0;
@@ -204,24 +213,17 @@ protected:
 	{
 	public:
 		MatrixForm(bool isDirected = false) : GraphForm(isDirected) {};
-		~MatrixForm() { DeleteMatrix(); }
+		~MatrixForm() {};
 		virtual Vertex* AddVertex();
 		virtual void RemoveVertex(Vertex* v);
 		virtual Edge* AddEdge(Vertex* v1, Vertex* v2);
 		virtual bool RemoveEdge(Vertex* v1, Vertex* v2);
-		virtual Edge* GetEdge(Vertex* v1, Vertex* v2) { return edges[v1->index][v2->index]; };
+		virtual Edge* GetEdge(Vertex* v1, Vertex* v2) { return edges[v1->index][v2->index].get(); };
 		virtual void FindNextEdge(Vertex* v, Edge** current);
-		virtual void Print(VertexesIterator& iter);
+		virtual void Print(VertexesIterator& iter) const;
 	protected:
-		Edge*** edges;
+		vector<vector<ptrEdge>> edges;
 		void IncreaseMatrix();
-		void DeleteMatrix() 
-		{
-			for (int i = 0; i < GraphForm::vertexes; i++)
-				delete[] edges[i];
-			delete edges;
-		}
-		Edge*** CreateMatrix(int size);
 		bool IsEdgeExists(Vertex* v1, Vertex* v2);
 	};
 
@@ -229,27 +231,22 @@ protected:
 	{
 	public:
 		ListForm(bool isDirected = false) : GraphForm(isDirected) {};
-		~ListForm()
-		{
-			for (int i = 0; i < edges.size(); i++)
-			{
-				for (int j = 0; j < edges[i].size(); j++)
-					delete edges[i][j];
-			}
-		}
+		~ListForm() {};
 		virtual Vertex* AddVertex();
 		virtual void RemoveVertex(Vertex* v);
 		virtual Edge* AddEdge(Vertex* v1, Vertex* v2);
 		virtual bool RemoveEdge(Vertex* v1, Vertex* v2);
 		virtual Edge* GetEdge(Vertex* v1, Vertex* v2);
 		virtual void FindNextEdge(Vertex* v, Edge** current);
-		virtual void Print(VertexesIterator& iter);
+		virtual void Print(VertexesIterator& iter) const;
 	protected:
-		vector<vector<Edge*>> edges;
+		vector<vector<ptrEdge>> edges;
 		bool IsEdgeExists(Vertex* v1, Vertex* v2);
-		typename vector<Edge*>::iterator FindEdgeWithV2(vector<Edge*>& row, Vertex* v2)
-		{   return std::find_if(row.begin(), row.end(), [v2](Edge* edge) { return edge->V2() == v2; });   }
+		typename vector<ptrEdge>::iterator FindEdgeWithV2(vector<ptrEdge>& row, Vertex* v2)
+		{   return std::find_if(row.begin(), row.end(), [v2](ptrEdge& ptr) { return ptr.get()->V2() == v2; });   }
 	};
+
+	#pragma endregion
 
 	friend class VertexesIterator;
 };
@@ -292,7 +289,7 @@ inline Graph<Vertex, Edge>::Graph(int vertexes, int randomEdges, bool isDirected
 template<class Vertex, class Edge>
 inline Graph<Vertex, Edge>::Graph(const Graph& graph)
 {
-	if (graph.vertexes == 0)
+	if (graph.GetVertexesCount() == 0)
 		return;
 
 	VertexesIterator it(graph);
@@ -326,12 +323,7 @@ inline void Graph<Vertex, Edge>::SetForm(Form newForm)
 
 	curForm = newForm;
 
-	GraphForm* _form;
-	if (newForm == Form::L)
-		_form = new ListForm();
-	else
-		_form = new MatrixForm();
-
+	GraphForm* _form = CreateForm(newForm, this->IsDirected());
 
 	EdgesIterator it(*this);
 
@@ -365,4 +357,302 @@ inline typename Graph<Vertex, Edge>::GraphForm* Graph<Vertex, Edge>::CreateForm(
 		return new MatrixForm(isDirected);
 }
 
-#include "GraphForm.h"
+#pragma region graphFormMethods
+
+template<class Vertex, class Edge>
+inline Vertex* Graph<Vertex, Edge>::MatrixForm::AddVertex()
+{
+	IncreaseMatrix();
+	Vertex* newVertex = new Vertex();
+	GraphForm::vertexes++;
+	newVertex->index = GraphForm::vertexes - 1;
+	return newVertex;
+}
+
+template<class Vertex, class Edge>
+inline void Graph<Vertex, Edge>::MatrixForm::RemoveVertex(Vertex* v)
+{
+	edges.erase(edges.begin() + v->index);
+
+	for (auto& row : edges)
+		row.erase(row.begin() + v->index);
+
+	GraphForm::vertexes--;
+}
+
+template<class Vertex, class Edge>
+inline Edge* Graph<Vertex, Edge>::MatrixForm::AddEdge(Vertex* v1, Vertex* v2)
+{
+	if (IsEdgeExists(v1, v2))
+		return nullptr;
+
+	ptrEdge& edge1 = edges[v1->index][v2->index];
+	ptrEdge& edge2 = edges[v2->index][v1->index];
+
+	edge1 = make_unique<Edge>(v1, v2, 1);
+
+	if (GraphForm::isDirected == false)
+	{
+		ptrEdge ptr(edge1.get()->CreateReversedCopy());
+		edge2 = std::move(ptr);
+	}
+
+	GraphForm::edges++;
+	return edge1.get();
+}
+
+template<class Vertex, class Edge>
+inline bool Graph<Vertex, Edge>::MatrixForm::RemoveEdge(Vertex* v1, Vertex* v2)
+{
+	if (IsEdgeExists(v1, v2) == false)
+		return false;
+
+	ptrEdge& edge1 = edges[v1->index][v2->index];
+	ptrEdge& edge2 = edges[v2->index][v1->index];
+
+	edge1.reset();
+
+	if (GraphForm::isDirected == false)
+		edge2.reset();
+
+	GraphForm::edges--;
+	return true;
+}
+
+template<class Vertex, class Edge>
+inline void Graph<Vertex, Edge>::MatrixForm::FindNextEdge(Vertex* v, Edge** current)
+{
+	if (v == nullptr) return;
+
+	int startIndex = 0;
+	vector<ptrEdge>& row = edges[v->index];
+
+	if (*current != nullptr)
+	{
+		auto it = std::find_if(row.begin(), row.end(), [current](ptrEdge& ptr) { return ptr.get() == *current; });
+		startIndex = std::distance(row.begin(), it) + 1;
+	}
+
+	*current = nullptr;
+
+	for (int i = startIndex; i < GraphForm::vertexes; i++)
+	{
+		if (row[i])
+		{
+			*current = row[i].get();
+			return;
+		}
+	}
+}
+
+template<class Vertex, class Edge>
+inline void Graph<Vertex, Edge>::MatrixForm::Print(VertexesIterator& iter) const
+{
+	if (iter == iter.End())
+	{
+		cout << "Graph is empty\n";
+		return;
+	}
+
+	cout << "  ";
+
+	for (int i = 0; i < GraphForm::vertexes; i++)
+		cout << i << " ";
+
+	cout << endl;
+
+	while (iter != iter.End())
+	{
+		cout << (*iter).index << " ";
+
+		for (int i = 0; i < GraphForm::vertexes; i++)
+		{
+			const ptrEdge& edge = edges[(*iter).index][i];
+			cout << (edge ? 1 : 0) << " ";
+		}
+
+		cout << endl;
+		iter++;
+	}
+
+	cout << "index-name | ";
+	for (iter = iter.Begin(); iter != iter.End(); iter++)
+	{
+		cout << (*iter).index << "-" << (*iter).GetName() << " ";
+	}
+	cout << endl;
+}
+
+template<class Vertex, class Edge>
+inline void Graph<Vertex, Edge>::MatrixForm::IncreaseMatrix()
+{
+	for (auto& row : edges)
+		row.push_back(ptrEdge(nullptr));
+
+	edges.push_back(vector<ptrEdge>(edges.size() + 1));
+}
+
+template<class Vertex, class Edge>
+inline bool Graph<Vertex, Edge>::MatrixForm::IsEdgeExists(Vertex* v1, Vertex* v2)
+{
+	ptrEdge& edge1 = edges[v1->index][v2->index];
+	ptrEdge& edge2 = edges[v2->index][v1->index];
+
+	if (GraphForm::isDirected)
+		return (edge1 || edge2);
+	else
+		return (edge1 && edge2);
+}
+
+template<class Vertex, class Edge>
+inline Vertex* Graph<Vertex, Edge>::ListForm::AddVertex()
+{
+	edges.push_back(vector<ptrEdge>());
+
+	Vertex* newVertex = new Vertex();
+	newVertex->index = GraphForm::vertexes;
+	GraphForm::vertexes++;
+	return newVertex;
+}
+
+template<class Vertex, class Edge>
+inline void Graph<Vertex, Edge>::ListForm::RemoveVertex(Vertex* v)
+{
+	if (GraphForm::isDirected == false)
+	{
+		for (auto& edge : edges[v->index])
+		{
+			auto& row = edges[edge.get()->V2()->index];
+			auto it = FindEdgeWithV2(row, v);
+			row.erase(it);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < GraphForm::vertexes; i++)
+		{
+			if (i == v->index) continue;
+
+			auto it = FindEdgeWithV2(edges[i], v);
+			if (it != edges[i].end())
+				edges[i].erase(it);
+		}
+	}
+
+	edges.erase(edges.begin() + v->index);
+	GraphForm::vertexes--;
+}
+
+template<class Vertex, class Edge>
+inline bool Graph<Vertex, Edge>::ListForm::IsEdgeExists(Vertex* v1, Vertex* v2)
+{
+	if (FindEdgeWithV2(edges[v1->index], v2) != edges[v1->index].end())
+		return true;
+
+	if (GraphForm::isDirected)
+	{
+		return FindEdgeWithV2(edges[v2->index], v1) != edges[v2->index].end();
+	}
+	return false;
+}
+
+template<class Vertex, class Edge>
+inline Edge* Graph<Vertex, Edge>::ListForm::AddEdge(Vertex* v1, Vertex* v2)
+{
+	vector<ptrEdge>& row = edges[v1->index];
+
+	if (IsEdgeExists(v1, v2))
+		return nullptr;
+
+	row.push_back(make_unique<Edge>(v1, v2, 1));
+
+	if (GraphForm::isDirected == false)
+	{
+		ptrEdge ptr(row.back().get()->CreateReversedCopy());
+		edges[v2->index].push_back(std::move(ptr));
+	}
+
+	GraphForm::edges++;
+	return row.back().get();
+}
+
+template<class Vertex, class Edge>
+inline bool Graph<Vertex, Edge>::ListForm::RemoveEdge(Vertex* v1, Vertex* v2)
+{
+	auto it = FindEdgeWithV2(edges[v1->index], v2);
+
+	if (it == edges[v1->index].end()) return false;
+
+	edges[v1->index].erase(it);
+
+	if (GraphForm::isDirected == false)
+	{
+		auto it = FindEdgeWithV2(edges[v2->index], v1);
+		edges[v2->index].erase(it);
+	}
+
+	GraphForm::edges--;
+	return true;
+}
+
+template<class Vertex, class Edge>
+inline Edge* Graph<Vertex, Edge>::ListForm::GetEdge(Vertex* v1, Vertex* v2)
+{
+	auto it = FindEdgeWithV2(edges[v1->index], v2);
+	if (it == edges[v1->index].end()) return nullptr;
+
+	return (*it).get();
+}
+
+template<class Vertex, class Edge>
+inline void Graph<Vertex, Edge>::ListForm::FindNextEdge(Vertex* v, Edge** current)
+{
+	if (v == nullptr) return;
+
+	vector<ptrEdge>& row = edges[v->index];
+
+	if (*current == nullptr)
+	{
+		*current = (row.size() == 0 ? nullptr : row.front().get());
+		return;
+	}
+
+	auto it = std::find_if(row.begin(), row.end(), [current](ptrEdge& ptr) { return ptr.get() == *current;  });
+
+	if (*it == row.back())
+		*current = nullptr;
+	else
+	{
+		it++;
+		*current = (*it).get();
+	}
+}
+
+template<class Vertex, class Edge>
+inline void Graph<Vertex, Edge>::ListForm::Print(VertexesIterator& iter) const
+{
+	if (iter == iter.End())
+	{
+		cout << "Graph is empty\n";
+		return;
+	}
+
+	while (iter != iter.End())
+	{
+		if ((*iter).HasName())
+			cout << (*iter).GetName() << ": ";
+		else
+			cout << "No name: ";
+
+		for (int i = 0; i < edges[(*iter).index].size(); i++)
+		{
+			const ptrEdge& ptr = edges[(*iter).index][i];
+			cout << ptr.get()->V2()->GetName() << " ";
+		}
+
+		cout << endl;
+		iter++;
+	}
+}
+
+#pragma endregion
