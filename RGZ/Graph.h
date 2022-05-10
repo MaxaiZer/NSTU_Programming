@@ -330,6 +330,15 @@ inline void Graph<Vertex, Edge>::SetForm(Form newForm)
 
 	GraphForm* _form = CreateForm(newForm, this->IsDirected());
 
+	vector<Vertex*> newVertexes;
+
+	for (auto vertex : vertexes)
+	{
+		Vertex* vertexCopy = _form->AddVertex();
+		*vertexCopy = *vertex;
+		newVertexes.push_back(vertexCopy);
+	}
+
 	EdgesIterator it(*this);
 
 	if (vertexes.size() == 0)
@@ -348,6 +357,10 @@ inline void Graph<Vertex, Edge>::SetForm(Form newForm)
 		it++;
 	}
 
+	for (auto vertex : vertexes)
+		delete vertex;
+
+	vertexes = newVertexes;
 	swap:
 	delete this->form;
 	form = _form;

@@ -131,7 +131,9 @@ public:
 		int input = Input<int>::Get("Номер команды");
 
 		#define TRY_GET_EDGE _Edge* edge; if (!GetEdge(&edge)) break;
-		#define TRY_GET_VERTEX _Vertex* vertex = vertexMap.GetVertex(Input<string>::Get("Имя вершины")); if (vertex == nullptr) break;
+		#define TRY_GET_VERTEX _Vertex* vertex = vertexMap.GetVertex(Input<string>::Get("Имя вершины")); \
+		if (vertex == nullptr)\
+		 { cout << "Вершина не найдена\n"; break; }
 
 		switch (input)
 		{
