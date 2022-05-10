@@ -122,7 +122,7 @@ public:
 
 	enum class Command { Create, CreateVDF, CreateVEDF, IsDirected, GetSaturation, GetForm, SetForm, 
 		GetEdgesCount, AddEdge, GetEdge, SetEdgeData, GetEdgeData, SetEdgeWeight, GetEdgeWeight,
-		RemoveEdge, GetVertexesCount, AddVertex, SetVertexData, GetVertexData, RemoveVertex, 
+		RemoveEdge, GetVertexesCount, AddVertex, SetVertexData, GetVertexData, SwitchName, RemoveVertex, 
 		Print, PrintCommands, ReturnToMenu
 	};
 
@@ -268,6 +268,9 @@ public:
 		case (int)Command::GetSaturation:
 			cout << graph->GetSaturation() << endl;
 			break;
+		case (int)Command::SwitchName:
+			cout << "Метод вернул: " << vertexMap.SwitchName(Input<string>::Get("Старое имя вершины"), Input<string>::Get("Новое имя вершины")) << endl;
+			break;
 		default:
 			cout << "Неверный номер команды\n";
 		};
@@ -297,6 +300,7 @@ protected:
 	{(int)Command::AddVertex, "Добавить вершину"},
 	{(int)Command::SetVertexData, "Задать данные вершины"},
 	{(int)Command::GetVertexData, "Получить данные вершины"},
+	{(int)Command::SwitchName, "Сменить имя вершины"},
 	{(int)Command::RemoveVertex, "Удалить вершину"},
 	{(int)Command::Print, "Вывести граф"},
 	{(int)Command::PrintCommands, "Очистить экран и вывести команды"},

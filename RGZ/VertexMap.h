@@ -14,6 +14,7 @@ public:
 	Vertex* GetVertex(string name);
 	bool RemoveVertex(string name);
 	void SetNamesToAllVertexes();
+	bool SwitchName(string oldName, string newName);
 	void Update();
 
 private:
@@ -86,6 +87,21 @@ inline void VertexMap<Vertex, Edge>::SetNamesToAllVertexes()
 
 		iter++;
 	}
+}
+
+template<class Vertex, class Edge>
+inline bool VertexMap<Vertex, Edge>::SwitchName(string oldName, string newName)
+{
+	Vertex* v1 = GetVertex(oldName);
+	Vertex* v2 = GetVertex(newName);
+	if (v1 == nullptr || v2 != nullptr) return false;
+
+	v1->SetName(newName);
+
+	map.erase(map.find(oldName));
+	std::pair<string, Vertex*> p(newName, v1);
+	map.insert(p);
+	return true;
 }
 
 template<class Vertex, class Edge>
