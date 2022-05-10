@@ -149,7 +149,7 @@ public:
 			delete vertex;
 		delete form;
 	}
-	int GetVertexesCount() const { return form->GetVertexesCount(); }
+	int GetVertexesCount() const { return vertexes.size(); }
 	int GetEdgesCount() const { return form->GetEdgesCount(); }
 	bool IsDirected() const { return form->IsDirected(); }
 	float GetSaturation() const;
@@ -157,12 +157,16 @@ public:
 	void SetForm(Form newForm);
 	Vertex* AddVertex() 
 	{ 
-		vertexes.push_back(form->AddVertex());
+		Vertex* newVertex = new Vertex();
+		newVertex->index = vertexes.size();
+		vertexes.push_back(newVertex);
+
+		form->ReserveEdgesForVertex();
 		return vertexes.back();
 	}
 	void RemoveVertex(Vertex* v) 
 	{ 
-		form->RemoveVertex(v);
+		form->RemoveEdgesOfVertex(v);
 
 		auto it = std::find(vertexes.begin(), vertexes.end(), v);
 
@@ -194,11 +198,10 @@ protected:
 	public:
 		GraphForm(bool isDirected = false) : isDirected(isDirected) {};
 		bool IsDirected() const { return isDirected; }
-		int GetVertexesCount() const { return vertexes; }
 		int GetEdgesCount() const { return edges; }
 		virtual ~GraphForm() = default;
-		virtual Vertex* AddVertex() = 0;
-		virtual void RemoveVertex(Vertex* v) = 0;
+		virtual void ReserveEdgesForVertex() = 0;
+		virtual void RemoveEdgesOfVertex(Vertex* v) = 0;
 		virtual Edge* AddEdge(Vertex* v1, Vertex* v2) = 0;
 		virtual bool RemoveEdge(Vertex* v1, Vertex* v2) = 0;
 		virtual Edge* GetEdge(Vertex* v1, Vertex* v2) = 0;
@@ -215,8 +218,8 @@ protected:
 	public:
 		MatrixForm(bool isDirected = false) : GraphForm(isDirected) {};
 		~MatrixForm() {};
-		virtual Vertex* AddVertex();
-		virtual void RemoveVertex(Vertex* v);
+		virtual void ReserveEdgesForVertex();
+		virtual void RemoveEdgesOfVertex(Vertex* v);
 		virtual Edge* AddEdge(Vertex* v1, Vertex* v2);
 		virtual bool RemoveEdge(Vertex* v1, Vertex* v2);
 		virtual Edge* GetEdge(Vertex* v1, Vertex* v2) { return edges[v1->index][v2->index].get(); };
@@ -233,8 +236,8 @@ protected:
 	public:
 		ListForm(bool isDirected = false) : GraphForm(isDirected) {};
 		~ListForm() {};
-		virtual Vertex* AddVertex();
-		virtual void RemoveVertex(Vertex* v);
+		virtual void ReserveEdgesForVertex();
+		virtual void RemoveEdgesOfVertex(Vertex* v);
 		virtual Edge* AddEdge(Vertex* v1, Vertex* v2);
 		virtual bool RemoveEdge(Vertex* v1, Vertex* v2);
 		virtual Edge* GetEdge(Vertex* v1, Vertex* v2);
@@ -340,14 +343,8 @@ inline void Graph<Vertex, Edge>::SetForm(Form newForm)
 
 	GraphForm* _form = CreateForm(newForm, this->IsDirected());
 
-	vector<Vertex*> newVertexes;
-
-	for (auto vertex : vertexes)
-	{
-		Vertex* vertexCopy = _form->AddVertex();
-		*vertexCopy = *vertex;
-		newVertexes.push_back(vertexCopy);
-	}
+	for (int i = 0; i < vertexes.size(); i++)
+		_form->ReserveEdgesForVertex();
 
 	EdgesIterator it(*this);
 
@@ -358,8 +355,8 @@ inline void Graph<Vertex, Edge>::SetForm(Form newForm)
 	{
 		Edge& edge = *it;
 
-		Vertex* v1 = newVertexes[edge.V1()->index];
-		Vertex* v2 = newVertexes[edge.V2()->index];
+		Vertex* v1 = vertexes[edge.V1()->index];
+		Vertex* v2 = vertexes[edge.V2()->index];
 
 		Edge* edgeCopy = _form->AddEdge(v1, v2);
 
@@ -367,10 +364,6 @@ inline void Graph<Vertex, Edge>::SetForm(Form newForm)
 		it++;
 	}
 
-	for (auto vertex : vertexes)
-		delete vertex;
-
-	vertexes = newVertexes;
 	swap:
 	delete this->form;
 	form = _form;
@@ -388,17 +381,14 @@ inline typename Graph<Vertex, Edge>::GraphForm* Graph<Vertex, Edge>::CreateForm(
 #pragma region graphFormMethods
 
 template<class Vertex, class Edge>
-inline Vertex* Graph<Vertex, Edge>::MatrixForm::AddVertex()
+inline void Graph<Vertex, Edge>::MatrixForm::ReserveEdgesForVertex()
 {
 	IncreaseMatrix();
-	Vertex* newVertex = new Vertex();
 	GraphForm::vertexes++;
-	newVertex->index = GraphForm::vertexes - 1;
-	return newVertex;
 }
 
 template<class Vertex, class Edge>
-inline void Graph<Vertex, Edge>::MatrixForm::RemoveVertex(Vertex* v)
+inline void Graph<Vertex, Edge>::MatrixForm::RemoveEdgesOfVertex(Vertex* v)
 {
 	edges.erase(edges.begin() + v->index);
 
@@ -463,7 +453,7 @@ inline void Graph<Vertex, Edge>::MatrixForm::FindNextEdge(Vertex* v, Edge** curr
 
 	*current = nullptr;
 
-	for (int i = startIndex; i < GraphForm::vertexes; i++)
+	for (int i = startIndex; i < row.size(); i++)
 	{
 		if (row[i])
 		{
@@ -533,18 +523,14 @@ inline bool Graph<Vertex, Edge>::MatrixForm::IsEdgeExists(Vertex* v1, Vertex* v2
 }
 
 template<class Vertex, class Edge>
-inline Vertex* Graph<Vertex, Edge>::ListForm::AddVertex()
+inline void Graph<Vertex, Edge>::ListForm::ReserveEdgesForVertex()
 {
 	edges.push_back(vector<ptrEdge>());
-
-	Vertex* newVertex = new Vertex();
-	newVertex->index = GraphForm::vertexes;
 	GraphForm::vertexes++;
-	return newVertex;
 }
 
 template<class Vertex, class Edge>
-inline void Graph<Vertex, Edge>::ListForm::RemoveVertex(Vertex* v)
+inline void Graph<Vertex, Edge>::ListForm::RemoveEdgesOfVertex(Vertex* v)
 {
 	if (GraphForm::isDirected == false)
 	{

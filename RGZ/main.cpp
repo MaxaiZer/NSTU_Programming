@@ -176,7 +176,6 @@ public:
 			break;
 		case (int)Command::SetForm:
 			graph->SetForm(RGZGraph::Form(Input<bool>::Get("Форма графа (L/M)")));
-			vertexMap.Update();
 			break;
 		case (int)Command::AddVertex:
 		{

@@ -15,7 +15,6 @@ public:
 	bool RemoveVertex(string name);
 	void SetNamesToAllVertexes();
 	bool SwitchName(string oldName, string newName);
-	void Update();
 
 private:
 	std::map<string, Vertex*> map;
@@ -102,19 +101,4 @@ inline bool VertexMap<Vertex, Edge>::SwitchName(string oldName, string newName)
 	std::pair<string, Vertex*> p(newName, v1);
 	map.insert(p);
 	return true;
-}
-
-template<class Vertex, class Edge>
-inline void VertexMap<Vertex, Edge>::Update()
-{
-	map.clear();
-	typename Graph<Vertex, Edge>::VertexesIterator iter(*graph);
-
-	while (iter != iter.End())
-	{
-		std::pair<string, Vertex*> p((*iter).GetName(), &(*iter));
-		map.insert(p);
-		iter++;
-	}
-
 }
