@@ -14,6 +14,7 @@ public:
 	Vertex* GetVertex(string name);
 	bool RemoveVertex(string name);
 	void SetNamesToAllVertexes();
+	void Update();
 
 private:
 	std::map<string, Vertex*> map;
@@ -85,4 +86,19 @@ inline void VertexMap<Vertex, Edge>::SetNamesToAllVertexes()
 
 		iter++;
 	}
+}
+
+template<class Vertex, class Edge>
+inline void VertexMap<Vertex, Edge>::Update()
+{
+	map.clear();
+	typename Graph<Vertex, Edge>::VertexesIterator iter(*graph);
+
+	while (iter != iter.End())
+	{
+		std::pair<string, Vertex*> p((*iter).GetName(), &(*iter));
+		map.insert(p);
+		iter++;
+	}
+
 }
