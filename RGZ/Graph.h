@@ -348,8 +348,8 @@ inline void Graph<Vertex, Edge>::SetForm(Form newForm)
 	{
 		Edge& edge = *it;
 
-		Vertex* v1 = vertexes[edge.V1()->index];
-		Vertex* v2 = vertexes[edge.V2()->index];
+		Vertex* v1 = newVertexes[edge.V1()->index];
+		Vertex* v2 = newVertexes[edge.V2()->index];
 
 		Edge* edgeCopy = _form->AddEdge(v1, v2);
 
