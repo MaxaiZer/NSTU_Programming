@@ -238,6 +238,10 @@ inline vector<vector<int>> Task2v14<Vertex, Edge>::GetWeightMatrix()
 		Vertex* v1 = (*iter).V1();
 		Vertex* v2 = (*iter).V2();
 		weights[v1->index][v2->index] = (*iter).GetWeight();
+
+		if (Task<Vertex, Edge>::graph->IsDirected() == false)
+			weights[v2->index][v1->index] = (*iter).GetWeight();
+
 		iter++;
 	}
 
