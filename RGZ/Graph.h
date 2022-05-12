@@ -149,8 +149,8 @@ public:
 			delete vertex;
 		delete form;
 	}
-	int GetVertexesCount() const { return vertexes.size(); }
-	int GetEdgesCount() const { return form->GetEdgesCount(); }
+	int getVertexesCount() const { return vertexes.size(); }
+	int getEdgesCount() const { return form->getEdgesCount(); }
 	bool IsDirected() const { return form->IsDirected(); }
 	float GetSaturation() const;
 	Form GetForm() const { return curForm; }
@@ -178,7 +178,7 @@ public:
 	}
 	Edge* AddEdge(Vertex* v1, Vertex* v2) { return (v1 == v2 ? nullptr : form->AddEdge(v1, v2)  );  }
 	bool RemoveEdge(Vertex* v1, Vertex* v2) { return form->RemoveEdge(v1, v2); }
-	Edge* GetEdge(Vertex* v1, Vertex* v2) { return form->GetEdge(v1, v2); };
+	Edge* getEdge(Vertex* v1, Vertex* v2) { return form->getEdge(v1, v2); };
 	void Print() const { VertexesIterator it(*this);  form->Print(it); };
 
 protected:
@@ -198,13 +198,13 @@ protected:
 	public:
 		GraphForm(bool isDirected = false) : isDirected(isDirected) {};
 		bool IsDirected() const { return isDirected; }
-		int GetEdgesCount() const { return edges; }
+		int getEdgesCount() const { return edges; }
 		virtual ~GraphForm() = default;
 		virtual void ReserveEdgesForVertex() = 0;
 		virtual void RemoveEdgesOfVertex(Vertex* v) = 0;
 		virtual Edge* AddEdge(Vertex* v1, Vertex* v2) = 0;
 		virtual bool RemoveEdge(Vertex* v1, Vertex* v2) = 0;
-		virtual Edge* GetEdge(Vertex* v1, Vertex* v2) = 0;
+		virtual Edge* getEdge(Vertex* v1, Vertex* v2) = 0;
 		virtual void FindNextEdge(Vertex* v, Edge** current) const = 0;
 		virtual void Print(VertexesIterator& iter) const = 0;
 	protected:
@@ -222,7 +222,7 @@ protected:
 		virtual void RemoveEdgesOfVertex(Vertex* v);
 		virtual Edge* AddEdge(Vertex* v1, Vertex* v2);
 		virtual bool RemoveEdge(Vertex* v1, Vertex* v2);
-		virtual Edge* GetEdge(Vertex* v1, Vertex* v2) { return edges[v1->index][v2->index].get(); };
+		virtual Edge* getEdge(Vertex* v1, Vertex* v2) { return edges[v1->index][v2->index].get(); };
 		virtual void FindNextEdge(Vertex* v, Edge** current) const;
 		virtual void Print(VertexesIterator& iter) const;
 	protected:
@@ -240,7 +240,7 @@ protected:
 		virtual void RemoveEdgesOfVertex(Vertex* v);
 		virtual Edge* AddEdge(Vertex* v1, Vertex* v2);
 		virtual bool RemoveEdge(Vertex* v1, Vertex* v2);
-		virtual Edge* GetEdge(Vertex* v1, Vertex* v2);
+		virtual Edge* getEdge(Vertex* v1, Vertex* v2);
 		virtual void FindNextEdge(Vertex* v, Edge** current) const;
 		virtual void Print(VertexesIterator& iter) const;
 	protected:
@@ -296,7 +296,7 @@ inline Graph<Vertex, Edge>::Graph(const Graph& graph)
 	this->form = CreateForm(graph.GetForm(), graph.IsDirected());
 	curForm = graph.GetForm();
 
-	if (graph.GetVertexesCount() == 0)
+	if (graph.getVertexesCount() == 0)
 		return;
 
 	VertexesIterator it(graph);
@@ -330,7 +330,7 @@ inline float Graph<Vertex, Edge>::GetSaturation() const
 	if (vertexes.size() <= 1) 
 		return 0;
 
-	return (float)GetEdgesCount() / ((float)vertexes.size() * (vertexes.size() - 1) / 2);
+	return (float)getEdgesCount() / ((float)vertexes.size() * (vertexes.size() - 1) / 2);
 }
 
 template<class Vertex, class Edge>
@@ -610,7 +610,7 @@ inline bool Graph<Vertex, Edge>::ListForm::RemoveEdge(Vertex* v1, Vertex* v2)
 }
 
 template<class Vertex, class Edge>
-inline Edge* Graph<Vertex, Edge>::ListForm::GetEdge(Vertex* v1, Vertex* v2)
+inline Edge* Graph<Vertex, Edge>::ListForm::getEdge(Vertex* v1, Vertex* v2)
 {
 	auto it = FindEdgeWithV2(edges[v1->index], v2);
 	if (it == edges[v1->index].end()) return nullptr;
