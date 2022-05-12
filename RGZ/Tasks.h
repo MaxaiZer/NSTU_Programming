@@ -173,7 +173,7 @@ template<class Vertex, class Edge>
 inline void Task2v14<Vertex, Edge>::Restart()
 {
 	result.clear();
-	int vertexes = Task<Vertex, Edge>::graph->getVertexesCount();
+	int vertexes = Task<Vertex, Edge>::graph->GetVertexesCount();
 
 	if (vertexes == 0)
 		return;
@@ -219,7 +219,7 @@ inline void Task2v14<Vertex, Edge>::Restart()
 template<class Vertex, class Edge>
 inline vector<vector<int>> Task2v14<Vertex, Edge>::GetWeightMatrix()
 {
-	int vertexes = Task<Vertex, Edge>::graph->getVertexesCount();
+	int vertexes = Task<Vertex, Edge>::graph->GetVertexesCount();
 
 	vector<vector<int>> weights;
 

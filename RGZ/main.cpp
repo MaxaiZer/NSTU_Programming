@@ -88,7 +88,7 @@ bool getEdge(_Edge** edge)
 	if (!getTwoVertixes(vertexes))
 		return false;
 
-	*edge = graph->getEdge(vertexes[0], vertexes[1]);
+	*edge = graph->GetEdge(vertexes[0], vertexes[1]);
 
 	if (*edge == nullptr)
 	{
@@ -147,8 +147,8 @@ public:
 	GraphCommands() { PrintCommands(); }
 
 	enum class Command { Create, CreateVDF, CreateVEDF, IsDirected, GetSaturation, GetForm, SetForm, 
-		getEdgesCount, AddEdge, getEdge, SetEdgeData, getEdgeData, SetEdgeWeight, getEdgeWeight,
-		RemoveEdge, getVertexesCount, AddVertex, SetVertexData, getVertexData, SwitchName, RemoveVertex, 
+		GetEdgesCount, AddEdge, GetEdge, SetEdgeData, GetEdgeData, SetEdgeWeight, GetEdgeWeight,
+		RemoveEdge, GetVertexesCount, AddVertex, SetVertexData, GetVertexData, SwitchName, RemoveVertex, 
 		Print, PrintCommands, ReturnToMenu
 	};
 
@@ -245,7 +245,7 @@ public:
 			cout << "Метод вернул: " << graph->RemoveEdge(vertexes[0], vertexes[1]) << endl;
 			break;
 		}
-		case (int)Command::getEdge:
+		case (int)Command::GetEdge:
 		{
 			_Edge* edge; if (!getEdge(&edge)) break;
 			edge->Print();
@@ -258,7 +258,7 @@ public:
 			edge->SetData(Input<string>::Get("Данные"));
 			break;
 		}
-		case (int)Command::getEdgeData:
+		case (int)Command::GetEdgeData:
 		{
 			_Edge* edge; if (!getEdge(&edge)) break;
 			if (edge->HasData())
@@ -273,7 +273,7 @@ public:
 				edge->SetWeight(Input<int>::Get("Вес"));
 			break;
 		}
-		case (int)Command::getEdgeWeight:
+		case (int)Command::GetEdgeWeight:
 		{
 			_Edge* edge; if (!getEdge(&edge)) break;
 			if (edge->HasWeight())
@@ -291,7 +291,7 @@ public:
 			vertex->SetData(Input<int>::Get("Данные"));
 			break;
 		}
-		case (int)Command::getVertexData:
+		case (int)Command::GetVertexData:
 		{
 			_Vertex* vertex;
 			if (getVertex(&vertex, "Имя вершины") == false)
@@ -303,11 +303,11 @@ public:
 				cout << "Данные не заданы\n";
 			break;
 		}
-		case (int)Command::getEdgesCount:
-			cout << graph->getEdgesCount() << endl;
+		case (int)Command::GetEdgesCount:
+			cout << graph->GetEdgesCount() << endl;
 			break;
-		case (int)Command::getVertexesCount:
-			cout << graph->getVertexesCount() << endl;
+		case (int)Command::GetVertexesCount:
+			cout << graph->GetVertexesCount() << endl;
 			break;
 		case (int)Command::GetSaturation:
 			cout << graph->GetSaturation() << endl;
@@ -332,18 +332,18 @@ protected:
 	{(int)Command::GetSaturation, "Коэф. насыщенности"},
 	{(int)Command::GetForm, "Получить форму"},
 	{(int)Command::SetForm, "Задать форму"},
-	{(int)Command::getEdgesCount, "Количество рёбер"},
+	{(int)Command::GetEdgesCount, "Количество рёбер"},
 	{(int)Command::AddEdge, "Добавить ребро"},
-	{(int)Command::getEdge, "Получить ребро"},
+	{(int)Command::GetEdge, "Получить ребро"},
 	{(int)Command::SetEdgeData, "Задать данные ребра"},
-	{(int)Command::getEdgeData, "Получить данные ребра"},
+	{(int)Command::GetEdgeData, "Получить данные ребра"},
 	{(int)Command::SetEdgeWeight, "Задать вес ребра"},
-	{(int)Command::getEdgeWeight, "Получить вес ребра"},
+	{(int)Command::GetEdgeWeight, "Получить вес ребра"},
 	{(int)Command::RemoveEdge, "Удалить ребро"},
-	{(int)Command::getVertexesCount, "Количество вершин"},
+	{(int)Command::GetVertexesCount, "Количество вершин"},
 	{(int)Command::AddVertex, "Добавить вершину"},
 	{(int)Command::SetVertexData, "Задать данные вершины"},
-	{(int)Command::getVertexData, "Получить данные вершины"},
+	{(int)Command::GetVertexData, "Получить данные вершины"},
 	{(int)Command::SwitchName, "Сменить имя вершины"},
 	{(int)Command::RemoveVertex, "Удалить вершину"},
 	{(int)Command::Print, "Вывести граф"},
