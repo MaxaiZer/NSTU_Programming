@@ -154,6 +154,7 @@ protected:
 	vector<Vertex*> result;
 	vector<vector<int>> GetWeightMatrix();
 	vector<Vertex*> GetAllVertexes();
+	void Floyd(vector<vector<int>>& weights);
 	int GetMaxWeight(vector<vector<int>> weights, int vertexIndex);
 };
 
@@ -179,21 +180,7 @@ inline void Task2v14<Vertex, Edge>::Restart()
 		return;
 
 	vector<vector<int>> weights = GetWeightMatrix();
-
-	for (int i = 0; i < vertexes; i++)
-	{
-		for (int j = 0; j < vertexes; j++)
-		{
-			for (int s = 0; s < vertexes; s++)
-			{
-				int possibleMin = weights[j][i] + weights[i][s];
-				if (weights[j][i] == numeric_limits<int>::max() || weights[i][s] == numeric_limits<int>::max())
-					possibleMin = numeric_limits<int>::max();
-
-				weights[j][s] = std::min(weights[j][s], possibleMin);
-			}
-		}
-	}
+	Floyd(weights);
 
 	vector<int> mins(vertexes);
 	int min = numeric_limits<int>::max();
@@ -261,6 +248,25 @@ inline vector<Vertex*> Task2v14<Vertex, Edge>::GetAllVertexes()
 	}
 
 	return vertexes;
+}
+
+template<class Vertex, class Edge>
+inline void Task2v14<Vertex, Edge>::Floyd(vector<vector<int>>& weights)
+{
+	for (int i = 0; i < weights.size(); i++)
+	{
+		for (int j = 0; j < weights.size(); j++)
+		{
+			for (int s = 0; s < weights.size(); s++)
+			{
+				int possibleMin = weights[j][i] + weights[i][s];
+				if (weights[j][i] == numeric_limits<int>::max() || weights[i][s] == numeric_limits<int>::max())
+					possibleMin = numeric_limits<int>::max();
+
+				weights[j][s] = std::min(weights[j][s], possibleMin);
+			}
+		}
+	}
 }
 
 template<class Vertex, class Edge>
