@@ -37,6 +37,8 @@ protected:
 template<class Vertex, class Edge>
 inline void Task1v13<Vertex, Edge>::Restart()
 {
+	result.clear();
+
 	Vertex* v;
 	if (!FindVertex(&v))
 	{
@@ -52,13 +54,11 @@ inline void Task1v13<Vertex, Edge>::Restart()
 		return;
 	}
 
-	result.clear();
-
-	vector<int> prevIndexes;
+	vector<bool> viewed(Task<Vertex, Edge>::graph->GetVertexesCount(), false);
 
 	vector<Vertex*> vertexes;
 	vertexes.push_back(v);
-	prevIndexes.push_back(v->index);
+	viewed[v->index] = true;
 
 	int curD = 0;
 	while (curD != d)
@@ -75,14 +75,12 @@ inline void Task1v13<Vertex, Edge>::Restart()
 
 		for (auto v : nextVertexes)
 		{
-			if (std::find(prevIndexes.begin(), prevIndexes.end(), v->index) == prevIndexes.end())
-			{
+			if (viewed[v->index] == false)
 				vertexes.push_back(v);
-			}
 		}
 
 		for (auto v : vertexes)
-			prevIndexes.push_back(v->index);
+			viewed[v->index] = true;
 
 		curD++;
 	}
@@ -95,6 +93,7 @@ inline void Task1v13<Vertex, Edge>::Result()
 {
 	if (result.empty())
 		cout << "Нет таких вершин\n";
+
 	for (auto v : result)
 	{
 		v->Print();
@@ -145,7 +144,7 @@ public:
 	Task2v14(Graph<Vertex, Edge>& graph) : Task<Vertex, Edge>(graph) 
 	{
 		if (graph.IsDirected() == false) 
-			throw "Граф должен быть направленным";  
+			throw "Граф должен быть ориентированным";  
 		Restart();
 	};
 	virtual void Restart();
