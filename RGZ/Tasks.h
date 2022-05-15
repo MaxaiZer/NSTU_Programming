@@ -28,10 +28,12 @@ public:
 	Task1v13(Graph<Vertex, Edge>& graph) : Task<Vertex, Edge>(graph) { Restart(); };
 	virtual void Restart();
 	virtual void Result();
+
 protected:
+	vector<Vertex> result;
+
 	bool FindVertex(Vertex** vertex);
 	void GetAllNeighboringVertexes(Vertex* vertex, vector<Vertex*>& neighbors);
-	vector<Vertex*> result;
 };
 
 template<class Vertex, class Edge>
@@ -85,7 +87,8 @@ inline void Task1v13<Vertex, Edge>::Restart()
 		curD++;
 	}
 
-	result = vertexes;
+	for (auto elem : vertexes)
+		result.push_back(*elem);
 }
 
 template<class Vertex, class Edge>
@@ -96,7 +99,7 @@ inline void Task1v13<Vertex, Edge>::Result()
 
 	for (auto v : result)
 	{
-		v->Print();
+		v.Print();
 		cout << endl;
 	}
 }
