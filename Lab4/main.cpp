@@ -108,6 +108,7 @@ string inputString(string hintForUser)
 	error:
 		cout << "Required only small letters of the Latin alphabet" << endl;
 		cin.clear();
+		cout << hintForUser << ":";
 	} while (true);
 	
 	return input;
