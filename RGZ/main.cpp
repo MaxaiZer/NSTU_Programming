@@ -484,13 +484,21 @@ public:
 			break;
 		}
 		case (int)Command::Restart:
+		{
 			if (*task == nullptr)
 			{
 				cout << "Создайте объект задания\n";
 				break;
 			}
-			static_cast<Task<_Vertex, _Edge>*>(*task)->Restart();
+
+			try { static_cast<Task<_Vertex, _Edge>*>(*task)->Restart(); }
+			catch (const char* ex)
+			{
+				cout << ex << endl;
+			}
+			
 			break;
+		}
 		case (int)Command::Result:
 			if (*task == nullptr)
 			{

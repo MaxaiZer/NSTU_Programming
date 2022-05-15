@@ -150,11 +150,12 @@ public:
 	virtual void Restart();
 	virtual void Result();
 protected:
-	vector<Vertex*> result;
+	vector<Vertex> result;
 	vector<vector<int>> GetWeightMatrix();
 	vector<Vertex*> GetAllVertexes();
 	void Floyd(vector<vector<int>>& weights);
-	int GetMaxWeight(vector<vector<int>> weights, int vertexIndex);
+	int GetEccentricity(vector<vector<int>>& weights, int vertexIndex);
+	vector<Vertex> SaveVector(const vector<Vertex*>& v);
 };
 
 template<class Vertex, class Edge>
@@ -164,7 +165,7 @@ inline void Task2v14<Vertex, Edge>::Result()
 		cout << "Нет таких вершин\n";
 	for (auto v : result)
 	{
-		v->Print();
+		v.Print();
 		cout << endl;
 	}
 }
@@ -182,24 +183,24 @@ inline void Task2v14<Vertex, Edge>::Restart()
 	Floyd(weights);
 
 	vector<int> mins(vertexes);
-	int min = numeric_limits<int>::max();
+	int min = INT_MAX;
 	for (int i = 0; i < vertexes; i++)
 	{
-		mins[i] = GetMaxWeight(weights, i);
+		mins[i] = GetEccentricity(weights, i);
 		min = std::min(min, mins[i]);
 	}
 
-	if (min == numeric_limits<int>::max())
-		return;
-
 	vector<Vertex*> graphVertexes = GetAllVertexes();
+
+	vector<Vertex*> centers;
 
 	for (int i = 0; i < mins.size(); i++)
 	{
 		if (min == mins[i])
-			result.push_back(graphVertexes[i]);
+			centers.push_back(graphVertexes[i]);
 	}
 
+	result = SaveVector(centers);
 }
 
 template<class Vertex, class Edge>
@@ -223,6 +224,10 @@ inline vector<vector<int>> Task2v14<Vertex, Edge>::GetWeightMatrix()
 	{
 		Vertex* v1 = (*iter).V1();
 		Vertex* v2 = (*iter).V2();
+
+		if (!(*iter).HasWeight())
+			throw "Граф не взвешен";
+
 		weights[v1->index][v2->index] = (*iter).GetWeight();
 
 		if (Task<Vertex, Edge>::graph->IsDirected() == false)
@@ -269,7 +274,7 @@ inline void Task2v14<Vertex, Edge>::Floyd(vector<vector<int>>& weights)
 }
 
 template<class Vertex, class Edge>
-inline int Task2v14<Vertex, Edge>::GetMaxWeight(vector<vector<int>> weights, int vertexIndex)
+inline int Task2v14<Vertex, Edge>::GetEccentricity(vector<vector<int>>& weights, int vertexIndex)
 {
 	int max = (vertexIndex == 0 ? -1 : weights[0][vertexIndex]);
 	if (weights.size() == 1) max = weights[0][0];
@@ -282,6 +287,17 @@ inline int Task2v14<Vertex, Edge>::GetMaxWeight(vector<vector<int>> weights, int
 	}
 
 	return max;
+}
+
+template<class Vertex, class Edge>
+inline vector<Vertex> Task2v14<Vertex, Edge>::SaveVector(const vector<Vertex*>& v)
+{
+	vector<Vertex> savedPath;
+
+	for (auto elem : v)
+		savedPath.push_back(*elem);
+
+	return savedPath;
 }
 
 #pragma endregion
