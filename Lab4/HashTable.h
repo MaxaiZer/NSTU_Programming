@@ -133,7 +133,7 @@ namespace Lab4
 			virtual V& operator[](K key) = 0;
 		protected:
 			int GetHash(std::string key);
-			int GetHash(INT_64 digit) { return digit % capacity; };
+			int GetHash(INT_64 digit) { return digit % capacity; }; //модульное хэширование
 			int GetHash2(INT_64 digit) { return 1 + (digit % (capacity - 1)); }
 			int Hashing(INT_64 digit, int trialsCount);
 
@@ -276,7 +276,7 @@ namespace Lab4
 	inline int HashTable<K, V>::Form::Hashing(INT_64 digit, int i)
 	{
 		INT_64 d = (INT_64)GetHash(digit) + i * (INT_64)GetHash2(digit);
-		return d % this->capacity; //модульное хэширование
+		return d % this->capacity;  //двойное хэширование
 	}
 
 	template<class K, class V>

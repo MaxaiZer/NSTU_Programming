@@ -165,7 +165,7 @@ void testChainsColl(int keysCount)
 
 	float alpha = table.GetSize() * 1.0 / table.GetCapacity();
 	cout << "Коэффициент заполнения после теста:" << alpha << endl;
-	cout << "Теоретическая трудоёмкость:" << 1 + alpha / 2 << endl;
+	cout << "Теоретическая трудоёмкость:" << 0.9*(1 + alpha / 2) + 0.1*(1 + alpha) << endl;
 
 	delete[] keys;
 }
