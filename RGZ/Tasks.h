@@ -3,13 +3,15 @@
 #include "Input.h"
 #include <algorithm>
 
+#define FirstTask Task1v13
+#define SecondTask Task2v14
+
 template <class Vertex, class Edge>
 class Task
 {
 public:
 	Task(Graph<Vertex, Edge>& graph): graph(&graph) { }
 	void Set(Graph<Vertex, Edge>& graph) { this->graph = &graph; Restart(); }
-	static string GetDescription() {};
 	virtual ~Task() = default;
 	virtual void Restart() = 0;
 	virtual void Result() = 0;
