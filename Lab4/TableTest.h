@@ -14,6 +14,13 @@ const INT_64 cRand = 1442695040888963407;
 
 const int STRING_SIZE = 15;
 
+#define LINEAR_SUCCESS (0.5 * (1 + 1 / (1 - alpha)))
+#define LINEAR_FAIL (0.5 * (1 + pow(1 / (1 - alpha), 2) ))
+#define QUADRATIC_SUCCESS (-log(1-alpha) / alpha) 
+#define QUADRATIC_FAIL (1.0 / (1 - alpha)) 
+#define DOUBLE_HASH_SUCCESS (1.0 / alpha * log(1 / (1 - alpha)))
+#define DOUBLE_HASH__FAIL (1.0 / (1 - alpha))
+
 void setFirstRandomDigit() { srand(time(0)); RRand = (INT_64)rand(); }
 
 //линейный конгруэнтный генератор Xi+1=(a*Xi+c)%m
@@ -136,8 +143,8 @@ void testOpenAddr(int keysCount)
 
 	float alpha = table.GetSize() * 1.0 / table.GetCapacity();
 	cout << "Коэффициент заполнения после теста:" << alpha << endl;
-	cout << "Теоретическая трудоёмкость удаления/поиска:" << 0.9 * (1 / alpha * log(1 / (1 - alpha))) + 0.1 * (1 / (1 - alpha)) << endl;
-	cout << "Теоретическая трудоёмкость вставки:" << 0.1 * (1 / alpha * log(1 / (1 - alpha))) + 0.9 * (1 / (1 - alpha)) << endl << endl;
+	cout << "Теоретическая трудоёмкость удаления/поиска:" << 0.9 * DOUBLE_HASH_SUCCESS + 0.1 * DOUBLE_HASH__FAIL << endl;
+	cout << "Теоретическая трудоёмкость вставки:" << 0.9 * DOUBLE_HASH__FAIL + 0.1 * DOUBLE_HASH_SUCCESS << endl << endl;
 
 	delete[] keys;
 }
