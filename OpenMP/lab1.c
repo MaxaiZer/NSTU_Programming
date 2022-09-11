@@ -5,20 +5,22 @@
 #include <stdbool.h>
 #include <time.h>
 #include <omp.h>
+#include <string.h>
 
 bool isParallel = true;
 
-int *getPrimeNumbers(int count)
+int *getPrimeNumbers(int maxNumber, int *count)
 {
-    if (count <= 0)
+    if (count <= 0 || maxNumber < 2)
         return NULL;
 
-    int *primeNumbers = malloc(sizeof(int) * count);
+    int curSize = 150;
+    int *primeNumbers = malloc(sizeof(int) * curSize);
 
     primeNumbers[0] = 2;
     int curCount = 1;
 
-    for (int n = 3; curCount != count; n += 2)
+    for (int n = 3; n < maxNumber; n += 2)
     {
         bool isPrime = true;
 
@@ -31,10 +33,22 @@ int *getPrimeNumbers(int count)
             }
         }
 
-        if (isPrime)
-            primeNumbers[curCount++] = n;
+        if (!isPrime)
+            continue;
+
+        if (curCount == curSize)
+        {
+            int *_primeNumbers = malloc(sizeof(int) * curSize * 2);
+            memcpy(_primeNumbers, primeNumbers, sizeof(int) * curSize);
+            curSize *= 2;
+            free(primeNumbers);
+            primeNumbers = _primeNumbers;
+        }
+
+        primeNumbers[curCount++] = n;
     }
 
+    *count = curCount;
     return primeNumbers;
 }
 
@@ -46,12 +60,12 @@ struct Result
 
 struct Result solveTask(int number)
 {
-    int primeNumbersCount = 140;
-    int *primeNumbers = getPrimeNumbers(primeNumbersCount);
+    int primeNumbersCount;
+    int *primeNumbers = getPrimeNumbers((number < 287 ? 8 : sqrt(number)), &primeNumbersCount);
 
     struct Result result = {INT_MAX, {-1, -1, -1, -1}};
 
-   #pragma omp parallel for collapse(3) if (isParallel) shared(number, primeNumbersCount, primeNumbers)
+    #pragma omp parallel for collapse(3) if (isParallel) shared(number, primeNumbersCount, primeNumbers)
     for (int i = 0; i < primeNumbersCount; i++)
     {
         for (int j = 0; j < primeNumbersCount; j++)
@@ -119,7 +133,11 @@ int main(int argc, char **argv)
 
     clock_gettime(CLOCK_REALTIME, &end);
 
-    printf("%d = %d^2 + %d^3 + %d^4 + %d^5\n", res.number, res.primeNumbers[0], res.primeNumbers[1], res.primeNumbers[2], res.primeNumbers[3]);
+    if (res.number == INT_MAX)
+        printf("no solution found\n");
+    else
+        printf("%d = %d^2 + %d^3 + %d^4 + %d^5\n", res.number, res.primeNumbers[0], res.primeNumbers[1], res.primeNumbers[2], res.primeNumbers[3]);
+
     printf("time: %.6f sec\n", (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) * 1.0 / 1000000000);
 
     return 0;
