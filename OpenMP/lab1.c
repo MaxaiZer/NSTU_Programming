@@ -14,7 +14,7 @@ int *getPrimeNumbers(int maxNumber, int *count)
     if (count <= 0 || maxNumber < 2)
         return NULL;
 
-    int curSize = 150;
+    int curSize = 50;
     int *primeNumbers = malloc(sizeof(int) * curSize);
 
     primeNumbers[0] = 2;
