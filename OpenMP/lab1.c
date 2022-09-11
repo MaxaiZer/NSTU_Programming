@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include <time.h>
 #include <omp.h>
-#include <string.h>
 
 bool isParallel = true;
 
@@ -14,8 +13,8 @@ int *getPrimeNumbers(int maxNumber, int *count)
     if (count <= 0 || maxNumber < 2)
         return NULL;
 
-    int curSize = 50;
-    int *primeNumbers = malloc(sizeof(int) * curSize);
+    int arraySize = 50;
+    int *primeNumbers = malloc(sizeof(int) * arraySize);
 
     primeNumbers[0] = 2;
     int curCount = 1;
@@ -36,18 +35,16 @@ int *getPrimeNumbers(int maxNumber, int *count)
         if (!isPrime)
             continue;
 
-        if (curCount == curSize)
+        if (curCount == arraySize)
         {
-            int *_primeNumbers = malloc(sizeof(int) * curSize * 2);
-            memcpy(_primeNumbers, primeNumbers, sizeof(int) * curSize);
-            curSize *= 2;
-            free(primeNumbers);
-            primeNumbers = _primeNumbers;
+            arraySize *= 2;
+            primeNumbers = realloc(primeNumbers, sizeof(int) * arraySize); 
         }
 
         primeNumbers[curCount++] = n;
     }
 
+    primeNumbers = realloc(primeNumbers, sizeof(int) * curCount);
     *count = curCount;
     return primeNumbers;
 }
