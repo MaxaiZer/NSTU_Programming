@@ -8,7 +8,7 @@
 
 bool isParallel = true;
 
-int* getPrimeNumbers(int count)
+int *getPrimeNumbers(int count)
 {
     if (count <= 0)
         return NULL;
@@ -21,13 +21,13 @@ int* getPrimeNumbers(int count)
     for (int n = 3; curCount != count; n += 2)
     {
         bool isPrime = true;
-        //  #pragma omp parallel for if (isParallel && curCount > 100) shared(isPrime, n)
+
         for (int i = 1; i < curCount; i++)
         {
             if (n % primeNumbers[i] == 0)
             {
-                //    #pragma omp critical
                 isPrime = false;
+                break;
             }
         }
 
@@ -46,12 +46,12 @@ struct Result
 
 struct Result solveTask(int number)
 {
-    int primeNumbersCount = 130;
+    int primeNumbersCount = 140;
     int *primeNumbers = getPrimeNumbers(primeNumbersCount);
 
     struct Result result = {INT_MAX, {-1, -1, -1, -1}};
 
-    #pragma omp parallel for collapse(3) if (isParallel) shared(number, primeNumbersCount, primeNumbers)
+   #pragma omp parallel for collapse(3) if (isParallel) shared(number, primeNumbersCount, primeNumbers)
     for (int i = 0; i < primeNumbersCount; i++)
     {
         for (int j = 0; j < primeNumbersCount; j++)
@@ -63,28 +63,27 @@ struct Result solveTask(int number)
 
                 for (int s = 0; s < primeNumbersCount; s++)
                 {
-
-                    if (i == j || i == k || i == s || j == k || j == s || k == s || skipCycle)
+                    if (skipCycle || i == j || i == k || i == s || j == k || j == s || k == s)
                         continue;
 
-                    int n = pow(primeNumbers[i], 2) + pow(primeNumbers[j], 3) +
-                            pow(primeNumbers[k], 4) + pow(primeNumbers[s], 5);
+                    int sum = pow(primeNumbers[i], 2) + pow(primeNumbers[j], 3) +
+                              pow(primeNumbers[k], 4) + pow(primeNumbers[s], 5);
 
-                    if (n > number)
+                    if (sum <= number)
+                        continue;
+
+                    if (sum < threadResult.number)
                     {
-                        if (n < threadResult.number)
-                        {
-                            struct Result _result =
-                                {
-                                    n,
-                                    {primeNumbers[i], primeNumbers[j],
-                                     primeNumbers[k], primeNumbers[s]}
-                                };
-                            threadResult = _result;
-                        }
-                        else
-                            skipCycle = true;
+                        struct Result _result =
+                            {
+                                sum,
+                                {primeNumbers[i], primeNumbers[j],
+                                 primeNumbers[k], primeNumbers[s]}
+                            };
+                        threadResult = _result;
                     }
+                    else
+                        skipCycle = true;
                 }
 
                 #pragma omp critical
@@ -104,7 +103,7 @@ int main(int argc, char **argv)
 {
     if (argc < 2)
     {
-        printf("number is not entered\n");
+        printf("arguments: number(required), 0 (to disable parallel computing, not required)\n");
         return -1;
     }
 
