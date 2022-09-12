@@ -130,12 +130,7 @@ int main(int argc, char **argv)
 
     clock_gettime(CLOCK_REALTIME, &end);
 
-    if (res.number == INT_MAX)
-        printf("no solution found\n");
-    else
-        printf("%d = %d^2 + %d^3 + %d^4 + %d^5\n", res.number, res.primeNumbers[0], res.primeNumbers[1], res.primeNumbers[2], res.primeNumbers[3]);
-
+    printf("%d = %d^2 + %d^3 + %d^4 + %d^5\n", res.number, res.primeNumbers[0], res.primeNumbers[1], res.primeNumbers[2], res.primeNumbers[3]);
     printf("time: %.6f sec\n", (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) * 1.0 / 1000000000);
-
     return 0;
 }
