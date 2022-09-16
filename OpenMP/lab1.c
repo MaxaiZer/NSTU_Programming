@@ -9,13 +9,13 @@
 
 bool isParallel = true;
 
-int* getPrimeNumbers(long long maxNumber, int *count)
+int *getPrimeNumbers(long long maxNumber, int *count)
 {
     if (maxNumber < 2)
         return NULL;
 
     int arraySize = 50;
-    int* primeNumbers = malloc(sizeof(int) * arraySize);
+    int *primeNumbers = malloc(sizeof(int) * arraySize);
 
     primeNumbers[0] = 2;
     int curCount = 1;
@@ -39,7 +39,7 @@ int* getPrimeNumbers(long long maxNumber, int *count)
         if (curCount == arraySize)
         {
             arraySize *= 2;
-            primeNumbers = realloc(primeNumbers, sizeof(int) * arraySize); 
+            primeNumbers = realloc(primeNumbers, sizeof(int) * arraySize);
         }
 
         primeNumbers[curCount++] = n;
@@ -58,56 +58,54 @@ typedef struct
 
 Result solveTask(long long number)
 {
-    int primeNumbersCount;
-    int* primeNumbers = getPrimeNumbers((number < 287 ? 8 : sqrt(number)), &primeNumbersCount);
+    int primesCount;
+    int* primes = getPrimeNumbers((number < 287 ? 8 : sqrt(number)), &primesCount);
 
     Result result = {INT_MAX, {-1, -1, -1, -1}};
-
-    #pragma omp parallel for collapse(3) if (isParallel) shared(number, primeNumbersCount, primeNumbers)
-    for (int i = 0; i < primeNumbersCount; i++)
+    
+    #pragma omp parallel for if (isParallel) shared(number, primesCount, primes)
+    for (int i = 0; i < primesCount; i++)
     {
-        for (int j = 0; j < primeNumbersCount; j++)
-        {
-            for (int k = 0; k < primeNumbersCount; k++)
+        Result threadResult = {INT_MAX, {-1, -1, -1, -1}};        
+        
+        for (int j = 0; j < primesCount; j++)
+        {          
+            int preSum = pow(primes[i], 2) + pow(primes[j], 3);               
+            if (preSum > number && preSum > threadResult.number) break;
+        
+            for (int k = 0; k < primesCount; k++)
             {
-                Result threadResult = {INT_MAX, {-1, -1, -1, -1}};
-                bool skipCycle = false;
-
-                for (int s = 0; s < primeNumbersCount; s++)
+                preSum = pow(primes[i], 2) + pow(primes[j], 3) + pow(primes[k], 4);               
+                if (preSum > number && preSum > threadResult.number) break;
+            
+                for (int s = 0; s < primesCount; s++)
                 {
-                    if (skipCycle || i == j || i == k || i == s || j == k || j == s || k == s)
-                        continue;
-
-                    int sum = pow(primeNumbers[i], 2) + pow(primeNumbers[j], 3) +
-                              pow(primeNumbers[k], 4) + pow(primeNumbers[s], 5);
+                    if (i == j || i == k || i == s || j == k || j == s || k == s)
+                        continue; 
+                        
+                    int sum = pow(primes[i], 2) + pow(primes[j], 3) + pow(primes[k], 4) + pow(primes[s], 5);
 
                     if (sum <= number)
                         continue;
-
+                        
                     if (sum < threadResult.number)
                     {
-                        Result _result =
-                            {
-                                sum,
-                                {primeNumbers[i], primeNumbers[j],
-                                 primeNumbers[k], primeNumbers[s]}
-                            };
+                        Result _result = { sum, {primes[i], primes[j], primes[k], primes[s]} };
                         threadResult = _result;
                     }
-                    else
-                        skipCycle = true;
-                }
+                    else break;
+                }    
+            } 
+        }
 
-                #pragma omp critical
-                if (threadResult.number < result.number)
-                {
-                    result = threadResult;
-                }
-            }
+        #pragma omp critical
+        if (threadResult.number < result.number)
+        {
+            result = threadResult;
         }
     }
 
-    free(primeNumbers);
+    free(primes);
     return result;
 }
 
@@ -134,19 +132,19 @@ int main(int argc, char **argv)
     }
 
     long long number = strtol(argv[1], NULL, 10);
-    
+
     printf("Parallel calculation:\n");
     Result res1 = solveTaskWithPrintingInfo(number);
-    
+
     isParallel = false;
     printf("\nNot parallel calculation:\n");
     Result res2 = solveTaskWithPrintingInfo(number);
-    
-    if (res1.number == res2.number && 
-    memcmp(res1.primeNumbers, res2.primeNumbers, sizeof(res1.primeNumbers)) == 0)
+
+    if (res1.number == res2.number &&
+        memcmp(res1.primeNumbers, res2.primeNumbers, sizeof(res1.primeNumbers)) == 0)
         printf("\nThe results are equal\n");
     else
         printf("\nThe results are not equal\n");
-        
+
     return 0;
 }
