@@ -1,11 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
 #include <limits.h>
-#include <stdbool.h>
-#include <time.h>
 #include <omp.h>
-#include <string.h>
 #include <iostream>
 
 bool isParallel = true;
