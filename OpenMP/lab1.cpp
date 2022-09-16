@@ -6,6 +6,7 @@
 #include <time.h>
 #include <omp.h>
 #include <string.h>
+#include <iostream>
 
 bool isParallel = true;
 
@@ -15,7 +16,7 @@ int *getPrimeNumbers(long long maxNumber, int *count)
         return NULL;
 
     int arraySize = 50;
-    int *primeNumbers = malloc(sizeof(int) * arraySize);
+    int *primeNumbers = (int*)malloc(sizeof(int) * arraySize);
 
     primeNumbers[0] = 2;
     int curCount = 1;
@@ -26,11 +27,7 @@ int *getPrimeNumbers(long long maxNumber, int *count)
 
         for (int i = 1; i < curCount; i++)
         {
-            if (n % primeNumbers[i] == 0)
-            {
-                isPrime = false;
-                break;
-            }
+            if (n % primeNumbers[i] == 0) { isPrime = false; break; }
         }
 
         if (!isPrime)
@@ -39,22 +36,24 @@ int *getPrimeNumbers(long long maxNumber, int *count)
         if (curCount == arraySize)
         {
             arraySize *= 2;
-            primeNumbers = realloc(primeNumbers, sizeof(int) * arraySize);
+            primeNumbers = (int*)realloc(primeNumbers, sizeof(int) * arraySize);
         }
 
         primeNumbers[curCount++] = n;
     }
 
-    primeNumbers = realloc(primeNumbers, sizeof(int) * curCount);
+    primeNumbers = (int*)realloc(primeNumbers, sizeof(int) * curCount);
     *count = curCount;
     return primeNumbers;
 }
 
-typedef struct
+struct Result
 {
     int number;
     int primeNumbers[4];
-} Result;
+    bool operator == (Result res) { return number == res.number;  }
+    //dont compare prime numbers because 1045 = 19^2 + 3^3 + 5^4 + 2^5 = 13^2 + 2^3 + 5^4 + 3^5
+};
 
 Result solveTask(long long number)
 {
@@ -66,16 +65,19 @@ Result solveTask(long long number)
     #pragma omp parallel for if (isParallel) shared(number, primesCount, primes)
     for (int i = 0; i < primesCount; i++)
     {
-        Result threadResult = {INT_MAX, {-1, -1, -1, -1}};        
+        Result threadResult = {INT_MAX, {-1, -1, -1, -1}};
+        
+        auto getSum  = [primes](int i, int j, int k = -1, int s = -1)
+        { return  pow(primes[i], 2) + pow(primes[j], 3) + ( k < 0 ? 0 : pow(primes[k], 4)) + (s < 0 ? 0 : pow(primes[s], 5)); };
         
         for (int j = 0; j < primesCount; j++)
         {          
-            int preSum = pow(primes[i], 2) + pow(primes[j], 3);               
+            int preSum = getSum(i, j);               
             if (preSum > number && preSum > threadResult.number) break;
         
             for (int k = 0; k < primesCount; k++)
             {
-                preSum = pow(primes[i], 2) + pow(primes[j], 3) + pow(primes[k], 4);               
+                preSum = getSum(i, j, k);              
                 if (preSum > number && preSum > threadResult.number) break;
             
                 for (int s = 0; s < primesCount; s++)
@@ -83,7 +85,7 @@ Result solveTask(long long number)
                     if (i == j || i == k || i == s || j == k || j == s || k == s)
                         continue; 
                         
-                    int sum = pow(primes[i], 2) + pow(primes[j], 3) + pow(primes[k], 4) + pow(primes[s], 5);
+                    int sum = getSum(i, j, k, s);
 
                     if (sum <= number)
                         continue;
@@ -140,11 +142,6 @@ int main(int argc, char **argv)
     printf("\nNot parallel calculation:\n");
     Result res2 = solveTaskWithPrintingInfo(number);
 
-    if (res1.number == res2.number &&
-        memcmp(res1.primeNumbers, res2.primeNumbers, sizeof(res1.primeNumbers)) == 0)
-        printf("\nThe results are equal\n");
-    else
-        printf("\nThe results are not equal\n");
-
+    std::cout << "\nThe results are " << (res1 == res2 ? "" : "not ") << "equal\n";
     return 0;
 }
