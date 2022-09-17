@@ -3,8 +3,6 @@
 #include <omp.h>
 #include <iostream>
 
-bool isParallel = true;
-
 int *getPrimeNumbers(long long maxNumber, int *count)
 {
     if (maxNumber < 2)
@@ -50,7 +48,7 @@ struct Result
     //dont compare prime numbers because 1045 = 19^2 + 3^3 + 5^4 + 2^5 = 13^2 + 2^3 + 5^4 + 3^5
 };
 
-Result solveTask(long long number)
+Result solveTask(long long number, bool isParallel)
 {
     int primesCount;
     int* primes = getPrimeNumbers((number < 287 ? 8 : sqrt(number)), &primesCount);
@@ -106,12 +104,12 @@ Result solveTask(long long number)
     return result;
 }
 
-Result solveTaskWithPrintingInfo(long long number)
+Result solveTaskWithPrintingInfo(long long number, bool isParallel)
 {
     struct timespec start, end;
     clock_gettime(CLOCK_REALTIME, &start);
 
-    Result res = solveTask(number);
+    Result res = solveTask(number, isParallel);
 
     clock_gettime(CLOCK_REALTIME, &end);
 
@@ -131,11 +129,10 @@ int main(int argc, char **argv)
     long long number = strtol(argv[1], NULL, 10);
 
     printf("Parallel calculation:\n");
-    Result res1 = solveTaskWithPrintingInfo(number);
+    Result res1 = solveTaskWithPrintingInfo(number, true);
 
-    isParallel = false;
     printf("\nNot parallel calculation:\n");
-    Result res2 = solveTaskWithPrintingInfo(number);
+    Result res2 = solveTaskWithPrintingInfo(number, false);
 
     std::cout << "\nThe results are " << (res1 == res2 ? "" : "not ") << "equal\n";
     return 0;
