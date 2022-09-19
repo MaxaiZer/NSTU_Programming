@@ -6,4 +6,5 @@
 *.sln
 *.vcxproj
 *.vcxproj.user
+oldLab.cu
 
