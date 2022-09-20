@@ -1,12 +1,12 @@
-#include "task11.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <stdexcept>
+#include "task11.h"
 
 using namespace Task11;
 
-void Task11::findSubcolumnSum(int* matrix, int* columnsSums, int rows, int columns, int subrows)
+void findSubcolumnsSums(int* matrix, int* columnsSums, int rows, int columns, int subrows)
 {
 	for (int r = 0; r < rows - subrows + 1; r++)
 	{
@@ -29,7 +29,7 @@ void Task11::findSubcolumnSum(int* matrix, int* columnsSums, int rows, int colum
 	}
 }
 
-Result Task11::findMaxSubcolumnSum(int* columnsSums, int arrayRows, int arrayColumns, int subColumns)
+Result findMaxSubcolumnSum(int* columnsSums, int arrayRows, int arrayColumns, int subColumns)
 {
 	Result res = { INT_MIN, -1 };
 
@@ -63,7 +63,7 @@ Result Task11::findMaxSubcolumnSum(int* columnsSums, int arrayRows, int arrayCol
 	return res;
 }
 
-Result Task11::findSubmatrixWithMaxSum(int* matrix, int rows, int columns, int subrows, int subcolumns)
+Result NoCuda::findSubmatrixWithMaxSum(int* matrix, int rows, int columns, int subrows, int subcolumns)
 {
 	if (matrix == nullptr || subrows > rows || subcolumns > columns ||
 		rows < 0 || columns < 0 || subrows < 0 || subcolumns < 0)
@@ -72,7 +72,7 @@ Result Task11::findSubmatrixWithMaxSum(int* matrix, int rows, int columns, int s
 	int subcolumnsDim[2] = { (unsigned int)rows - subrows + 1 , (unsigned int)columns };
 	int* subcolumnsSums = (int*)malloc(subcolumnsDim[0] * subcolumnsDim[1] * sizeof(int));
 
-	findSubcolumnSum(matrix, subcolumnsSums, rows, columns, subrows);
+	findSubcolumnsSums(matrix, subcolumnsSums, rows, columns, subrows);
 	
 	return findMaxSubcolumnSum(subcolumnsSums, subcolumnsDim[0], subcolumnsDim[1], subcolumns);
 }

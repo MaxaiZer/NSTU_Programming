@@ -7,4 +7,5 @@
 *.vcxproj
 *.vcxproj.user
 oldLab.cu
+*.txt
 
