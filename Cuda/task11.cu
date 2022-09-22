@@ -11,19 +11,25 @@ int maxThreadsDim[3];
 __global__ void findSubcolumnSum(int* matrix, int* columnsSums, int rows, int columns, int subrows)
 {
 	int i = blockDim.x * blockIdx.x + threadIdx.x;
-	int row = i / columns;
 	int column = i % columns;
 
-	if (row >= rows || column >= columns) return;
+	if (column >= columns) return;
 
 	int sum = 0;
 
-	for (int curRow = row; curRow < row + subrows; curRow++)
+	for (int curRow = 0; curRow < subrows; curRow++)
 	{
 		sum += matrix[columns * curRow + column];
 	}
+	columnsSums[column] = sum;
 
-	columnsSums[columns * row + column] = sum;
+	for (int curRow = subrows; curRow < rows; curRow++)
+	{
+		sum -= matrix[columns * (curRow - subrows) + column];
+		sum += matrix[columns * curRow + column];
+
+		columnsSums[columns * (curRow - subrows + 1) + column] = sum;
+	}
 }
 
 __device__ int maxSum = INT_MIN;
@@ -96,9 +102,10 @@ Result Cuda::findSubmatrixWithMaxSum(int* matrix, int rows, int columns, int sub
 	}
 
 	int blocks, threads;
-	getNumberOfBlocksAndThreads(subcolumnsDim.x * subcolumnsDim.y, &blocks, &threads);
 
-	findSubcolumnSum << < blocks, threads >> > (_matrix, subcolumnsSums, rows, columns, subrows);
+	getNumberOfBlocksAndThreads(subcolumnsDim.y, &blocks, &threads);
+	findSubcolumnSum << <blocks, threads >> > (_matrix, subcolumnsSums, rows, columns, subrows);
+
 	cudaDeviceSynchronize();
 
 	getNumberOfBlocksAndThreads(subcolumnsDim.x, &blocks, &threads);
