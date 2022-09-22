@@ -35,7 +35,7 @@ __global__ void findSubcolumnSum(int* matrix, int* columnsSums, int rows, int co
 __device__ int maxSum = INT_MIN;
 __device__ int submatrixFirstElementId;
 
-__global__ void findMaxSubcolumnSum(int* columnsSums, int arrayRows, int arrayColumns, int subColumns)
+__global__ void findMaxSumOfSubcolumns(int* columnsSums, int arrayRows, int arrayColumns, int subColumns)
 {
 	int row = blockDim.x * blockIdx.x + threadIdx.x;
 	if (row >= arrayRows) return;
@@ -109,7 +109,7 @@ Result Cuda::findSubmatrixWithMaxSum(int* matrix, int rows, int columns, int sub
 	cudaDeviceSynchronize();
 
 	getNumberOfBlocksAndThreads(subcolumnsDim.x, &blocks, &threads);
-	findMaxSubcolumnSum << < blocks, threads >> > (subcolumnsSums, subcolumnsDim.x, subcolumnsDim.y, subcolumns);
+	findMaxSumOfSubcolumns << < blocks, threads >> > (subcolumnsSums, subcolumnsDim.x, subcolumnsDim.y, subcolumns);
 
 	cudaDeviceSynchronize();
 

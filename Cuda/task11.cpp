@@ -29,7 +29,7 @@ void findSubcolumnsSums(int* matrix, int* columnsSums, int rows, int columns, in
 	}
 }
 
-Result findMaxSubcolumnSum(int* columnsSums, int arrayRows, int arrayColumns, int subColumns)
+Result findMaxSum(int* columnsSums, int arrayRows, int arrayColumns, int subColumns)
 {
 	Result res = { INT_MIN, -1 };
 
@@ -74,5 +74,7 @@ Result NoCuda::findSubmatrixWithMaxSum(int* matrix, int rows, int columns, int s
 
 	findSubcolumnsSums(matrix, subcolumnsSums, rows, columns, subrows);
 	
-	return findMaxSubcolumnSum(subcolumnsSums, subcolumnsDim[0], subcolumnsDim[1], subcolumns);
+	Result res = findMaxSum(subcolumnsSums, subcolumnsDim[0], subcolumnsDim[1], subcolumns);
+	free(subcolumnsSums);
+	return res;
 }
