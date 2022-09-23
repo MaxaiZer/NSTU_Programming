@@ -1,2 +1,2 @@
 all:
-	g++ -fopenmp -lm -o lab1 lab1.cpp
+	g++ -fopenmp -o lab1 --std=c++11 lab1.cpp
