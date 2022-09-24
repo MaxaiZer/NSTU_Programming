@@ -6,7 +6,7 @@
 
 using namespace Task11;
 
-void findSubcolumnsSums(int* matrix, int* columnsSums, int rows, int columns, int subrows)
+void findSubcolumnsSums(long long* matrix, long long* columnsSums, int rows, int columns, int subrows)
 {
 	for (int r = 0; r < rows - subrows + 1; r++)
 	{
@@ -29,7 +29,7 @@ void findSubcolumnsSums(int* matrix, int* columnsSums, int rows, int columns, in
 	}
 }
 
-Result findMaxSum(int* columnsSums, int arrayRows, int arrayColumns, int subColumns)
+Result findMaxSum(long long* columnsSums, int arrayRows, int arrayColumns, int subColumns)
 {
 	Result res = { INT_MIN, -1 };
 
@@ -63,14 +63,14 @@ Result findMaxSum(int* columnsSums, int arrayRows, int arrayColumns, int subColu
 	return res;
 }
 
-Result NoCuda::findSubmatrixWithMaxSum(int* matrix, int rows, int columns, int subrows, int subcolumns)
+Result NoCuda::findSubmatrixWithMaxSum(long long* matrix, int rows, int columns, int subrows, int subcolumns)
 {
 	if (matrix == nullptr || subrows > rows || subcolumns > columns ||
 		rows < 0 || columns < 0 || subrows < 0 || subcolumns < 0)
 		throw std::invalid_argument::exception();
 
 	int subcolumnsDim[2] = { (unsigned int)rows - subrows + 1 , (unsigned int)columns };
-	int* subcolumnsSums = (int*)malloc(subcolumnsDim[0] * subcolumnsDim[1] * sizeof(int));
+	long long* subcolumnsSums = (long long*)malloc(subcolumnsDim[0] * subcolumnsDim[1] * sizeof(long long));
 
 	findSubcolumnsSums(matrix, subcolumnsSums, rows, columns, subrows);
 	
