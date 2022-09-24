@@ -1,11 +1,9 @@
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
-#include "task11.h"
-#include <device_functions.h>
 #include <stdio.h>
 #include <fstream>
 #include <limits.h>
 #include <ctime> 
+#include <stdexcept>
+#include "task11.h"
 
 struct ExecutionInfo
 {
@@ -13,13 +11,13 @@ struct ExecutionInfo
 	float time; //sec
 };
 
-void generateMatrix(long long** matrix, int rows, int columns, int min, int max)
+void generateMatrix(int** matrix, int rows, int columns, int min, int max)
 {
 	if (rows <= 0 || columns <= 0) throw std::invalid_argument::exception();
 
 	srand(time(0));
 
-	*matrix = (long long*)malloc(rows * columns * sizeof(long long));
+	*matrix = (int*)malloc(rows * columns * sizeof(int));
 
 	for (size_t i = 0; i < rows; ++i)
 	{
@@ -33,16 +31,16 @@ void generateMatrix(long long** matrix, int rows, int columns, int min, int max)
 void readInfoFromFile(int& rows, int& columns, int& min, int& max, int& subrows, int& subcolumns)
 {
 	std::ifstream fin("info.txt");
-	if (!fin) return;
+	if (!fin) { printf("fail to open info.txt\n"); return; }
 
 	fin >> rows >> columns >> min >> max >> subrows >> subcolumns;
 	fin.close();
 }
 
-void writeResultsToFile(long long* matrix, int rows, int columns, int subrows, int subcolumns, ExecutionInfo withCuda, ExecutionInfo withoutCuda)
+void writeResultsToFile(int* matrix, int rows, int columns, int subrows, int subcolumns, ExecutionInfo withCuda, ExecutionInfo withoutCuda)
 {
 	std::ofstream fout("result.txt");
-	if (!fout) return;
+	if (!fout) { printf("fail to open result.txt\n"); return; }
 
 	auto writeSubmatrix = [&fout, matrix, rows, columns, subrows, subcolumns](Task11::Result res)
 	{
@@ -73,14 +71,14 @@ void writeResultsToFile(long long* matrix, int rows, int columns, int subrows, i
 
 int main(int argc, char** argv)
 {
-	long long* matrix;
+	int* matrix;
 
 	int rows, columns, min, max, subrows, subcolumns;
 	readInfoFromFile(rows, columns, min, max, subrows, subcolumns);
 
 	generateMatrix(&matrix, rows, columns, min, max);
 
-	auto execute = [matrix, rows, columns, subrows, subcolumns](Task11::Result(*func)(long long*, int,int,int,int)) 
+	auto execute = [matrix, rows, columns, subrows, subcolumns](Task11::Result(*func)(int*, int,int,int,int)) 
 	{        
 		ExecutionInfo info;
 		struct timespec start, end;
