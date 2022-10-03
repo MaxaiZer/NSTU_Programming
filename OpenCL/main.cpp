@@ -46,7 +46,7 @@ void readFile(char* name, char** buffer)
 	std::string content((std::istreambuf_iterator<char>(fin)),
 		(std::istreambuf_iterator<char>()));
 
-	*buffer = (char*)malloc(content.length() * sizeof(char));
+	*buffer = (char*)calloc(content.length() + 1, sizeof(char));
 	strcpy(*buffer, content.data());
 }
 
@@ -75,34 +75,31 @@ void calculateWithOpenCL(int firstNumber, int* lengths, unsigned int size)
 {
 	char* sourceCode;
 	readFile(PROGRAM_FILE, &sourceCode);
-
+	
 	OpenCLProgramBuilder cl((const char**)&sourceCode);
-
+	
 	if (cl.error != CL_SUCCESS) { printf("Setup OpenCL error %d\n", cl.error); return; };
-
-	cl_kernel kernel = clCreateKernel(cl.program, KERNEL_FUNC, &cl.error);
 
 	cl.localSize = 64;
 	cl.globalSize = ceil((float)size / cl.localSize) * cl.localSize;
 
+	cl_kernel kernel = clCreateKernel(cl.program, KERNEL_FUNC, &cl.error);
+
 	cl_mem d_lengths = clCreateBuffer(cl.context, CL_MEM_READ_ONLY, size * sizeof(int), NULL, NULL);
 
-	// Set the arguments to our compute kernel
 	cl_int err = clSetKernelArg(kernel, 0, sizeof(int), &firstNumber);
 	err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &d_lengths);
 	err |= clSetKernelArg(kernel, 2, sizeof(unsigned int), &size);
-
-	// Execute the kernel over the entire range of the data set  
 	err = clEnqueueNDRangeKernel(cl.queue, kernel, 1, NULL, &cl.globalSize, &cl.localSize,
 		0, NULL, NULL);
 
-	// Wait for the command queue to get serviced before reading back results
 	clFinish(cl.queue);
 
-	// Read the results from the device
+	if (err != CL_SUCCESS) { printf("Error %d\n", err); return; };
+
 	clEnqueueReadBuffer(cl.queue, d_lengths, CL_TRUE, 0,
 		size * sizeof(int), lengths, 0, NULL, NULL);
-
+	
 	clReleaseKernel(kernel);
 	clReleaseMemObject(d_lengths);
 	free(sourceCode);
