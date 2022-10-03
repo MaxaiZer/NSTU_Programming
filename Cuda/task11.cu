@@ -8,14 +8,14 @@ using namespace Task11;
 
 int maxThreadsDim[3];
 
-__global__ void findSubcolumnSum(long long* matrix, long long* columnsSums, int rows, int columns, int subrows)
+__global__ void findSubcolumnSum(int* matrix, int* columnsSums, int rows, int columns, int subrows)
 {
 	int i = blockDim.x * blockIdx.x + threadIdx.x;
 	int column = i % columns;
 
 	if (column >= columns) return;
 
-	long long sum = 0;
+	int sum = 0;
 
 	for (int curRow = 0; curRow < subrows; curRow++)
 	{
@@ -32,15 +32,15 @@ __global__ void findSubcolumnSum(long long* matrix, long long* columnsSums, int 
 	}
 }
 
-__device__ long long maxSum = LLONG_MIN;
+__device__ int maxSum = INT_MIN;
 __device__ int submatrixFirstElementId;
 
-__global__ void findMaxSumOfSubcolumns(long long* columnsSums, int arrayRows, int arrayColumns, int subColumns)
+__global__ void findMaxSumOfSubcolumns(int* columnsSums, int arrayRows, int arrayColumns, int subColumns)
 {
 	int row = blockDim.x * blockIdx.x + threadIdx.x;
 	if (row >= arrayRows) return;
 
-	long long threadMaxSum, sum = 0;
+	int threadMaxSum, sum = 0;
 	int firstElementId = row * arrayColumns;
 
 	for (int i = 0; i < subColumns; i++)
@@ -75,15 +75,15 @@ void getNumberOfBlocksAndThreads(int elemsCount, int* blocks, int* threads)
 	*threads = (elemsCount < maxThreadsDim[0] ? elemsCount : maxThreadsDim[0]);
 }
 
-cudaError_t allocateMemory(long long* matrix, long long** gpuMatrix, int rows, int columns, long long** gpuColumnsSums, int subRows)
+cudaError_t allocateMemory(int* matrix, int** gpuMatrix, int rows, int columns, int** gpuColumnsSums, int subRows)
 {
-	cudaError_t status = cudaMalloc(gpuMatrix, rows * columns * sizeof(long long));
-	status = cudaMemcpy(*gpuMatrix, matrix, rows * columns * sizeof(long long), cudaMemcpyHostToDevice);
-	status = cudaMalloc(gpuColumnsSums, (rows - subRows + 1) * columns * sizeof(long long));
+	cudaError_t status = cudaMalloc(gpuMatrix, rows * columns * sizeof(int));
+	status = cudaMemcpy(*gpuMatrix, matrix, rows * columns * sizeof(int), cudaMemcpyHostToDevice);
+	status = cudaMalloc(gpuColumnsSums, (rows - subRows + 1) * columns * sizeof(int));
 	return status;
 }
 
-Result Cuda::findSubmatrixWithMaxSum(long long* matrix, int rows, int columns, int subrows, int subcolumns)
+Result Cuda::findSubmatrixWithMaxSum(int* matrix, int rows, int columns, int subrows, int subcolumns)
 {
 	if (matrix == nullptr || subrows > rows || subcolumns > columns ||
 		rows < 0 || columns < 0 || subrows < 0 || subcolumns < 0)
@@ -93,7 +93,7 @@ Result Cuda::findSubmatrixWithMaxSum(long long* matrix, int rows, int columns, i
 	cudaGetDeviceProperties(&deviceProp, 0);
 	memcpy(maxThreadsDim, deviceProp.maxThreadsDim, 3 * sizeof(int));
 
-	long long* _matrix = nullptr, * subcolumnsSums = nullptr;
+	int* _matrix = nullptr, * subcolumnsSums = nullptr;
 	dim3 subcolumnsDim = { (unsigned int)rows - subrows + 1 , (unsigned int)columns };
 
 	if (allocateMemory(matrix, &_matrix, rows, columns, &subcolumnsSums, subrows) != cudaSuccess)
@@ -115,7 +115,7 @@ Result Cuda::findSubmatrixWithMaxSum(long long* matrix, int rows, int columns, i
 	cudaDeviceSynchronize();
 
 	Task11::Result res;
-	cudaMemcpyFromSymbol(&res.sum, maxSum, sizeof(long long));
+	cudaMemcpyFromSymbol(&res.sum, maxSum, sizeof(int));
 	cudaMemcpyFromSymbol(&res.firstElementId, submatrixFirstElementId, sizeof(int));
 
 	cudaFree(_matrix);
