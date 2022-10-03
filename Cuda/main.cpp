@@ -12,13 +12,13 @@ struct ExecutionInfo
 	float time; //sec
 };
 
-void generateMatrix(long long** matrix, int rows, int columns, int min, int max)
+void generateMatrix(int** matrix, int rows, int columns, int min, int max)
 {
 	if (rows <= 0 || columns <= 0) throw std::invalid_argument::exception();
 
 	srand(time(0));
 
-	*matrix = (long long*)malloc(rows * columns * sizeof(long long));
+	*matrix = (int*)malloc(rows * columns * sizeof(int));
 
 	for (size_t i = 0; i < rows; ++i)
 	{
@@ -39,7 +39,7 @@ bool readInfoFromFile(int& rows, int& columns, int& min, int& max, int& subrows,
 	return true;
 }
 
-bool writeResultsToFile(long long* matrix, int rows, int columns, int subrows, int subcolumns, ExecutionInfo withCuda, ExecutionInfo withoutCuda)
+bool writeResultsToFile(int* matrix, int rows, int columns, int subrows, int subcolumns, ExecutionInfo withCuda, ExecutionInfo withoutCuda)
 {
 	std::ofstream fout("result.txt");
 	if (!fout) { printf("fail to open result.txt\n"); return false; }
@@ -85,7 +85,7 @@ bool writeResultsToFile(long long* matrix, int rows, int columns, int subrows, i
 
 int main(int argc, char** argv)
 {
-	long long* matrix;
+	int* matrix;
 
 	int rows, columns, min, max, subrows, subcolumns;
 	if (!readInfoFromFile(rows, columns, min, max, subrows, subcolumns)) return -1;
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
 	printf("Generating matrix...\n");
 	generateMatrix(&matrix, rows, columns, min, max);
 
-	auto execute = [matrix, rows, columns, subrows, subcolumns](Task11::Result(*func)(long long*, int,int,int,int))
+	auto execute = [matrix, rows, columns, subrows, subcolumns](Task11::Result(*func)(int*, int,int,int,int))
 	{        
 		ExecutionInfo info;
 		struct timespec start, end;

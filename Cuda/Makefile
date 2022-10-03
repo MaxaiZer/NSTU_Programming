@@ -198,7 +198,7 @@ endif
 
 ifeq ($(GENCODE_FLAGS),)
 # Generate SASS code for each SM architecture listed in $(SMS)
-# $(foreach sm,$(SMS),$(eval GENCODE_FLAGS += -gencode arch=compute_$(sm),code=sm_$(sm)))
+$(foreach sm,$(SMS),$(eval GENCODE_FLAGS += -gencode arch=compute_$(sm),code=sm_$(sm)))
 
 # Generate PTX code from the highest SM architecture in $(SMS) to guarantee forward-compatibility
 HIGHEST_SM := $(lastword $(sort $(SMS)))
@@ -214,7 +214,7 @@ endif
 ################################################################################
 
 # Target rules
-all: build clean
+all: build
 
 build: lab2
 
@@ -232,7 +232,7 @@ lab2: task11.o task11.cpp main.cpp
 	$(EXEC) $(NVCC) -std=c++11 $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 
 run: build
-	$(EXEC) ./lab2
+	$(EXEC) CUDA_VISIBLE_DEVICES=1 ./lab2
 
 clean:
 	rm -f *.o 
