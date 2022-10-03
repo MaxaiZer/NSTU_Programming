@@ -105,6 +105,7 @@ void calculateWithOpenCL(int firstNumber, int* lengths, unsigned int size)
 
 	clReleaseKernel(kernel);
 	clReleaseMemObject(d_lengths);
+	free(sourceCode);
 }
 
 void calculateWithoutOpenCL(int firstNumber, int* lengths, unsigned int size)
@@ -143,14 +144,7 @@ int main(int argc, char* argv[])
 	{
 		struct timespec start, end;
 		clock_gettime(CLOCK_REALTIME, &start);
-
-		//unsigned int start_time = clock();
-
 		func(firstNumber, lengths, arraySize);
-
-		//unsigned int end_time = clock();
-		//return (float)(end_time - start_time) / CLOCKS_PER_SEC;
-
 		clock_gettime(CLOCK_REALTIME, &end);
 		return (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) * 1.0 / 1000000000;
 	};
