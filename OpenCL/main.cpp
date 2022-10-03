@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
 	long firstNumber = strtol(argv[1], NULL, 10);
 	long secondNumber = strtol(argv[2], NULL, 10);
 
-	if (firstNumber > secondNumber || firstNumber < 1 || secondNumber < 1) { printf("Condition: number#2 > number#1 > 1\n"); return -1; }
+	if (firstNumber > secondNumber || firstNumber <= 1 || secondNumber <= 1) { printf("Condition: number#2 > number#1 > 1\n"); return -1; }
 
 	unsigned int arraySize = secondNumber - firstNumber + 1;
 
