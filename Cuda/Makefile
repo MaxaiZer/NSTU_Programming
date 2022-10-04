@@ -232,7 +232,7 @@ lab2: task11.o task11.cpp main.cpp
 	$(EXEC) $(NVCC) -std=c++11 $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 
 run: build
-	$(EXEC) CUDA_VISIBLE_DEVICES=1 ./lab2
+	$(EXEC) ./lab2
 
 clean:
 	rm -f *.o 
