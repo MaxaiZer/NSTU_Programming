@@ -25,13 +25,13 @@ struct OpenCLProgramBuilder
 	
 	void Build(const char** sourceCode, Info& info)
 	{
-        info.error = clGetPlatformIDs(1, &info.cpPlatform, NULL);
+		info.error = clGetPlatformIDs(1, &info.cpPlatform, NULL);
 		info.error = clGetDeviceIDs(info.cpPlatform, CL_DEVICE_TYPE_GPU, 1, &info.device_id, NULL);
 		info.context = clCreateContext(0, 1, &info.device_id, NULL, NULL, &info.error);
 		info.queue = clCreateCommandQueue(info.context, info.device_id, 0, &info.error);
 		info.program = clCreateProgramWithSource(info.context, 1, sourceCode, NULL, &info.error);
 		info.error = clBuildProgram(info.program, 0, NULL, NULL, NULL, NULL);
-    }
+	}
 	
 	void Dispose(Info& info)
 	{
