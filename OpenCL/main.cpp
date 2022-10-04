@@ -3,7 +3,7 @@
 #include <math.h>
 #include <ctime>
 #include <fstream>
-#include <string>
+#include <string.h>
 #include <CL/cl.h>
 
 #define PROGRAM_FILE "kernel.cl"
@@ -87,7 +87,7 @@ void calculateWithOpenCL(int firstNumber, int* lengths, unsigned int size)
 	size_t localSize = 64;
 	size_t globalSize = ceil((float)size /localSize) * localSize;
         
-    cl_int error;       
+        cl_int error;       
 	cl_kernel kernel = clCreateKernel(info.program, KERNEL_FUNC, &error);
 
 	cl_mem d_lengths = clCreateBuffer(info.context, CL_MEM_READ_ONLY, size * sizeof(int), NULL, NULL);
