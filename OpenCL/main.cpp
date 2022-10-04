@@ -12,31 +12,32 @@
 
 struct OpenCLProgramBuilder
 {
-	cl_platform_id cpPlatform;        
-	cl_device_id device_id;           
-	cl_context context = NULL;               
-	cl_command_queue queue = NULL;           
-	cl_program program = NULL;              
-
-	size_t globalSize, localSize;
-
-	cl_int error;
-
-	OpenCLProgramBuilder(const char** sourceCode)
+	struct Info
 	{
-		error = clGetPlatformIDs(1, &cpPlatform, NULL);
-		error = clGetDeviceIDs(cpPlatform, CL_DEVICE_TYPE_GPU, 1, &device_id, NULL);
-		context = clCreateContext(0, 1, &device_id, NULL, NULL, &error);
-		queue = clCreateCommandQueue(context, device_id, 0, &error);
-		program = clCreateProgramWithSource(context, 1, sourceCode, NULL, &error);
-		error = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
-	}
+		cl_program program = NULL;
+		cl_context context = NULL;
+		cl_command_queue queue = NULL;
+		cl_device_id device_id;
+		cl_platform_id cpPlatform;
 
-	~OpenCLProgramBuilder()
+		cl_int error;
+	};
+	
+	void Build(const char** sourceCode, Info& info)
 	{
-		if (program != NULL) clReleaseProgram(program);		
-		if (queue != NULL) clReleaseCommandQueue(queue);
-		if (context != NULL) clReleaseContext(context);
+        info.error = clGetPlatformIDs(1, &info.cpPlatform, NULL);
+		info.error = clGetDeviceIDs(info.cpPlatform, CL_DEVICE_TYPE_GPU, 1, &info.device_id, NULL);
+		info.context = clCreateContext(0, 1, &info.device_id, NULL, NULL, &info.error);
+		info.queue = clCreateCommandQueue(info.context, info.device_id, 0, &info.error);
+		info.program = clCreateProgramWithSource(info.context, 1, sourceCode, NULL, &info.error);
+		info.error = clBuildProgram(info.program, 0, NULL, NULL, NULL, NULL);
+    }
+	
+	void Dispose(Info& info)
+	{
+		if (info.program != NULL) clReleaseProgram(info.program);		
+		if (info.queue != NULL) clReleaseCommandQueue(info.queue);
+		if (info.context != NULL) clReleaseContext(info.context);
 	}
 };
 
@@ -62,6 +63,7 @@ void writeResultsToFile(int firstNumber, int* resWithOpenCL, int* resWithoutOpen
 
 	fout << "The results are " << (resultsEqual ? "" : "not ") << "equal\n";
 	fout << "With OpenCL | without OpenCL\nTime: " << timeWithOpenCL << "c | " << timeWithoutOpenCL << "c\n";
+	fout << "Number: length#1 | length#2\n";
 
 	for (int i = 0; i < size; i++)
 	{
@@ -76,32 +78,36 @@ void calculateWithOpenCL(int firstNumber, int* lengths, unsigned int size)
 	char* sourceCode;
 	readFile(PROGRAM_FILE, &sourceCode);
 	
-	OpenCLProgramBuilder cl((const char**)&sourceCode);
+	OpenCLProgramBuilder::Info info;
+	OpenCLProgramBuilder program;
+	program.Build((const char**)&sourceCode, info);
 	
-	if (cl.error != CL_SUCCESS) { printf("Setup OpenCL error %d\n", cl.error); return; };
+	if (info.error != CL_SUCCESS) { printf("Build program error %d\n", info.error); return; };
 
-	cl.localSize = 64;
-	cl.globalSize = ceil((float)size / cl.localSize) * cl.localSize;
+	size_t localSize = 64;
+	size_t globalSize = ceil((float)size /localSize) * localSize;
+        
+    cl_int error;       
+	cl_kernel kernel = clCreateKernel(info.program, KERNEL_FUNC, &error);
 
-	cl_kernel kernel = clCreateKernel(cl.program, KERNEL_FUNC, &cl.error);
+	cl_mem d_lengths = clCreateBuffer(info.context, CL_MEM_READ_ONLY, size * sizeof(int), NULL, NULL);
 
-	cl_mem d_lengths = clCreateBuffer(cl.context, CL_MEM_READ_ONLY, size * sizeof(int), NULL, NULL);
-
-	cl_int err = clSetKernelArg(kernel, 0, sizeof(int), &firstNumber);
-	err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &d_lengths);
-	err |= clSetKernelArg(kernel, 2, sizeof(unsigned int), &size);
-	err = clEnqueueNDRangeKernel(cl.queue, kernel, 1, NULL, &cl.globalSize, &cl.localSize,
+	error |= clSetKernelArg(kernel, 0, sizeof(int), &firstNumber);
+	error |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &d_lengths);
+	error |= clSetKernelArg(kernel, 2, sizeof(unsigned int), &size);
+	error |= clEnqueueNDRangeKernel(info.queue, kernel, 1, NULL, &globalSize, &localSize,
 		0, NULL, NULL);
 
-	clFinish(cl.queue);
+	clFinish(info.queue);
 
-	if (err != CL_SUCCESS) { printf("Error %d\n", err); return; };
+	if (error != CL_SUCCESS) { printf("Execute kernel error!\n", error); return; };
 
-	clEnqueueReadBuffer(cl.queue, d_lengths, CL_TRUE, 0,
+	clEnqueueReadBuffer(info.queue, d_lengths, CL_TRUE, 0,
 		size * sizeof(int), lengths, 0, NULL, NULL);
 	
 	clReleaseKernel(kernel);
 	clReleaseMemObject(d_lengths);
+	program.Dispose(info);
 	free(sourceCode);
 }
 
@@ -114,7 +120,6 @@ void calculateWithoutOpenCL(int firstNumber, int* lengths, unsigned int size)
 
 		while (n != 1)
 		{
-			//if (firstNumber + i == 113383) printf("%ld\n", n);
 			n = (n % 2 == 0 ? n / 2 : 3 * n + 1);
 			length++;
 		}
@@ -139,11 +144,16 @@ int main(int argc, char* argv[])
 
 	auto execute = [firstNumber, arraySize](void(*func)(int, int*, unsigned int), int* lengths)
 	{
-		struct timespec start, end;
-		clock_gettime(CLOCK_REALTIME, &start);
+		//struct timespec start, end;
+	//	clock_gettime(CLOCK_REALTIME, &start);
+		unsigned int start_time = clock();
 		func(firstNumber, lengths, arraySize);
-		clock_gettime(CLOCK_REALTIME, &end);
-		return (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) * 1.0 / 1000000000;
+		//clock_gettime(CLOCK_REALTIME, &end);
+		//return (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) * 1.0 / 1000000000;
+
+		unsigned int end_time = clock();
+		return (float)(end_time - start_time) / CLOCKS_PER_SEC;
+
 	};
 
 	printf("Calculation with OpenCL...\n");
