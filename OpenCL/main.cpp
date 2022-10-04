@@ -144,16 +144,11 @@ int main(int argc, char* argv[])
 
 	auto execute = [firstNumber, arraySize](void(*func)(int, int*, unsigned int), int* lengths)
 	{
-		//struct timespec start, end;
-	//	clock_gettime(CLOCK_REALTIME, &start);
-		unsigned int start_time = clock();
+		struct timespec start, end;
+		clock_gettime(CLOCK_REALTIME, &start);
 		func(firstNumber, lengths, arraySize);
-		//clock_gettime(CLOCK_REALTIME, &end);
-		//return (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) * 1.0 / 1000000000;
-
-		unsigned int end_time = clock();
-		return (float)(end_time - start_time) / CLOCKS_PER_SEC;
-
+		clock_gettime(CLOCK_REALTIME, &end);
+		return (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) * 1.0 / 1000000000;
 	};
 
 	printf("Calculation with OpenCL...\n");
