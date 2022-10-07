@@ -1,10 +1,10 @@
-EXECS=lab3
+EXECS=lab4
 COMPILER?=mpicxx
 
 all: ${EXECS}
 
-lab3: lab3.cpp
-	${COMPILER} -o lab3 -std=c++11 lab3.cpp
+lab4: lab4.cpp
+	${COMPILER} -o lab4 -std=c++11 lab4.cpp
 
 clean:
 	rm ${EXECS}
