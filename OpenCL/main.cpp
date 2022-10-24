@@ -3,49 +3,61 @@
 #include <math.h>
 #include <ctime>
 #include <fstream>
+#include <string>
 #include <string.h>
 #include <CL/cl.h>
 
-const char PROGRAM_FILE[] = "kernel.cl";
-const char KERNEL_FUNC[] = "calculateLengths";
-const char OUTPUT_FILE[] = "result.txt";
+using namespace std;
+
+const string PROGRAM_FILE = "kernel.cl";
+const string KERNEL_FUNC = "calculateLengths";
+const string OUTPUT_FILE = "result.txt";
 const int LENGTHS_ARRAY_SIZE = 5000;
 
-struct OpenCLProgramBuilder
+struct OpenCLProgram
 {
-    struct Info
-    {
-        cl_program program = NULL;
-        cl_context context = NULL;
-        cl_command_queue queue = NULL;
-        cl_device_id device_id;
-        cl_platform_id cpPlatform;
+    cl_program program = NULL;
+    cl_context context = NULL;
+    cl_command_queue queue = NULL;
+    cl_device_id device_id;
+    cl_platform_id cpPlatform;
 
-        cl_int error;
-    };
-
-    void Build(const char **sourceCode, Info &info)
+    cl_int error;
+    char* errorLog = nullptr;
+    
+    OpenCLProgram(const char **sourceCode)
     {
-        info.error = clGetPlatformIDs(1, &info.cpPlatform, NULL);
-        info.error = clGetDeviceIDs(info.cpPlatform, CL_DEVICE_TYPE_GPU, 1, &info.device_id, NULL);
-        info.context = clCreateContext(0, 1, &info.device_id, NULL, NULL, &info.error);
-        info.queue = clCreateCommandQueue(info.context, info.device_id, 0, &info.error);
-        info.program = clCreateProgramWithSource(info.context, 1, sourceCode, NULL, &info.error);
-        info.error = clBuildProgram(info.program, 0, NULL, NULL, NULL, NULL);
+        error = clGetPlatformIDs(1, &cpPlatform, NULL);       
+        error = clGetDeviceIDs(cpPlatform, CL_DEVICE_TYPE_GPU, 1, &device_id, NULL);
+        context = clCreateContext(0, 1, &device_id, NULL, NULL, &error);
+        queue = clCreateCommandQueue(context, device_id, 0, &error);
+        program = clCreateProgramWithSource(context, 1, sourceCode, NULL, &error);
+        error = clBuildProgram(program, 0, NULL, NULL , NULL, NULL);
+        
+        if (error != CL_SUCCESS)
+        {
+            size_t log_size;
+            clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
+        
+            errorLog = (char*)malloc(log_size);
+            clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, log_size, errorLog, NULL);
+        }
     }
-
-    void Dispose(Info &info)
+    
+    ~OpenCLProgram()
     {
-        if (info.program != NULL)
-            clReleaseProgram(info.program);
-        if (info.queue != NULL)
-            clReleaseCommandQueue(info.queue);
-        if (info.context != NULL)
-            clReleaseContext(info.context);
+        if (program != NULL)
+            clReleaseProgram(program);
+        if (queue != NULL)
+            clReleaseCommandQueue(queue);
+        if (context != NULL)
+            clReleaseContext(context); 
+        if (errorLog != nullptr)
+            free(errorLog);
     }
 };
 
-void readFileToStr(const char *name, char **buffer)
+void readFileToStr(string name, char **buffer)
 {
     std::ifstream fin(name);
     std::string content((std::istreambuf_iterator<char>(fin)),
@@ -60,13 +72,11 @@ void calculateWithOpenCL(int firstNumber, int lastNumber, int *digitsWithLength)
     char *sourceCode;
     readFileToStr(PROGRAM_FILE, &sourceCode);
 
-    OpenCLProgramBuilder::Info info;
-    OpenCLProgramBuilder program;
-    program.Build((const char **)&sourceCode, info);
+    OpenCLProgram clProgram((const char **)&sourceCode);
 
-    if (info.error != CL_SUCCESS)
+    if (clProgram.error != CL_SUCCESS)
     {
-        printf("Build program error %d\n", info.error);
+        printf("Build program error:\n\n%s\n", clProgram.errorLog);
         return;
     };
 
@@ -76,19 +86,19 @@ void calculateWithOpenCL(int firstNumber, int lastNumber, int *digitsWithLength)
     size_t globalSize = ceil((float)(lastNumber - firstNumber + 1) / elemsPerThread / localSize) * localSize;
 
     cl_int error;
-    cl_kernel kernel = clCreateKernel(info.program, KERNEL_FUNC, &error);
+    cl_kernel kernel = clCreateKernel(clProgram.program, KERNEL_FUNC.c_str(), &error);
 
-    cl_mem d_digitsWithLength = clCreateBuffer(info.context, CL_MEM_USE_HOST_PTR, LENGTHS_ARRAY_SIZE * sizeof(int), digitsWithLength, NULL);
+    cl_mem d_digitsWithLength = clCreateBuffer(clProgram.context, CL_MEM_USE_HOST_PTR, LENGTHS_ARRAY_SIZE * sizeof(int), digitsWithLength, NULL);
 
     error |= clSetKernelArg(kernel, 0, sizeof(int), &firstNumber);
     error |= clSetKernelArg(kernel, 1, sizeof(int), &lastNumber);
     error |= clSetKernelArg(kernel, 2, sizeof(cl_mem), &d_digitsWithLength);
     error |= clSetKernelArg(kernel, 3, sizeof(int), &elemsPerThread);
 
-    clEnqueueNDRangeKernel(info.queue, kernel, 1, NULL, &globalSize, &localSize,
+    clEnqueueNDRangeKernel(clProgram.queue, kernel, 1, NULL, &globalSize, &localSize,
                            0, NULL, NULL);
 
-    clFinish(info.queue);
+    clFinish(clProgram.queue);
 
     if (error != CL_SUCCESS)
     {
@@ -96,12 +106,11 @@ void calculateWithOpenCL(int firstNumber, int lastNumber, int *digitsWithLength)
         return;
     };
 
-    clEnqueueReadBuffer(info.queue, d_digitsWithLength, CL_TRUE, 0,
+    clEnqueueReadBuffer(clProgram.queue, d_digitsWithLength, CL_TRUE, 0,
                         LENGTHS_ARRAY_SIZE * sizeof(int), digitsWithLength, 0, NULL, NULL);
 
     clReleaseKernel(kernel);
     clReleaseMemObject(d_digitsWithLength);
-    program.Dispose(info);
     free(sourceCode);
 }
 
