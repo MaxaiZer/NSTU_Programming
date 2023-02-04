@@ -1,11 +1,16 @@
 /*/.vscode
 /*/.vs
 /*/build
-*.out
+/*/.out
 /*/x64
-*.sln
-*.vcxproj
-*.vcxproj.user
-oldLab.cu
-*.txt
+/*/.sln
+/*/.vcxproj
+/*/.vcxproj.user
+/*/.filters
+semester4/parallel-programming/oldLab.cu
+/*/.txt
 
+AandDS/UnitTest*
+AandDS/GraphTest
+AandDS/Task1*.h
+AandDS/Task2*.h
