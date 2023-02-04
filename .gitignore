@@ -9,7 +9,7 @@
 /*/.filters
 semester4/parallel-programming/oldLab.cu
 
-AandDS/UnitTest*
-AandDS/GraphTest
-AandDS/Task1*.h
-AandDS/Task2*.h
+semester4/AandDS/UnitTest*
+semester4/AandDS/GraphTest
+semester4/AandDS/Task1*.h
+semester4/AandDS/Task2*.h
