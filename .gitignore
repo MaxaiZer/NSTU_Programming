@@ -1,0 +1,11 @@
+/*/.vscode
+/*/.vs
+/*/build
+*.out
+/*/x64
+*.sln
+*.vcxproj
+*.vcxproj.user
+oldLab.cu
+*.txt
+
