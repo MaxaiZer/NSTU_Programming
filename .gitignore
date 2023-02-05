@@ -1,5 +1,7 @@
 *.vscode
 *.vs
+**/Debug/
+**/Release/
 build/
 *.out
 x64/
@@ -11,5 +13,5 @@ semester4/parallel-programming/oldLab.cu
 
 semester4/AandDS/UnitTest*
 semester4/AandDS/GraphTest
-semester4/AandDS/Task1*.h
-semester4/AandDS/Task2*.h
+semester4/AandDS/RGZ/Task1*.h
+semester4/AandDS/RGZ/Task2*.h
