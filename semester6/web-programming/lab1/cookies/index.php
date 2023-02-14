@@ -5,6 +5,7 @@
 </style>
 
 <body>
+    <div style="text-align:center;">
     <?php
      
     if(isset($_COOKIE["email"])) {
@@ -19,7 +20,7 @@
     <form action="input_handler.php" METHOD=POST>
         <p></p>
         <input type="email" name="email" value="" placeholder="Email адрес">
-        <p><input type="submit" value="Отправить"></p>
+        <p><button style="padding: 5px 5px;" type="submit">Отправить</button></p>
     </form>
 
     <?php
@@ -43,7 +44,7 @@
                 exit;
             }
             
-            echo "<table>";
+            echo "<table style='margin-left: auto; margin-right: auto;'>";
             
             while(!feof($fp))
             {
@@ -60,8 +61,11 @@
     <form action="input_handler.php" METHOD=POST>
         <p><input type="text" name="name" value="" placeholder="Имя"></p>
         <p><textarea name="sites" value="" placeholder="Сайты для управления"></textarea></p>
-        <p><input type="submit" value="Отправить"></p>
+        <p><button style="padding: 5px 5px;" type="submit">Отправить</button></p>
     </form> 
+
+    <a href="../index.html"><h1>Назад</h1></a>
+    </div>
 </body>
 
 </html>

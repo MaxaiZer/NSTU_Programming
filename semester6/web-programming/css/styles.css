@@ -1,7 +1,7 @@
 body {
     font-family: Impact, sans-serif;
     color: #332f2d;
-    background-color: bisque;
+    background-color: #ffe4c4;
 }
 
 h1 {
@@ -32,6 +32,28 @@ a:hover {
 table, th, td {
     border: 1px solid;
 }
+
+button {
+    background-color:#ffdeb6;
+    border-radius:12px;
+    border:1px solid #bda840;
+    display:inline-block;
+    cursor:pointer;
+    color:#7e5703;
+    font-family:Arial;
+    font-size:17px;
+    text-decoration:none;
+    transition: background-color .5s;
+}
+button:hover {
+    background-color:#ffedd6;
+}
+
+input[type="text"],[type="email"], textarea {
+
+    background-color : #fff6e9; 
+  
+ }
 
 img#cat_gif {   
     position: fixed;

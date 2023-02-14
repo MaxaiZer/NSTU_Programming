@@ -5,6 +5,7 @@
 </style>
 
 <body>
+<div style="text-align:center; margin-top: 150px;">
 
 <?php
 
@@ -19,7 +20,8 @@ echo "<form action='insert_into_db.php' METHOD=POST>";
 
 include('table_form.php');
 
-echo "<input type='submit' value='Insert'></form>";
+echo "<p><button style='padding: 10px 10px; width: 80px;' type='submit'>Insert</button></p>";
+echo "</form>";
 
 $insert = isset($_POST["number"]) && !empty($_POST["number"]);
 
@@ -42,6 +44,7 @@ if ($insert)
 
 ?>
     <a href="index.php"><h1>Назад</h1></a>
+</div>
 </body>
 
 </html>
