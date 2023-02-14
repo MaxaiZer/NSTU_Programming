@@ -4,21 +4,38 @@
     @import url("../../css/styles.css");
 </style>
 
+<head>
+<b><h1>Базa данных об угнанных автомобилях</b></h1>
+</head>
+
+<body>
+
 <?php
 
 try {
     $conn = new mysqli("localhost", "root", "12345");
+
+    $db = "stolen_cars";
+
+    if (!mysqli_select_db($conn, $db))
+        die('Error select db '.$db);
+
+    $query = "SELECT cars.id, car_brands.name as brand, 
+    license_plate_number, state, car_owners.surname as owner_surname
+    FROM cars
+    inner join car_brands on car_brands.id = brand_id
+    inner join car_owners on car_owners.id = owner_id";
+
+    $brand = $_POST["brand"];
+    if (isset($brand) && !empty($brand))
+        $query .= " where car_brands.name = '".$brand."'";
+
+    $query .= " order by id";
+
+    $result = $conn->query($query, MYSQLI_USE_RESULT);
 } catch (Exception $e) {
-    die('Connection error: '.$e->getMessage());
+    die('Error: '.$e->getMessage());
 }
-
-if (!mysqli_select_db($conn, "testdb"))
-    die('Select table Error');
-
-if ($conn->connect_error) 
-    die('Connect Error (' . $conn->connect_errno . ') ' . $conn->connect_error);
-
-$result = $conn->query("SELECT * FROM testtable", MYSQLI_USE_RESULT);
 
 $iter = $result->getIterator();
 
@@ -29,6 +46,8 @@ echo "<table>
 <th>Номер</th>
 <th>Статус</th>
 <th>Фамилия владельца</th>
+<th>Обновить</th>
+<th>Удалить</th>
 </tr>";
 
 while ($iter->valid()) {
@@ -36,49 +55,40 @@ while ($iter->valid()) {
 
     echo"<tr>";
 
-    echo "<td>".$row["id"]."</td>".
+    $id = $row["id"];
+
+    echo "<td>".$id."</td>".
     "<td>".$row["brand"]."</td>".
-    "<td>".$row["licence_plate_number"]."</td>".
+    "<td>".$row["license_plate_number"]."</td>".
     "<td>".$row["state"]."</td>".
-    "<td>".$row["owner"]."</td>";
+    "<td>".$row["owner_surname"]."</td>".
+    "<td><a href=update_db.php?id=".$id.">Update</a></td>".
+    "<td><a href=delete_from_db.php?id=".$id.">Delete</a></td>";
+
     $iter->next();
 
-    echo "</tr";
+    echo "</tr>";
 }
 
 echo "</table>";
 ?>
-
-
-<body>
-    <menu type="toolbar">
-    <li>
-        <menu label="Файл">
-        <button type="button">Новый...</button>
-        <button type="button">Открыть...</button>
-        <button type="button">Сохранить</button>
-        </menu>
-    </li>
-    <li>
-        <menu label="Правка">
-        <button type="button">Копировать</button>
-        <button type="button">Вырезать</button>
-        <button type="button">Вставить</button>
-        </menu>
-        </li>
-    </menu>
-    <menu type="context" id="popup-menu">
-        <menu_item>Вывести данные</menu_item>
-        <menu_item>Добавить данные</menu_item>
-        <menu_item>Изменить данные</menu_item>
-        <menu_item>Удалить данные</menu_item>
-    </menu>
-    <form action="db_request_handler.php" METHOD=POST>
-        <label>ДБ</label>
-        <p><input type="text" name="name" value=""><Br>
+    <form action="index.php" METHOD=POST>
+        <p>
+        <label>Search by brand</label>
+        <input type="text" name="brand" value="">
+        <input type="submit" value="Search">
         </p>
-        <p><input type="submit" value="Отправить"></p>
     </form>
+
+    <form action="index.php">
+    <input type="submit" value="Show all" style='width:75px'/>
+    </form>
+    <form action="insert_into_db.php">
+    <input type="submit" value="Insert" style='width:75px'/>
+    </form>
+
+    <a href="../index.html"><h1>Назад</h1></a>
+</br>
 </body>
 
 </html>

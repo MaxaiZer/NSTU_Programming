@@ -5,7 +5,6 @@
 </style>
 
 <body>
-
     <?php
      
     if(isset($_COOKIE["email"])) {
@@ -62,9 +61,7 @@
         <p><input type="text" name="name" value="" placeholder="Имя"></p>
         <p><textarea name="sites" value="" placeholder="Сайты для управления"></textarea></p>
         <p><input type="submit" value="Отправить"></p>
-    </form>
-
-
+    </form> 
 </body>
 
 </html>

@@ -9,11 +9,9 @@ h1 {
 }
 
 ul {
-   /* list-style: none; */
     list-style-position: outside;
     display: inline-block;
     padding-left: 0; 
-    /* margin-left: 0;  Opera? */
     text-align: left;
 }
 
@@ -31,11 +29,13 @@ a:hover {
     text-align: center;
 }
 
-.right_bottom {   
-    position: fixed;
-    right: 0; bottom: 0;
-}
-
 table, th, td {
     border: 1px solid;
+}
+
+img#cat_gif {   
+    position: fixed;
+    right: 0; bottom: 0;
+    margin-bottom: -2px;
+    width: 13%;
 }
