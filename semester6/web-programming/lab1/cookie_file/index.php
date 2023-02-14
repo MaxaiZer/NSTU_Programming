@@ -23,41 +23,7 @@
         <p><button style="padding: 5px 5px;" type="submit">Отправить</button></p>
     </form>
 
-    <?php
-        echo "<br> File:</br>";
-        $fileName = "file.txt";
-
-        if (!file_exists($fileName))
-            echo "File doesn't exist";
-        if (filesize($fileName) == 0)
-            echo "Empty!";
-        else
-            outputFile($fileName);    
-
-        function outputFile($fileName)
-        {
-            $fp = fopen($fileName, "r");
-     
-            if (!$fp)
-            {
-                echo "Error open ".$fileName."!"; 
-                exit;
-            }
-            
-            echo "<table style='margin-left: auto; margin-right: auto;'>";
-            
-            while(!feof($fp))
-            {
-                $str = fgets($fp, 100);
-                if (!empty($str))
-                    echo "<tr><td>".$str."</tr></td>";
-            }
-    
-            fclose($fp);   
-            echo "</table> ";
-        }
-    ?>
-
+    <p>Запись в файл</p>
     <form action="input_handler.php" METHOD=POST>
         <p><input type="text" name="name" value="" placeholder="Имя"></p>
         <p><textarea name="sites" value="" placeholder="Сайты для управления"></textarea></p>

@@ -1,29 +1,26 @@
 <?php
-header("Location: index.php"); 
-
 $email = $_POST['email'];
 
 $name = $_POST['name'];
 $sites = $_POST['sites'];
 
-if (isset($email))
-{
+if (isset($email)) {
 	setUserCookie("email", $email);
+    header("Location: index.php"); 
 }
 
-if (isset($name) && isset($sites))
-{
+if (isset($name) && isset($sites)) {
     $date = date("d.m.Y");
-    writeToFile("file.txt", $date, "name:".$name." sites:".$sites);
+    writeToFile("file.txt", $date, " ".$name." ".$sites);
+    header("Location: file_output.php"); 
 }
 
-function setUserCookie($cookieName, $data)
-{
+function setUserCookie($cookieName, $data) {   
     setcookie($cookieName,$data, time()+365*24*60*60);
 }    
 
-function writeToFile($fileName, $date, $data)
-{
+function writeToFile($fileName, $date, $data) {
+
     $fp = fopen($fileName, "a");
     if (!$fp)
     {

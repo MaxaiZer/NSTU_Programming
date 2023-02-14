@@ -20,8 +20,8 @@ if (isset($id)) {
 
 echoInputForm($conn, $selected_values);
 
-function echoInputForm($conn, $selected_values)
-{
+function echoInputForm($conn, $selected_values){
+    
     $query = "SELECT car_owners.surname FROM car_owners";
     $owners = $conn->query($query, MYSQLI_USE_RESULT);
     $iter = $owners->getIterator();
@@ -84,5 +84,3 @@ function echoSelect($selectName, array $values, $selectedValue = "") {
 
     echo "</select>"; 
 }
-
-?>

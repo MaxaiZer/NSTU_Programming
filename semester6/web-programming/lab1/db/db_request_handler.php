@@ -18,13 +18,13 @@ try {
 
     $result = $conn->query("SELECT * FROM testtable", MYSQLI_USE_RESULT);
 } catch (Exception $e) {
-    die('Query error: '.$e->getMessage());
+    die('Query error: ' . $e->getMessage());
 }
 
 $iter = $result->getIterator();
 
 while ($iter->valid()) {
     $row = $iter->current();
-    echo "<p>".$row["id"].$row["name"]."</p>";
+    echo "<p>" . $row["id"] . $row["name"] . "</p>";
     $iter->next();
 }
