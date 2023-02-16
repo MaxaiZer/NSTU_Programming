@@ -5,22 +5,18 @@
 </style>
 
 <body>
-
+<div style="text-align:center; margin-top: 150px;">
     <?php
 
-    $conn = new mysqli("localhost", "root", "12345");
-
-    $db = "stolen_cars";
-
-    if (!mysqli_select_db($conn, $db))
-        die('Error select db ' . $db);
+    include_once "../../connect_to_db.php";
 
     $id = $_GET["id"];
     echo "<form action='update_db.php?id=" . $id . "' METHOD=POST>";
 
-    include('table_form.php');
+    include("get_db_input_form.php");
 
-    echo "<input type='submit' value='Update'></form>";
+    echo "<p><button style='padding: 10px 10px; width: 80px;' type='submit'>Update</button></p>";
+    echo "</form>";
 
     $update = isset($_POST["number"]) && !empty($_POST["number"]);
 
@@ -44,6 +40,7 @@
     ?>
     
     <a href="index.php"><h1>Назад</h1></a>
+    </div>
 </body>
 
 </html>

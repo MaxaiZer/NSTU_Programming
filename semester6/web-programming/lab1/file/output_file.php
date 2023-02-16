@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <style>
-    @import url("../../css/styles.css");
+    @import url("../css/styles.css");
 </style>
 
 <body>

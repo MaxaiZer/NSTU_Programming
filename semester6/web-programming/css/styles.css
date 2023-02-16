@@ -49,15 +49,13 @@ button:hover {
     background-color:#ffedd6;
 }
 
-input[type="text"],[type="email"], textarea {
-
-    background-color : #fff6e9; 
-  
+input[type="text"],[type="email"],[type="password"], textarea {
+    background-color : #fff6e9;  
  }
 
 img#cat_gif {   
-    position: fixed;
-    right: 0; bottom: 0;
-    margin-bottom: -2px;
-    width: 13%;
+    width: 12%;
+    position: fixed; 
+    right: 0; 
+    bottom: -2px;
 }

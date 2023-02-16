@@ -9,16 +9,11 @@
 
         <?php
 
-        $conn = new mysqli("localhost", "root", "12345");
-
-        $db = "stolen_cars";
-
-        if (!mysqli_select_db($conn, $db))
-            die('Error select db ' . $db);
+        include_once("../../connect_to_db.php");
 
         echo "<form action='insert_into_db.php' METHOD=POST>";
 
-        include('table_form.php');
+        include("get_db_input_form.php.php");
 
         echo "<p><button style='padding: 10px 10px; width: 80px;' type='submit'>Insert</button></p>";
         echo "</form>";
