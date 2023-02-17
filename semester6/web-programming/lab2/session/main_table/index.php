@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <style>
-    @import url("../../css/styles.css");
+    @import url("../../../css/styles.css");
 </style>
 
 <head>
@@ -15,9 +15,13 @@
 <body>
     <div style="text-align:center;">
         <?php
+
+        include_once("../../../connect_to_db.php");
+        include_once("../../../show_db_table.php");
+        include_once("../user_info.php");
     
-        include_once("../../connect_to_db.php");
-        include_once("../../show_db_table.php");
+        session_start(); 
+        $user = getUserInfo();
       
         $query = "SELECT cars.id, car_brands.name AS brand, 
         license_plate_number, state, car_owners.surname AS owner_surname
@@ -32,7 +36,7 @@
         }
 
         $query .= " order by id";
-      
+
         try {  
             $result = $conn->query($query, MYSQLI_USE_RESULT);
         } catch (Exception $e) {
@@ -41,34 +45,38 @@
 
         $style = 'margin-left: auto; margin-right: auto;';
 
-        $update = new ColumnInfo("Update", "update_db.php", "update");
-        $delete = new ColumnInfo("Delete", "delete_from_db.php", "delete");
+        $update = null; 
+        $delete = null; 
+
+        if ($user->canChangeMainTable) {
+            $update = new ColumnInfo("Update", "update_db.php", "update");
+            $delete = new ColumnInfo("Delete", "delete_from_db.php", "delete");
+        }
 
         $style = 'margin-left: auto; margin-right: auto;';
         show_db_table($result, $style, $update, $delete);
 
         ?>
-        <form action="index.php" METHOD=POST>
-            <p>
-                <label>Search by brand</label>
-                <input type="text" name="brand" value="">
-                <button style="padding:5px 5px;" type="submit">Search</button>
-            </p>
+
+        <form action='index.php' METHOD=POST>
+        <p>
+            <label>Search by brand</label>
+            <input type='text' name='brand' value=''>
+            <button style='padding:5px 5px;' type='submit'>Search</button>
+        </p>
         </form>
 
-        <form action="index.php">
-            <p>
-                <button style="padding:10px 10px;" type="submit">Show all</button>
-            </p>
-        </form>
+        <form action='index.php'>
+        <p>
+            <button style='padding:10px 10px;' type='submit'>Show all</button>
+        </p>
+        </form>  
 
-        <form action="insert_into_db.php">
-            <p>
-                <button style="padding:10px 10px; width:85px">Insert</button>
-            </p>
-        </form>
+        <?php 
+            include_once("show_extra_menu.php");
+        ?>
 
-        <a href="../index.html"><h1>Назад</h1></a>
+        <a href="../../index.html"><h1>Назад</h1></a>
     </div>
 </body>
 

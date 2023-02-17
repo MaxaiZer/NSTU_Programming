@@ -6,7 +6,7 @@
 
 <body>
     <div style="text-align:center; margin-top: 10%">
-    <p>Запись в файл</p>
+    <p><h1>Запись в файл</h1></p>
     <form action="write_to_file.php" METHOD=POST>
         <p><input type="text" name="name" value="" placeholder="Имя"></p>
         <p><textarea name="sites" value="" placeholder="Сайты для управления"></textarea></p>

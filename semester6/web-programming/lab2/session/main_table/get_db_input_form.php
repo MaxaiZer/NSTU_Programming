@@ -1,7 +1,7 @@
 <?php
-include_once("../../connect_to_db.php");
-include_once("../../fetch_all.php");
-include_once("../../assoc_to_select.php");
+include_once("../../../connect_to_db.php");
+include_once("../../../fetch_all.php");
+include_once("../../../assoc_to_select.php");
 
 $selected_values = array();
 

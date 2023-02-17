@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html>
 <style>
-    @import url("../../css/styles.css");
+    @import url("../../../css/styles.css");
 </style>
 
 <body>
 <div style="text-align:center; margin-top: 150px;">
     <?php
+
+    include_once("../user_info.php");
+    $user = getUserInfo();
+    if (!$user->canChangeMainTable)
+        header("Location: ../access_denied.html");
 
     include_once "../../connect_to_db.php";
 
