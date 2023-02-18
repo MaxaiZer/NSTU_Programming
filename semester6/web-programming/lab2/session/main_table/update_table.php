@@ -16,9 +16,9 @@
     include_once "../../connect_to_db.php";
 
     $id = $_GET["id"];
-    echo "<form action='update_db.php?id=" . $id . "' METHOD=POST>";
+    echo "<form action='update_table.php?id=" . $id . "' METHOD=POST>";
 
-    include("../../db/get_db_input_form.php");
+    include("get_table_input_form.php");
 
     echo "<p><button style='padding: 10px 10px; width: 80px;' type='submit'>Update</button></p>";
     echo "</form>";

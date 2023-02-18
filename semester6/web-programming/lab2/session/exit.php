@@ -8,11 +8,9 @@
 <div style="text-align:center; margin-top: 150px;">
 
     <?php
-    session_start();
-    echo "Session:".session_id();
+        session_start();
         session_unset(); 
         session_destroy();
-        echo "Session:".session_id();
     ?>
 
     <a href="login.php"><h1>Вход</h1></a>

@@ -6,7 +6,7 @@ include_once("../../../assoc_to_select.php");
 $selected_values = array();
 
 if (isset($id)) {  
-
+    
     $query = "SELECT id, login, role from users where id=".$id;
 
     try { 
@@ -14,23 +14,27 @@ if (isset($id)) {
     } catch (Exception $ex){
         die($ex->getMessage());
     }
-    $selected_values = $result->fetch_array(MYSQLI_ASSOC);
+    $selected_values = $result->fetch_array(MYSQLI_ASSOC); 
     $result->free(); 
 }
 
-echoInputForm($conn, $selected_values);
+echoInputForm($selected_values);
 
-function echoInputForm($conn, array $selected_values) {
+function echoInputForm(array $selected_values) {
 
-    echo "Login:";
+    echo "<p>Login:</p>";
     $format = "<input type='text' name='%s' value='%s'>";
     echo sprintf($format, "login", $selected_values["login"]);
 
-    echo "Password:";
+    echo "<p>Password:</p>";
     $format = "<input type='password' name='%s'>";
     echo sprintf($format, "password");
 
-    echo "Role:";
+    echo "<p>Password again:</p>";
+    $format = "<input type='password' name='%s'>";
+    echo sprintf($format, "password_again");
+
+    echo "<p>Role:</p>";
     $roles = array(array("role" => "moderator"), array ("role" => "admin"));
     echoSelectFromAssocArray($roles, $selected_values);
 }

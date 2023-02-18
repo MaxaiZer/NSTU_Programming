@@ -16,22 +16,27 @@
 
         include_once("../../connect_to_db.php");
 
-        echo "<form action='insert_into_db.php' METHOD=POST>";
+        $id = $_GET["id"];
 
-        include_once("get_db_input_form.php");
+        echo "<form action='update_table.php?id=".$id."' METHOD=POST>";
+
+        include_once("get_table_input_form.php");
         include_once("../authentication.php"); 
 
-        echo "<p><button style='padding: 10px 10px; width: 80px;' type='submit'>Insert</button></p>";
+        echo "<p><button style='padding: 10px 10px; width: 80px;' type='submit'>Update</button></p>";
         echo "</form>";
 
         $login = $_POST["login"];
         $password = $_POST["password"];
+        $password_again = $_POST["password_again"];
 
-        $insert = isset($login) && !empty($login) && 
-        isset($password) && !empty($password);
+        $isUpdate = !empty($login) && !empty($password) &&
+        !empty($password_again) && $password == $password_again;
 
-        if ($insert) 
-            addUser($conn, $login, $password, $_POST["role"]);
+        if ($isUpdate) {
+            if (!updateUser($conn, $id, $login, $password, $_POST["role"]))
+                echo "Invalid data";
+        }
         ?>
 
         <a href="index.php"><h1>Назад</h1></a>

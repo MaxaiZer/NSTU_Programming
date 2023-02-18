@@ -46,8 +46,8 @@
 
         $style = 'margin-left: auto; margin-right: auto;';
 
-        $update = new ColumnInfo("Update", "update_db.php", "update");
-        $delete = new ColumnInfo("Delete", "delete_from_db.php", "delete");
+        $update = new ColumnInfo("Update", "update_table.php", "update");
+        $delete = new ColumnInfo("Delete", "delete_from_table.php", "delete");
 
         $style = 'margin-left: auto; margin-right: auto;';
         show_db_table($result, $style, $update, $delete);
@@ -68,7 +68,7 @@
         </p>
         </form>  
 
-        <form action='insert_into_db.php'>
+        <form action='insert_into_table.php'>
         <p>
             <button style='padding:10px 10px; width:85px'>Insert</button>
         </p>

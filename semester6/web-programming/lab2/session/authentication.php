@@ -26,7 +26,7 @@ function isUserWithLoginExists(mysqli $conn, string $login) {
 
     $format = "select * from users where login = '%s'";
     $res = $conn->query(sprintf($format, $login), MYSQLI_USE_RESULT);
-    return $res->num_rows != 0;
+    return count(fetch_all($res)) != 0;
 }
 
 function addUser(mysqli $conn, string $login, string $password, string $role) {
@@ -41,4 +41,20 @@ function addUser(mysqli $conn, string $login, string $password, string $role) {
     values ('%s', '%s', '%s', '%s');";
 
     $conn->query(sprintf($format, $login, $password_hash, $sault, $role), MYSQLI_USE_RESULT);
+    return true;
+}
+
+function updateUser(mysqli $conn, $id, string $login, string $password, string $role) {
+
+    $sault = substr(md5(mt_rand()), 0, 16);
+    $password_hash = md5($password.$sault);
+
+    $format = "update users set login = '%s', password_hash = '%s', 
+    sault = '%s', role = '%s' where id = %d";
+
+    try { $conn->query(sprintf($format, $login, $password_hash, $sault, $role, $id), MYSQLI_USE_RESULT); }
+    catch (Exception $ex)
+    { return false; }
+
+    return true;
 }

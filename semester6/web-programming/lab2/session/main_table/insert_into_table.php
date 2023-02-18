@@ -16,9 +16,9 @@
 
         include_once("../../../connect_to_db.php");
 
-        echo "<form action='insert_into_db.php' METHOD=POST>";
+        echo "<form action='insert_into_table.php' METHOD=POST>";
 
-        include("get_db_input_form.php");
+        include("get_table_input_form.php");
 
         echo "<p><button style='padding: 10px 10px; width: 80px;' type='submit'>Insert</button></p>";
         echo "</form>";

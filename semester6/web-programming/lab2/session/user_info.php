@@ -9,7 +9,7 @@ function getUserInfo()
     $whoCanChangeUsersTable = array("admin");
 
     $loggedIn = isset($_SESSION["user_role"]);
-    echo "Logged in:".$loggedIn;
+
     if (!$loggedIn)
         return new UserInfo($loggedIn, $canChangeMainTable, $canChangeUsersTable);
 

@@ -1,24 +1,19 @@
 <!DOCTYPE html>
 <html>
 <style>
-    @import url("../../../css/styles.css");
+    @import url("../../css/styles.css");
 </style>
 
 <body>
 <div style="text-align:center; margin-top: 150px;">
     <?php
 
-    include_once("../user_info.php");
-    $user = getUserInfo();
-    if (!$user->canChangeMainTable)
-        header("Location: ../access_denied.html");
-
     include_once "../../connect_to_db.php";
 
     $id = $_GET["id"];
-    echo "<form action='update_db.php?id=" . $id . "' METHOD=POST>";
+    echo "<form action='update_table.php?id=" . $id . "' METHOD=POST>";
 
-    include("get_db_input_form.php");
+    include("get_table_input_form.php");
 
     echo "<p><button style='padding: 10px 10px; width: 80px;' type='submit'>Update</button></p>";
     echo "</form>";

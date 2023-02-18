@@ -25,7 +25,15 @@
             else 
             {
                 $loggedIn = true;
-                echo "Welcome, ".$login."!";
+                echo "Добро пожаловать, ".$login."!";
+
+                include_once("user_info.php");
+                $user = getUserInfo();
+
+                if ($user->canChangeMainTable)
+                    echo "<p>Вы можете менять основную таблицу</p>";
+                if ($user->canChangeUsersTable)
+                    echo "<p>Вы можете менять таблицу пользователей</p>";
             }
         }
 

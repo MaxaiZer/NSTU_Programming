@@ -3,7 +3,7 @@
 session_start();
 
 include_once "../user_info.php";
-$user = getUserInfo($canChangeMainTable, $canChangeUsersTable);
+$user = getUserInfo();
 
 if ($user->canChangeMainTable)
     showInsertForm();
@@ -21,7 +21,7 @@ function showInsertForm()
 {
     echo 
     "
-    <form action='insert_into_db.php'>
+    <form action='insert_into_table.php'>
         <p>
             <button style='padding:10px 10px; width:85px'>Insert</button>
         </p>

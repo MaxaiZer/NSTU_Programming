@@ -49,8 +49,8 @@
         $delete = null; 
 
         if ($user->canChangeMainTable) {
-            $update = new ColumnInfo("Update", "update_db.php", "update");
-            $delete = new ColumnInfo("Delete", "delete_from_db.php", "delete");
+            $update = new ColumnInfo("Update", "update_table.php", "update");
+            $delete = new ColumnInfo("Delete", "delete_from_table.php", "delete");
         }
 
         $style = 'margin-left: auto; margin-right: auto;';
