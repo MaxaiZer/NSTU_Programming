@@ -1,6 +1,6 @@
 <?php
 
-function authenticate(mysqli $conn, string $login, string $password) {
+function authenticate(mysqli $conn, $login, $password) {
 
     session_start();
 
@@ -22,14 +22,14 @@ function authenticate(mysqli $conn, string $login, string $password) {
     return true;
 }
 
-function isUserWithLoginExists(mysqli $conn, string $login) {
+function isUserWithLoginExists(mysqli $conn, $login) {
 
     $format = "select * from users where login = '%s'";
     $res = $conn->query(sprintf($format, $login), MYSQLI_USE_RESULT);
     return count(fetch_all($res)) != 0;
 }
 
-function addUser(mysqli $conn, string $login, string $password, string $role) {
+function addUser(mysqli $conn, $login, $password, $role) {
 
     if (isUserWithLoginExists($conn,$login))
         return false;
@@ -44,7 +44,7 @@ function addUser(mysqli $conn, string $login, string $password, string $role) {
     return true;
 }
 
-function updateUser(mysqli $conn, $id, string $login, string $password, string $role) {
+function updateUser(mysqli $conn, $id, $login, $password, $role) {
 
     $sault = substr(md5(mt_rand()), 0, 16);
     $password_hash = md5($password.$sault);

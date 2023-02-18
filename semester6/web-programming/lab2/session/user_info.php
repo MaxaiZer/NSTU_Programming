@@ -23,11 +23,11 @@ function getUserInfo()
 
 class UserInfo {
 
-    readonly public bool $loggedIn;
-    readonly public bool $canChangeMainTable;
-    readonly public bool $canChangeUsersTable;
+    public $loggedIn;
+    public $canChangeMainTable;
+    public $canChangeUsersTable;
 
-    public function __construct(bool $loggedIn, bool $canChangeMainTable, bool $canChangeUsersTable) {
+    public function __construct($loggedIn, $canChangeMainTable, $canChangeUsersTable) {
         $this->loggedIn = $loggedIn;
         $this->canChangeMainTable = $canChangeMainTable;
         $this->canChangeUsersTable = $canChangeUsersTable;

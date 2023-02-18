@@ -2,7 +2,7 @@
 
 include_once("fetch_all.php");
 
-function show_db_table(mysqli_result $result, string $tableStyle, 
+function show_db_table(mysqli_result $result, $tableStyle, 
 ColumnInfo $updateColumn = null, ColumnInfo $deleteColumn = null) {
 
     echo "<table style='".$tableStyle."'>";
@@ -49,11 +49,11 @@ ColumnInfo $updateColumn = null, ColumnInfo $deleteColumn = null) {
 }
 
 class ColumnInfo {
-    public string $title;
-    public string $linkToChangeScript;
-    public string $cellText;
+    public $title; //no types because on server php 5.3.5 :(
+    public $linkToChangeScript;
+    public $cellText;
 
-    public function __construct(string $title, string $linkToChangeScript, string $cellText) {
+    public function __construct($title, $linkToChangeScript, $cellText) {
         $this->title = $title;
         $this->linkToChangeScript = $linkToChangeScript;
         $this->cellText = $cellText;
