@@ -18,11 +18,11 @@
 
         include_once("../user_info.php");
 
-        session_start(); 
-        
         $user = getUserInfo();
-        if (!$user->canChangeUsersTable)
+        if (!$user->canChangeUsersTable) {
             header("Location: ../access_denied.html");
+            die();
+        }
 
         include_once("../../../connect_to_db.php");
         include_once("../../../show_db_table.php");

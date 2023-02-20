@@ -2,8 +2,10 @@
 
 include_once("../user_info.php");
 $user = getUserInfo();
-if (!$user->canChangeUsersTable)
+if (!$user->canChangeUsersTable) {
     header("Location: ../access_denied.html");
+    die();
+}
 
 header("Location: index.php");
 include_once("../../../connect_to_db.php");
