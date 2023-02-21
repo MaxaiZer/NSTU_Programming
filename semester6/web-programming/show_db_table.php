@@ -9,7 +9,7 @@ ColumnInfo $updateColumn = null, ColumnInfo $deleteColumn = null) {
 
     //$rows = $result->fetch_all(MYSQLI_ASSOC); not supported on the server lmao (php 5.3.3)
 
-    $rows = fetch_all($result);
+    $rows = fetch_all($result, MYSQLI_ASSOC);
     if (count($rows) == 0)
     {
         echo "<td>Table is empty</td>";

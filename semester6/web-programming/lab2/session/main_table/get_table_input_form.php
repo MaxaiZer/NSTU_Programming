@@ -28,11 +28,11 @@ function echoInputForm($conn, array $selected_values) {
 
     $result = $conn->query("SELECT car_owners.surname FROM car_owners", MYSQLI_USE_RESULT);
     echo "Surname";
-    echoSelectFromAssocArray(fetch_all($result), $selected_values);
+    echoSelectFromAssocArray(fetch_all($result, MYSQLI_ASSOC), $selected_values);
    
     $result = $conn->query("SELECT car_brands.name as brand FROM car_brands", MYSQLI_USE_RESULT);
     echo "Brand";
-    echoSelectFromAssocArray(fetch_all($result), $selected_values);
+    echoSelectFromAssocArray(fetch_all($result, MYSQLI_ASSOC), $selected_values);
     
     echo "Car number <input type='text' name = 'number' value=".
     stringByKeyOrEmpty($selected_values, "number").">";

@@ -26,7 +26,7 @@ function isUserWithLoginExists(mysqli $conn, $login) {
 
     $format = "select * from users where login = '%s'";
     $res = $conn->query(sprintf($format, $login), MYSQLI_USE_RESULT);
-    return count(fetch_all($res)) != 0;
+    return count(fetch_all($res, MYSQLI_ASSOC)) != 0;
 }
 
 function addUser(mysqli $conn, $login, $password, $role) {

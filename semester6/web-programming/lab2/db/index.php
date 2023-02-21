@@ -39,8 +39,6 @@
             die('Error: ' . $e->getMessage());
         }
 
-        $style = 'margin-left: auto; margin-right: auto;';
-
         $update = new ColumnInfo("Update", "update_table.php", "update");
         $delete = new ColumnInfo("Delete", "delete_from_table.php", "delete");
 
