@@ -6,8 +6,8 @@ if (!isset($_SESSION['captcha_keystring']) ||
     die();
    
 if ($_SESSION['captcha_keystring'] != $_POST['captcha_answer']) {   
-    $_SESSION["is_right_captcha"] = false;
 
+    $_SESSION["is_right_captcha"] = false;
     header("Location: index.php");
     die();
 }

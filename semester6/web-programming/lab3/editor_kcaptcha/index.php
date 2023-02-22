@@ -45,6 +45,8 @@
 
     </script>
 
+    <a href="../index.html"><h1>Назад</h1></a>
+
 </body>
 
 </html>

@@ -23,7 +23,7 @@
         $query = "SELECT car_brands.name AS brand, count(*) as count
         FROM cars
         INNER JOIN car_brands ON car_brands.id = brand_id
-        group by (brand)";
+        group by (brand) order by count DESC";
 
         try {
             $result = $conn->query($query);
