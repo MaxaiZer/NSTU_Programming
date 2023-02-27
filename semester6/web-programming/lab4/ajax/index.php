@@ -7,7 +7,7 @@
 <head>
     <div style="text-align:center;">
         <b>
-            <h1>Базa данных об угнанных автомобилях</h1>
+            <h1>Улучшенная базa данных об угнанных автомобилях</h1>
         </b>
     </div>
 </head>
@@ -19,17 +19,19 @@
         include_once("../../connect_to_db.php");
         include_once("../../show_db_table.php");
       
-        $query = "SELECT cars.id, car_brands.name AS brand, 
-        license_plate_number, state, car_owners.surname AS owner_surname
-        FROM cars
-        INNER JOIN car_brands ON car_brands.id = brand_id
+        $query = "SELECT cars_v2.id, car_brands.name AS brand, 
+        car_models.name as model, license_plate_number, 
+        state, car_owners.surname AS owner_surname
+        FROM cars_v2
+        INNER JOIN car_models ON car_models.id = model_id
+        INNER JOIN car_brands ON car_brands.id = car_models.brand_id
         INNER JOIN car_owners ON car_owners.id = owner_id";
 
         if (!empty($_POST["brand"]))
             $query .= " where car_brands.name = '".$_POST["brand"]."'";
 
         $query .= " order by id";
-      
+
         try {  
             $result = $conn->query($query, MYSQLI_USE_RESULT);
         } catch (Exception $e) {

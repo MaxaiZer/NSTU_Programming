@@ -1,21 +1,18 @@
 <?php
 
-function echoSelectFromAssocArray(array $arr, array $selected_values) {
+function echoSelectFromArray($select_name, array $idAndValue, $selected_value = "") {
 
-    $keys = array_keys($arr[0]);
-    $columnName = $keys[0];
- 
-    $selectedValue = stringByKeyOrEmpty($selected_values, $columnName);
-  
-    echo "<select name=".$columnName.">";
+    echo "<select name=".$select_name.">";
 
-    foreach ($arr as $row) {
-        foreach ($row as $value) {
-            $selected = ($value == $selectedValue && !empty($selectedValue) ? 
-            "selected" : "");
+    foreach ($idAndValue as $row) {
 
-            echo "<option value=".$value." ".$selected.">".$value;
-        }
+        $id = $row[0];
+        $value = $row[1];
+
+        $selected = ($value == $selected_value && !empty($selected_value) ? 
+        "selected" : "");
+
+        echo "<option value=".$id." ".$selected.">".$value;
     }
 
     echo "</select>"; 

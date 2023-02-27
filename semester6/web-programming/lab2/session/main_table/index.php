@@ -29,11 +29,8 @@
         INNER JOIN car_brands ON car_brands.id = brand_id
         INNER JOIN car_owners ON car_owners.id = owner_id";
 
-        if (isset($_POST["brand"])) {
-            if (!empty($_POST["brand"])) {
-                $query .= " where car_brands.name = '".$_POST["brand"]."'";
-            }
-        }
+        if (!empty($_POST["brand"]))
+            $query .= " where car_brands.name = '".$_POST["brand"]."'";
 
         $query .= " order by id";
 

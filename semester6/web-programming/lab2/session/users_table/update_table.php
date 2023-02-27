@@ -16,7 +16,7 @@
             die();
         }
 
-        include_once("../../connect_to_db.php");
+        include_once("../../../connect_to_db.php");
 
         $id = $_GET["id"];
 

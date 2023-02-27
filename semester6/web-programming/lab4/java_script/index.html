@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<style>
+    @import url("../../css/styles.css");
+</style>
+
+<body>
+    <div style="text-align:center; margin-top: 10%">
+    <form name="myForm">
+        <p><input type="text" name="name" value="" placeholder="Имя"></p>
+        <p><textarea name="sites" value="" rows="5" placeholder="Сайты для управления (например: google.com, http://nstu.ru...)"></textarea></p>
+        <p><button style="padding: 5px 5px;" type="submit" onclick="validate()">Отправить</button></p>
+    </form> 
+
+    <script type="text/javascript">
+
+        function validate() {
+
+            win = window.open("", "ValidationResult", "width=500, height=400"+
+            ", status=no, toolbar=no, resizable=yes, scrollbars=no, menubar=no");
+
+            name = parent.myForm.name.value;
+            sites = parent.myForm.sites.value;
+
+            win.document.write('<script> function send(){ myForm1.submit(); } </' + 'script>');
+            win.document.write("<body>");
+            win.document.write("<form name='myForm1' method='post' action='../../lab1/file/write_to_file.php'>");
+
+            win.document.write("<br>Имя=");
+            win.document.write("<input type=text name='name' value='");
+            win.document.write(name);
+            win.document.write("''>");
+
+            win.document.write("<br>Фамилия=<input type=text name='sites' value='");
+            win.document.write(sites);
+            win.document.write("''>");
+
+            rightInput = true;
+
+            if (!name) {
+                alert("Не указано имя!");
+                rightInput = false;
+            }
+
+            if (!sites) {
+                alert("Не указаны сайты");
+                rightInput = false;
+            }
+
+            const sitesRegExpr = /^(https?:\/\/)?[^\s]+\.[\w]+([ ,\n]+(https?:\/\/)?[^\s]+\.[\w]+)*/;
+
+            if(!sitesRegExpr.test(sites)) {
+                alert("Сайты указаны неверно. ");
+                rightInput = false;
+            }
+
+            win.focus(); 
+
+            if (rightInput) {             
+                win.document.write("<br><input type=button value='Отправить' onclick='send();'></br>");
+            } else {
+                win.document.write("<br><input type=button value='Исправить' onclick='self.close();'></br>");
+            }
+        }
+    </script>
+
+    <a href="../index.html"><h1>Назад</h1></a>
+    </div>
+</body>
+
+</html>

@@ -35,6 +35,6 @@ function echoInputForm(array $selected_values) {
     echo sprintf($format, "password_again");
 
     echo "<p>Role:</p>";
-    $roles = array(array("role" => "moderator"), array ("role" => "admin"));
-    echoSelectFromAssocArray($roles, $selected_values);
+    $roles = array(array("moderator", "moderator"), array ("admin", "admin"));
+    echoSelectFromArray("role", $roles, $selected_values["role"]);
 }

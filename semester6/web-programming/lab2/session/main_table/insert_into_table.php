@@ -25,23 +25,20 @@
         echo "<p><button style='padding: 10px 10px; width: 80px;' type='submit'>Insert</button></p>";
         echo "</form>";
 
-        $insert = isset($_POST["number"]) && !empty($_POST["number"]);
+        $insert = !empty($_POST["number"]);
+        if (!$insert) die();
 
-        if ($insert) {
-            $findOwnerId = "(select id from car_owners where surname = '" . $_POST["surname"] . "')";
-            $findBrandId = "(select id from car_brands where name = '" . $_POST["brand"] . "')";
+        $format = "insert into cars (owner_id, brand_id, state, license_plate_number) 
+        values (%s, %s, '%s', '%s')";
 
-            $format = "insert into cars (owner_id, brand_id, state, license_plate_number) 
-            values (%s, %s, '%s', '%s')";
+        $query = sprintf($format,  $_POST["owner_id"], $_POST["brand_id"], $_POST["state"], $_POST["number"]);
 
-            $query = sprintf($format, $findOwnerId, $findBrandId, $_POST["state"], $_POST["number"]);
-
-            try {
-                $conn->query($query);
-            } catch (Exception $e) {
-                die('Error: ' . $e->getMessage());
-            }
+        try {
+            $conn->query($query);
+        } catch (Exception $e) {
+            die('Error: ' . $e->getMessage());
         }
+        
         ?>
 
         <a href="index.php"><h1>Назад</h1></a>

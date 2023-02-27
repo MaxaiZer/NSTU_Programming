@@ -4,6 +4,11 @@
     @import url("../../css/styles.css");
 </style>
 
+<head>
+    <script type="text/javascript" src="../js_libs/jquery.min.js"></script>
+    <script type="module" src="model_input.js"></script>
+</head>
+
 <body>
 <div style="text-align:center; margin-top: 150px;">
     <?php
@@ -21,10 +26,10 @@
     $update = !empty($_POST["number"]);
     if (!$update) die();
 
-    $format = "update cars set owner_id = %s, brand_id = %s, 
+    $format = "update cars_v2 set owner_id = %s, model_id = %s, 
     state = '%s', license_plate_number = '%s' where id = %d";
 
-    $query = sprintf($format,  $_POST["owner_id"], $_POST["brand_id"], 
+    $query = sprintf($format, $_POST["owner_id"], $_POST["model_id"], 
     $_POST["state"], $_POST["number"], $id);
 
     try {
@@ -34,7 +39,7 @@
     }
 
     header("Location: index.php");
-    
+
     ?>
     
     <a href="index.php"><h1>Назад</h1></a>

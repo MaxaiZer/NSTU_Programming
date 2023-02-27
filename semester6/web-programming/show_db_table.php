@@ -2,6 +2,24 @@
 
 include_once("fetch_all.php");
 
+class ColumnInfo {
+    public $title; //no types because on server php 5.3.5 :(
+    public $linkToChangeScript;
+    public $cellText;
+
+    public function __construct($title, $linkToChangeScript, $cellText) {
+        $this->title = $title;
+        $this->linkToChangeScript = $linkToChangeScript;
+        $this->cellText = $cellText;
+    }
+    
+}
+
+function echoRow($openTag, array $row, $closeTag) {
+    foreach ($row as $data)
+        echo $openTag.$data.$closeTag;
+}
+
 function show_db_table(mysqli_result $result, $tableStyle, 
 ColumnInfo $updateColumn = null, ColumnInfo $deleteColumn = null) {
 
@@ -25,19 +43,20 @@ ColumnInfo $updateColumn = null, ColumnInfo $deleteColumn = null) {
     if (isset($deleteColumn))
         $columnNames[] = $deleteColumn->title;
 
-    echoRow($columnNames, true);
+    echoRow("<th>", $columnNames, "</th>");
 
     foreach ($rows as $row) {
 
         echo "<tr>";       
 
-        echoRow($row, false);
+        echoRow("<td>", $row, "</td>");
 
         $id = $row[$columnNames[0]];
 
         if (isset($updateColumn))
             echo "<td><a href=".$updateColumn->linkToChangeScript."?id=".$id.">".
             $updateColumn->cellText."</a></td>";
+            
         if (isset($deleteColumn))
             echo "<td><a href=".$deleteColumn->linkToChangeScript."?id=".$id.">".
             $deleteColumn->cellText."</a></td>";
@@ -46,22 +65,4 @@ ColumnInfo $updateColumn = null, ColumnInfo $deleteColumn = null) {
     }
 
     echo "</table>";
-}
-
-class ColumnInfo {
-    public $title; //no types because on server php 5.3.5 :(
-    public $linkToChangeScript;
-    public $cellText;
-
-    public function __construct($title, $linkToChangeScript, $cellText) {
-        $this->title = $title;
-        $this->linkToChangeScript = $linkToChangeScript;
-        $this->cellText = $cellText;
-    }
-    
-}
-
-function echoRow(array $row, $isHeaders) {
-    foreach ($row as $data)
-        echo $isHeaders ? "<th>".$data."</th>" : "<td>".$data."</td>";
 }

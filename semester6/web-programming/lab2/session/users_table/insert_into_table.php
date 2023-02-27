@@ -16,7 +16,7 @@
             die();
         }
 
-        include_once("../../connect_to_db.php");
+        include_once("../../../connect_to_db.php");
 
         echo "<form action='insert_into_table.php' METHOD=POST>";
 

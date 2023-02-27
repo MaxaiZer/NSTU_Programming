@@ -25,16 +25,12 @@
         }
 
         include_once("../../../connect_to_db.php");
-        include_once("../../../show_db_table.php");
-        include_once("../user_info.php");     
+        include_once("../../../show_db_table.php");   
       
         $query = "SELECT id, login, role from users";
 
-        if (isset($_POST["login"])) {
-            if (!empty($_POST["login"])) {
-                $query .= " where login = '".$_POST["login"]."'";
-            }
-        }
+        if (!empty($_POST["login"]))
+            $query .= " where login = '".$_POST["login"]."'";
 
         $query .= " order by id";
       

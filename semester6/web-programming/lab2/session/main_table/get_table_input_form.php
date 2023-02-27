@@ -6,7 +6,7 @@ include_once("../../../assoc_to_select.php");
 $selected_values = array();
 
 if (isset($id)) {  
-
+   
     $query = "SELECT car_brands.name as brand, 
     license_plate_number as number, state, car_owners.surname as surname
     FROM cars
@@ -26,17 +26,17 @@ echoInputForm($conn, $selected_values);
 
 function echoInputForm($conn, array $selected_values) {
 
-    $result = $conn->query("SELECT car_owners.surname FROM car_owners", MYSQLI_USE_RESULT);
+    $result = $conn->query("SELECT id, surname FROM car_owners", MYSQLI_USE_RESULT);
     echo "Surname";
-    echoSelectFromAssocArray(fetch_all($result, MYSQLI_ASSOC), $selected_values);
-   
-    $result = $conn->query("SELECT car_brands.name as brand FROM car_brands", MYSQLI_USE_RESULT);
-    echo "Brand";
-    echoSelectFromAssocArray(fetch_all($result, MYSQLI_ASSOC), $selected_values);
+    echoSelectFromArray("owner_id", fetch_all($result,  MYSQLI_NUM), $selected_values["surname"]);
     
+    $result = $conn->query("SELECT id, name as brand FROM car_brands", MYSQLI_USE_RESULT);
+    echo "Brand";
+    echoSelectFromArray("brand_id", fetch_all($result, MYSQLI_NUM), $selected_values["brand"]);
+   
     echo "Car number <input type='text' name = 'number' value=".
     stringByKeyOrEmpty($selected_values, "number").">";
-    
-    $states = array(array("state" => "stolen"), array ("state" => "found"));
-    echoSelectFromAssocArray($states, $selected_values);
+   
+    $states = array(array("stolen", "stolen"), array ("found", "found"));
+    echoSelectFromArray("state" ,$states, $selected_values["state"]);
 }

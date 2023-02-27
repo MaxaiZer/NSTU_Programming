@@ -1,0 +1,15 @@
+<?php
+header("Location: index.php");
+include_once("../../connect_to_db.php");
+
+$id = $_GET["id"];
+
+if (!isset($id))
+    exit;
+
+try {
+    $query = "DELETE FROM cars_v2 WHERE id=" . $id;
+    $result = $conn->query($query, MYSQLI_USE_RESULT);
+} catch (Exception $e) {
+    die('Error: ' . $e->getMessage());
+}

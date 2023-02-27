@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<style>
+    @import url("../../css/styles.css");
+</style>
+
+<head>
+    <script type="text/javascript" src="../js_libs/jquery.min.js"></script>
+    <script type="text/javascript" src="../js_libs/jquery.form.js"> </script>
+    <script type="text/javascript" src="../js_libs/jquery.validate.min.js"> </script>
+</head>
+
+<body>
+    <div style="text-align:center; margin-top: 10%">
+    <form id="myForm" method="post" action="../../lab1/file/write_to_file.php">
+        <p><input id="text" type="text" name="name" value="" placeholder="Имя"></p>
+        <p><textarea id="sites" name="sites" value="" rows="5" placeholder="Сайты для управления (например: google.com, http://nstu.ru...)"></textarea></p>
+        <p><button style="padding: 5px 5px;" type="submit">Отправить</button></p>
+    </form> 
+
+    <script type="text/javascript">
+        $(document).ready(
+            function(){
+            var options = { 
+                target: "#output",
+                url: "../../lab1/file/write_to_file.php",
+                type: "post",
+                timeout: 3000 
+            };
+
+            $.validator.addMethod(
+                "sitesValidation",
+                function(value, element) {
+                    var reg = /^(https?:\/\/)?[^\s]+\.[\w]+([ ,\n]+(https?:\/\/)?[^\s]+\.[\w]+)*/;
+                    return this.optional(element) || reg.test(value);
+                }
+            );
+
+
+            $("#myForm").validate({
+                    rules: {
+                        name: {
+                            required: true,
+                            minlength: 2,
+                            maxlength: 12
+                        },
+                        sites: {
+                            required: true,
+                            sitesValidation :  true
+                        }
+                    },
+                    messages: {
+                        name: {
+                            required: "Нужно указать имя!",
+                            minlength: "Не менее 2 символов",
+                            maxlength: "Не более 12 символов"
+                        },
+                        sites: {
+                            required: "Нужно указать сайты!",
+                            sitesValidation : "Сайты введены неверно!"
+                        }
+                    },
+                    focusInvalid: true,
+                    errorClass: "input_error",
+                });
+            });
+            
+    </script>
+
+
+    <a href="../index.html"><h1>Назад</h1></a>
+    </div>
+</body>
+
+</html>
