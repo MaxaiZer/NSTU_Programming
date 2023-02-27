@@ -1,18 +1,18 @@
 <?php
 
-function echoSelectFromArray($select_name, array $idAndValue, $selected_value = "") {
+function echoSelectFromArray($select_name, array $value_and_label, $selected_label = "") {
 
     echo "<select name=".$select_name.">";
 
-    foreach ($idAndValue as $row) {
+    foreach ($value_and_label as $row) {
 
-        $id = $row[0];
-        $value = $row[1];
+        $value = $row[0];
+        $label = $row[1];
 
-        $selected = ($value == $selected_value && !empty($selected_value) ? 
+        $selected = ($label == $selected_label && !empty($selected_label) ? 
         "selected" : "");
 
-        echo "<option value=".$id." ".$selected.">".$value;
+        echo "<option value=".$value." ".$selected.">".$label;
     }
 
     echo "</select>"; 
