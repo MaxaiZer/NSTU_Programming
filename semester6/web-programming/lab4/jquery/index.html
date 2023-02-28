@@ -14,7 +14,7 @@
     <div style="text-align:center; margin-top: 10%">
     <form id="myForm" method="post" action="../../lab1/file/write_to_file.php">
         <p><input id="text" type="text" name="name" value="" placeholder="Имя"></p>
-        <p><textarea id="sites" name="sites" value="" rows="5" placeholder="Сайты для управления (например: google.com, http://nstu.ru...)"></textarea></p>
+        <p><textarea id="sites" name="sites" value="" rows="5" placeholder="Сайты для управления (например: http://nstu.ru, https://google.com и т.д.)"></textarea></p>
         <p><button style="padding: 5px 5px;" type="submit">Отправить</button></p>
     </form> 
 
@@ -31,7 +31,7 @@
             $.validator.addMethod(
                 "sitesValidation",
                 function(value, element) {
-                    var reg = /^(https?:\/\/)?[^\s]+\.[\w]+([ ,\n]+(https?:\/\/)?[^\s]+\.[\w]+)*/;
+                    var reg = /^(https?:\/\/)[^\s]+\.[\w]+([ ,\n]+(https?:\/\/)[^\s]+\.[\w]+)*$/;
                     return this.optional(element) || reg.test(value);
                 }
             );
