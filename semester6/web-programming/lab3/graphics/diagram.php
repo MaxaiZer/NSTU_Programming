@@ -42,11 +42,11 @@ function drawData($im, $size_x, $size_y, $diagram_data) {
     $max_count = 0;
     foreach ($diagram_data as $data)
         $max_count = $data[1] > $max_count ? $data[1] : $max_count;
-    
-    $data_color = imagecolorallocate($im, 49, 106, 236);
-    
+
     $currentX = 10;
     foreach ($diagram_data as $data) {
+
+        $data_color = imagecolorallocate($im, rand(0, 255), rand(0, 255), rand(0, 255));
     
         $title = $data[0];
         $count = $data[1];
