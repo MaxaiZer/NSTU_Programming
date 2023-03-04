@@ -1,13 +1,14 @@
 package Objects;
 
 import java.awt.*;
+import java.io.*;
 import static java.lang.Math.*;
 
 public class Polygon extends GraphicObject {
 
-    private final int dots;
-    private final int[] dotsX;
-    private final int[] dotsY;
+    private int dots;
+    private int[] dotsX;
+    private int[] dotsY;
     
     private enum MoveState { Up, Down, Right, Left  };
     private MoveState[] states = {MoveState.Up, MoveState.Right, MoveState.Down, MoveState.Left };  
@@ -49,13 +50,13 @@ public class Polygon extends GraphicObject {
     }
     
     @Override
-    public void Draw(Graphics graphics) {
+    public void draw(Graphics graphics) {
         graphics.setColor(this.color);
         graphics.drawPolygon(dotsX, dotsY, dots);
     }
 
     @Override
-    public void Move() {
+    public void move() {
         if (!canMove) return;      
         
         int step = 1;
@@ -87,6 +88,32 @@ public class Polygon extends GraphicObject {
         
         if (switchState)
             curStateId = (curStateId == states.length - 1 ? 0 : curStateId + 1);
+    }
+    
+        @Override
+    public void read(InputStream input) throws IOException {
+        super.read(input);
+        
+        var stream = new DataInputStream(input);
+        
+        dots = stream.readInt();
+        for (int i = 0; i < dots; i++)
+            dotsX[i] = stream.readInt();
+        for (int i = 0; i < dots; i++)
+            dotsY[i] = stream.readInt();
+    }
+    
+    @Override
+    public void write(OutputStream output) throws IOException {
+        super.write(output);
+        
+        var stream = new DataOutputStream(output);
+        
+        stream.writeInt(dots);
+        for (int i = 0; i < dots; i++)
+            stream.writeInt(dotsX[i]);
+        for (int i = 0; i < dots; i++)
+            stream.writeInt(dotsY[i]);
     }
     
 }

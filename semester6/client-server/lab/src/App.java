@@ -9,7 +9,7 @@ public class App {
         
         int targetFps = 60;
         var timer = new Timer(1000 / targetFps, (ActionEvent ae) -> {
-            mainFrame.Update();
+            mainFrame.update();
         });
         
          timer.setRepeats(true);
