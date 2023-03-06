@@ -14,6 +14,8 @@ public class Polygon extends GraphicObject {
     private MoveState[] states = {MoveState.Up, MoveState.Right, MoveState.Down, MoveState.Left };  
     private int curStateId;
     private int minX, maxX, minY, maxY = 0;
+    
+    public Polygon() { super();  };
 
     public Polygon(int x, int y, Color color, int dots, int radius) {
       
@@ -90,9 +92,37 @@ public class Polygon extends GraphicObject {
             curStateId = (curStateId == states.length - 1 ? 0 : curStateId + 1);
     }
     
-        @Override
-    public void read(InputStream input) throws IOException {
-        super.read(input);
+    @Override
+    public void read(ObjectInputStream stream) throws IOException {
+        
+       // var stream = new ObjectInputStream(input);
+            
+        Polygon obj = null;
+        
+        try {
+            obj = (Polygon)stream.readObject();
+        } catch (ClassNotFoundException e) {
+            System.out.println("class not found");
+            return;
+        }
+        
+        this.canMove = obj.canMove;
+        this.center = obj.center;
+        this.color = obj.color;
+        this.curStateId = obj.curStateId;
+        this.dots = obj.dots;
+        this.dotsX = obj.dotsX;
+        this.dotsY = obj.dotsY;
+        this.height = obj.height;
+        this.maxX = obj.maxX;
+        this.maxY = obj.maxY;
+        this.minX = obj.minX;
+        this.minY = obj.minY;
+        this.states = obj.states;
+        this.width = obj.width;
+        
+        
+        /*super.read(input);
         
         var stream = new DataInputStream(input);
         
@@ -101,11 +131,17 @@ public class Polygon extends GraphicObject {
             dotsX[i] = stream.readInt();
         for (int i = 0; i < dots; i++)
             dotsY[i] = stream.readInt();
+*/
     }
     
     @Override
-    public void write(OutputStream output) throws IOException {
-        super.write(output);
+    public void write(ObjectOutputStream stream) throws IOException {
+        
+      //  var stream = new ObjectOutputStream(output);
+        stream.writeUTF(this.getClass().getName());
+        stream.writeObject(this);
+        
+       /* super.write(output);
         
         var stream = new DataOutputStream(output);
         
@@ -114,6 +150,7 @@ public class Polygon extends GraphicObject {
             stream.writeInt(dotsX[i]);
         for (int i = 0; i < dots; i++)
             stream.writeInt(dotsY[i]);
+*/
     }
     
 }

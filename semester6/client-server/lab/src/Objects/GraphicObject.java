@@ -4,7 +4,7 @@ import java.awt.*;
 import java.io.*;
 import static java.lang.Math.abs;
 
-public abstract class GraphicObject {
+public abstract class GraphicObject implements Serializable {
     
     public Point center;
     public Color color;
@@ -12,6 +12,8 @@ public abstract class GraphicObject {
     
     protected int width;
     protected int height;
+    
+    public GraphicObject() {};
     
     public GraphicObject(int x, int y, Color color) {
         center = new Point(x, y);
@@ -32,8 +34,8 @@ public abstract class GraphicObject {
     
     public abstract void move();
     
-    public void read(InputStream input) throws IOException {
-        var stream = new DataInputStream(input);
+    public abstract void read(ObjectInputStream stream) throws IOException; /* {
+      //  var stream = new DataInputStream(input);
         
         center.x = stream.readInt();
         center.y = stream.readInt();
@@ -45,9 +47,9 @@ public abstract class GraphicObject {
         var b = stream.readInt();
         color = new Color(r, g, b);       
     }
-    
-    public void write(OutputStream output) throws IOException {
-        var stream = new DataOutputStream(output);
+    */
+    public abstract void write(ObjectOutputStream stream)throws IOException; /*{
+    //    var stream = new DataOutputStream(output);
         
         stream.writeInt(center.x);
         stream.writeInt(center.y);
@@ -58,4 +60,5 @@ public abstract class GraphicObject {
         stream.writeInt(color.getGreen());
         stream.writeInt(color.getBlue());     
     }
+*/
 }

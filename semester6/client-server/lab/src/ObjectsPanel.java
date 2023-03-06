@@ -5,6 +5,7 @@ import Objects.Polygon;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.lang.reflect.Constructor;
 import java.util.*;
 import javax.swing.*;
 
@@ -16,7 +17,7 @@ public class ObjectsPanel extends JPanel {
     
     public enum EditMode { None, Add, Delete, Resume, Stop };
     
-    boolean drawBorderRects = false;    
+    boolean drawBorderRects = false;
     
     public void onMouseClicked(MouseEvent evt) {
         panelClickHandler.OnClick(evt);
@@ -33,7 +34,56 @@ public class ObjectsPanel extends JPanel {
     }
     
     public void moveAllObjects() {
-        objects.forEach((obj) -> obj.move());
+        objects.forEach(obj -> obj.move());
+    }
+    
+    public boolean save(File file) throws FileNotFoundException, IOException {
+        var name = file.getName();
+        var stream = new FileOutputStream(file);
+        var objStream = new ObjectOutputStream(stream);
+        
+        if (name.endsWith(".txt") || name.endsWith(".bin")) {
+            
+            objStream.writeInt(objects.size());
+            for (GraphicObject obj: objects) {   
+                obj.write(objStream);
+            }
+            
+            return true;
+        }
+        
+       // String xml = xstream.toXML(joe);
+        
+        return false;
+    }
+    
+    public boolean open(File file) throws FileNotFoundException, IOException {
+        var name = file.getName();
+        var stream = new FileInputStream(file);
+        var objStream = new ObjectInputStream(stream);
+        objects.clear();
+        
+        if (name.endsWith(".txt") || name.endsWith(".bin")) {
+            
+            int size = objStream.readInt();
+            for (int i = 0; i < size; i++) {
+                var className = objStream.readUTF();
+                
+                try {
+                    Class<?> _class = Class.forName(className);    
+                    Constructor<?> ctor = _class.getConstructor();     
+                    var instance = ctor.newInstance(new Object[] { });
+                  //  instance.read(objStream);
+                    objects.add((GraphicObject)instance);                
+                    objects.get(objects.size() - 1).read(objStream);
+                } catch (Exception ex) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        return false;
     }
     
     @Override
@@ -41,7 +91,7 @@ public class ObjectsPanel extends JPanel {
         super.paint(g);
         
         var dim = getBounds();     
-        var img = createImage(dim.width, dim.height);
+        var img = createImage(dim.width - 2, dim.height - 2);
         
         var imgGraphics = img.getGraphics();
         imgGraphics.setColor(getBackground());
@@ -55,21 +105,14 @@ public class ObjectsPanel extends JPanel {
             
             objects.get(i).draw(imgGraphics);          
         }
-        g.drawImage(img, -10, 14, this);
+        g.drawImage(img, 1, 1, this);
     }
     
     private Optional<GraphicObject> getPickedObject(Point pos) {
-            
-        GraphicObject picked = null;
         
-        for(GraphicObject obj: objects) {
-            if (obj.contains(pos.x, pos.y)) {
-                picked = obj;
-                break;
-            }
-        }
-
-        return Optional.ofNullable(picked);
+        return objects.stream().
+                filter(obj -> obj.contains(pos.x, pos.y)).
+                findFirst();
     }
     
     private void spawnRandomObject(Point pos) {
@@ -95,25 +138,22 @@ public class ObjectsPanel extends JPanel {
         
         switch (newMode) {
             case Add:
-                panelClickHandler = ((e) -> { spawnRandomObject(e.getPoint()); } );
+                panelClickHandler = (e) -> spawnRandomObject(e.getPoint());
                 break;
             case Delete:
                 drawBorderRects = true;
-                panelClickHandler = (e) -> { getPickedObject(e.getPoint()).
-                        ifPresent((obj) -> {objects.remove(obj);}); 
-                };
+                panelClickHandler = (e) -> getPickedObject(e.getPoint()).
+                        ifPresent(obj -> objects.remove(obj)); 
                 break;
             case Resume:
                 drawBorderRects = true;
-                panelClickHandler = (e) -> { getPickedObject(e.getPoint()).
-                        ifPresent((obj) -> {obj.canMove = true;}); 
-                };
+                panelClickHandler = (e) -> getPickedObject(e.getPoint()).
+                        ifPresent(obj -> obj.canMove = true); 
                 break;
             case Stop:
                 drawBorderRects = true;
-                panelClickHandler = (e) -> { getPickedObject(e.getPoint()).
-                        ifPresent((obj) -> {obj.canMove = false;}); 
-                };               
+                panelClickHandler = (e) -> getPickedObject(e.getPoint()).
+                        ifPresent(obj -> obj.canMove = false);           
                 break;
             default:
                 panelClickHandler = (e) -> {};
