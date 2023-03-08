@@ -35,11 +35,11 @@ public class Image extends GraphicObject implements Serializable {
     public void draw(Graphics graphics) {
         int newWidth = (int)(sin(curAngle) * 20) + originalWidth;
         
-        BufferedImage resized = Scalr.resize(image, newWidth);
-        width = resized.getWidth();
-        height = resized.getHeight();
-        
-        graphics.drawImage(resized, center.x - width / 2, center.y - height / 2, color, null);
+        BufferedImage resized = Scalr.resize(image, newWidth);     
+        width = resized.getWidth() + 2;
+        height = resized.getHeight() + 2;
+ 
+        graphics.drawImage(resized, center.x - resized.getWidth() / 2, center.y - resized.getHeight() / 2, color, null);
     }
 
     @Override
