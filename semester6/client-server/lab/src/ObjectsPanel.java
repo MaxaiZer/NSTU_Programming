@@ -1,20 +1,15 @@
-
-import Objects.GraphicObject;
-
-import Objects.Polygon;
+import Objects.*;
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
-import com.thoughtworks.xstream.io.*;
-import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 public class ObjectsPanel extends JPanel {
     
-   // @XStreamImplicit(itemFieldName="object")
     private java.util.List<GraphicObject> objects = new ArrayList<>();
     
     ClickHandler panelClickHandler = (e) -> {};
@@ -105,7 +100,6 @@ public class ObjectsPanel extends JPanel {
         var imgGraphics = img.getGraphics();
         imgGraphics.setColor(getBackground());
         imgGraphics.fillRect(0, 0, dim.width, dim.height);
-      //  this.repaint();
         
         for (int i = 0; i < objects.size(); i++) {
             
@@ -132,7 +126,7 @@ public class ObjectsPanel extends JPanel {
             obj = new Polygon(pos.x, pos.y, Color.BLUE, 5, 30);
         else {
             try {
-                obj = new Image(pos.x, pos.y, null, "dur1.png");
+                obj = new Image(pos.x, pos.y, null, "cat.jpg");
             } catch (IOException ex) {
                 System.out.println("Oops!");
             }

@@ -34,32 +34,4 @@ public abstract class GraphicObject implements Serializable {
     
     public abstract void move();
     
-    public abstract void read(ObjectInputStream stream) throws IOException; /* {
-      //  var stream = new DataInputStream(input);
-        
-        center.x = stream.readInt();
-        center.y = stream.readInt();
-        width = stream.readInt();
-        height = stream.readInt();
-        
-        var r = stream.readInt();
-        var g = stream.readInt();
-        var b = stream.readInt();
-        color = new Color(r, g, b);       
-    }
-    */
-    public abstract void write(ObjectOutputStream stream) throws IOException; /*{
-    //    var stream = new DataOutputStream(output);
-        
-        stream.writeInt(center.x);
-        stream.writeInt(center.y);
-        stream.writeInt(width);
-        stream.writeInt(height);
-        
-        stream.writeInt(color.getRed());
-        stream.writeInt(color.getGreen());
-        stream.writeInt(color.getBlue());     
-    }
-*/
-    
 }

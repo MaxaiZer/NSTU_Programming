@@ -244,8 +244,6 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileButtonActionPerformed
         var fc = new JFileChooser();
-
-        fc.setFileFilter(new CustomFileFilter()); 
         
         int result = fc.showOpenDialog(jMenu2);
         if (result != fc.APPROVE_OPTION) return;
@@ -254,18 +252,17 @@ public class MainFrame extends javax.swing.JFrame {
         try {
             objectsPanel.open(file);
         } catch (IOException ex) { 
-            JOptionPane.showMessageDialog(this, "Error read from file, message: " + 
-                ex.getMessage());
+            JOptionPane.showMessageDialog(this, 
+                    "Error read from file, message: " + ex.getMessage());
         } catch (ClassNotFoundException ex) {
-            JOptionPane.showMessageDialog(this, "Deserialization error, message: " + 
-                ex.getMessage());
+            JOptionPane.showMessageDialog(this, 
+                    "Deserialization error, message: " + ex.getMessage());
         }
     }//GEN-LAST:event_openFileButtonActionPerformed
 
     private void saveAsFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsFileButtonActionPerformed
         var fc = new JFileChooser();
         fc.setDialogType(SAVE);
-        fc.setFileFilter(new CustomFileFilter()); 
         
         int result = fc.showOpenDialog(jMenu2);
         if (result != fc.APPROVE_OPTION) return;
