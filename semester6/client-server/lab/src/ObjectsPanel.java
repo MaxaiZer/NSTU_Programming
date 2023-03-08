@@ -103,8 +103,10 @@ public class ObjectsPanel extends JPanel {
         
         for (int i = 0; i < objects.size(); i++) {
             
+            Color border = (objects.get(i).canMove ? Color.GREEN : Color.GRAY);
+            
             if (drawBorderRects)
-                 objects.get(i).drawBorderRect(imgGraphics, Color.GRAY);
+                 objects.get(i).drawBorderRect(imgGraphics, border);
             
             objects.get(i).draw(imgGraphics);          
         }
