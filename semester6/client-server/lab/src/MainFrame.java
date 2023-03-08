@@ -29,10 +29,6 @@ public class MainFrame extends javax.swing.JFrame {
         jMenu2 = new javax.swing.JMenu();
         openFileButton = new javax.swing.JMenuItem();
         saveAsFileButton = new javax.swing.JMenuItem();
-        jMenu3 = new javax.swing.JMenu();
-        jMenuItem2 = new javax.swing.JMenuItem();
-        jMenuItem3 = new javax.swing.JMenuItem();
-        jMenuItem4 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -144,9 +140,9 @@ public class MainFrame extends javax.swing.JFrame {
             .addGap(0, 350, Short.MAX_VALUE)
         );
 
-        jMenu2.setText("File");
+        jMenu2.setText("Файл");
 
-        openFileButton.setText("open");
+        openFileButton.setText("открыть");
         openFileButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 openFileButtonActionPerformed(evt);
@@ -154,7 +150,7 @@ public class MainFrame extends javax.swing.JFrame {
         });
         jMenu2.add(openFileButton);
 
-        saveAsFileButton.setText("save");
+        saveAsFileButton.setText("сохранить");
         saveAsFileButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 saveAsFileButtonActionPerformed(evt);
@@ -163,19 +159,6 @@ public class MainFrame extends javax.swing.JFrame {
         jMenu2.add(saveAsFileButton);
 
         jMenuBar1.add(jMenu2);
-
-        jMenu3.setText("Edit");
-
-        jMenuItem2.setText("jMenuItem2");
-        jMenu3.add(jMenuItem2);
-
-        jMenuItem3.setText("jMenuItem3");
-        jMenu3.add(jMenuItem3);
-
-        jMenuItem4.setText("jMenuItem4");
-        jMenu3.add(jMenuItem4);
-
-        jMenuBar1.add(jMenu3);
 
         setJMenuBar(jMenuBar1);
 
@@ -286,11 +269,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPanel buttonsPanel;
     private javax.swing.JButton deleteButton;
     private javax.swing.JMenu jMenu2;
-    private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem3;
-    private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JOptionPane jOptionPane;
     private ObjectsPanel objectsPanel;
     private javax.swing.JMenuItem openFileButton;
