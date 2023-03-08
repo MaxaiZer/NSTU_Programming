@@ -1,5 +1,8 @@
 import static java.awt.FileDialog.SAVE;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -251,7 +254,10 @@ public class MainFrame extends javax.swing.JFrame {
         try {
             objectsPanel.open(file);
         } catch (IOException ex) { 
-            JOptionPane.showMessageDialog(this, "Error open file, message: " + 
+            JOptionPane.showMessageDialog(this, "Error read from file, message: " + 
+                ex.getMessage());
+        } catch (ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(this, "Deserialization error, message: " + 
                 ex.getMessage());
         }
     }//GEN-LAST:event_openFileButtonActionPerformed

@@ -1,4 +1,5 @@
 import Objects.GraphicObject;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
@@ -8,9 +9,10 @@ import javax.imageio.ImageIO;
 
 public class Image extends GraphicObject implements Serializable {
 
+    @XStreamOmitField 
     private transient BufferedImage image;
     private String path;
-    
+
     private Point circlePos;
     private double curAngle;
     private int radius;
@@ -112,5 +114,10 @@ public class Image extends GraphicObject implements Serializable {
         var stream = new DataOutputStream(output);
         stream.writeUTF(path);
 */
+    }
+
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        image = ImageIO.read(new File(path));    
     }
 }

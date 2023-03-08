@@ -4,7 +4,7 @@ import java.awt.*;
 import java.io.*;
 import static java.lang.Math.*;
 
-public class Polygon extends GraphicObject {
+public class Polygon extends GraphicObject implements Serializable {
 
     private int dots;
     private int[] dotsX;
@@ -152,5 +152,5 @@ public class Polygon extends GraphicObject {
             stream.writeInt(dotsY[i]);
 */
     }
-    
+
 }

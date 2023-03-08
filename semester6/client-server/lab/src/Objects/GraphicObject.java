@@ -48,7 +48,7 @@ public abstract class GraphicObject implements Serializable {
         color = new Color(r, g, b);       
     }
     */
-    public abstract void write(ObjectOutputStream stream)throws IOException; /*{
+    public abstract void write(ObjectOutputStream stream) throws IOException; /*{
     //    var stream = new DataOutputStream(output);
         
         stream.writeInt(center.x);
@@ -61,4 +61,5 @@ public abstract class GraphicObject implements Serializable {
         stream.writeInt(color.getBlue());     
     }
 */
+    
 }

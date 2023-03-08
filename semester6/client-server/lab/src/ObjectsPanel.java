@@ -2,15 +2,19 @@
 import Objects.GraphicObject;
 
 import Objects.Polygon;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.lang.reflect.Constructor;
 import java.util.*;
 import javax.swing.*;
+import com.thoughtworks.xstream.io.*;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 public class ObjectsPanel extends JPanel {
     
+   // @XStreamImplicit(itemFieldName="object")
     private java.util.List<GraphicObject> objects = new ArrayList<>();
     
     ClickHandler panelClickHandler = (e) -> {};
@@ -37,53 +41,58 @@ public class ObjectsPanel extends JPanel {
         objects.forEach(obj -> obj.move());
     }
     
-    public boolean save(File file) throws FileNotFoundException, IOException {
+    public void save(File file) throws FileNotFoundException, IOException {
         var name = file.getName();
         var stream = new FileOutputStream(file);
+        
+        if (name.endsWith(".xml")) {
+            OutputStreamWriter writer = new OutputStreamWriter(stream);
+            XStream xstream = new XStream();
+            xstream.registerConverter(new PointConverter());
+            
+            xstream.alias("Objects.GraphicObject", GraphicObject.class);
+            xstream.alias("Objects.Polygon", Polygon.class);
+            xstream.alias("Objects.Image", Image.class);
+
+            xstream.toXML(objects, writer);           
+            return;       
+        }        
+   
         var objStream = new ObjectOutputStream(stream);
         
-        if (name.endsWith(".txt") || name.endsWith(".bin")) {
-            
-            objStream.writeInt(objects.size());
-            for (GraphicObject obj: objects) {   
-                obj.write(objStream);
-            }
-            
-            return true;
-        }
-        
-       // String xml = xstream.toXML(joe);
-        
-        return false;
+        objStream.writeInt(objects.size());
+        for (GraphicObject obj: objects)
+            objStream.writeObject(obj);
     }
     
-    public boolean open(File file) throws FileNotFoundException, IOException {
+    public void open(File file) throws FileNotFoundException, IOException, ClassNotFoundException {
         var name = file.getName();
         var stream = new FileInputStream(file);
-        var objStream = new ObjectInputStream(stream);
+
         objects.clear();
         
-        if (name.endsWith(".txt") || name.endsWith(".bin")) {
+        if (name.endsWith(".xml")) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
             
-            int size = objStream.readInt();
-            for (int i = 0; i < size; i++) {
-                var className = objStream.readUTF();
-                
-                try {
-                    Class<?> _class = Class.forName(className);    
-                    Constructor<?> ctor = _class.getConstructor();     
-                    var instance = ctor.newInstance(new Object[] { });
-                  //  instance.read(objStream);
-                    objects.add((GraphicObject)instance);                
-                    objects.get(objects.size() - 1).read(objStream);
-                } catch (Exception ex) {
-                    return false;
-                }
-            }
+            XStream xstream = new XStream();
+            xstream.registerConverter(new PointConverter());
             
-            return true;
+            xstream.alias("Objects.GraphicObject", GraphicObject.class);
+            xstream.alias("Objects.Polygon", Polygon.class);
+            xstream.alias("Objects.Image", Image.class);
+            
+            xstream.allowTypes(new Class[] { Polygon.class, Image.class, 
+                GraphicObject.class });
+            
+            objects = (java.util.List)xstream.fromXML(reader);
+            return;
         }
-        return false;
+        
+        var objStream = new ObjectInputStream(stream);
+        
+        int size = objStream.readInt();
+        for (int i = 0; i < size; i++)
+            objects.add((GraphicObject)objStream.readObject());
     }
     
     @Override
