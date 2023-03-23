@@ -3,6 +3,8 @@ package Objects;
 import java.awt.*;
 import java.io.*;
 import static java.lang.Math.*;
+import java.util.Random;
+import javax.vecmath.Vector2d;
 
 public class Polygon extends GraphicObject implements Serializable {
 
@@ -10,10 +12,8 @@ public class Polygon extends GraphicObject implements Serializable {
     private int[] dotsX;
     private int[] dotsY;
     
-    private enum MoveState { Up, Down, Right, Left  };
-    private MoveState[] states = {MoveState.Up, MoveState.Right, MoveState.Down, MoveState.Left };  
-    private int curStateId;
-    private int minX, maxX, minY, maxY = 0;
+    private Vector2d direction;
+    private float speed;
     
     public Polygon() { super();  };
 
@@ -21,7 +21,7 @@ public class Polygon extends GraphicObject implements Serializable {
       
         super(x, y, color);     
         
-        if (dots <= 2 || radius <= 0) throw new IllegalArgumentException();
+        if (dots < 5 || radius <= 0) throw new IllegalArgumentException();
         
         this.dots = dots;  
         width = radius * 2;
@@ -44,32 +44,33 @@ public class Polygon extends GraphicObject implements Serializable {
             a += step; 
         }
         
-        int squareSide = 80;
-        minX = x - squareSide;
-        maxX = x + squareSide;
-        minY = y - squareSide;
-        maxY = y + squareSide;
+        var r = new Random();
+        direction = new Vector2d(r.nextInt() % 10 + 5, r.nextInt() % 10 + 5);
+        speed = r.nextInt() % 15 + 10;
     }
     
     @Override
     public void draw(Graphics graphics) {
         graphics.setColor(this.color);
-        graphics.drawPolygon(dotsX, dotsY, dots);
+        
+        for (int i = 0; i < dots; i += 2) { 
+            int nextId = i + 2 >= dots ?  (i + 2) % dots : i + 2;
+            graphics.drawLine​(dotsX[i], dotsY[i], dotsX[nextId], dotsY[nextId]);         
+        }
+        
+        for (int i = 1; i < dots; i += 2) { 
+            int nextId = i + 2 >= dots ?  (i + 2) % dots : i + 2;
+            graphics.drawLine​(dotsX[i], dotsY[i], dotsX[nextId], dotsY[nextId]);         
+        }
     }
 
     @Override
     public void move() {
-        if (!canMove) return;      
+        if (!canMove) return;  
         
-        int step = 1;
-        int xStep = 0, yStep = 0;
-        
-        switch (states[curStateId]) {
-            case Up: yStep = -step; break;
-            case Down: yStep = step; break;
-            case Right: xStep = step; break;
-            case Left: xStep = -step; break;           
-        } 
+        double length = direction.length();      
+        int xStep = (int) (direction.x / length * speed);
+        int yStep = (int) (direction.y / length * speed);
         
         if (yStep != 0) {
             for (int i = 0; i < dots; i++)
@@ -81,15 +82,14 @@ public class Polygon extends GraphicObject implements Serializable {
                 dotsX[i] += xStep;
             center.x += xStep;
         }
+    }
+
+    @Override
+    public void onCollision(Point point, Vector2d normal) {
         
-        boolean switchState = 
-        (center.x - width / 2 == minX && states[curStateId] == MoveState.Left) ||
-        (center.x + width / 2 == maxX && states[curStateId] == MoveState.Right) ||
-        (center.y - height / 2 == minY && states[curStateId] == MoveState.Up) ||
-        (center.y + height / 2 == maxY && states[curStateId] == MoveState.Down);
-        
-        if (switchState)
-            curStateId = (curStateId == states.length - 1 ? 0 : curStateId + 1);
+        double velocityDotProduct = direction.dot(normal);
+        direction = new Vector2d(direction.x - 2 * velocityDotProduct * normal.x, direction.y - 2 * velocityDotProduct * normal.y);
+        speed *= 0.5;
     }
 
 }

@@ -7,6 +7,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
+import javax.vecmath.Vector2d;
 
 public class ObjectsPanel extends JPanel {
     
@@ -33,7 +34,35 @@ public class ObjectsPanel extends JPanel {
     }
     
     public void moveAllObjects() {
+        var dim = getBounds();
+        Point panelCenter = new Point(dim.width / 2, dim.height / 2);
+  
         objects.forEach(obj -> obj.move());
+        objects.forEach(obj -> { 
+    
+            boolean collisionX = false;
+            boolean collisionY = false;
+
+            collisionX = obj.center.x > dim.width
+                    || obj.center.x < 0;
+            collisionY = obj.center.y > dim.height
+                    || obj.center.y < 0;
+
+            if (collisionX || collisionY) {
+
+                Vector2d normal = new Vector2d(0, 0);
+                if (collisionX) {
+                    normal.x = panelCenter.x - obj.center.x;
+                    obj.center.x = obj.center.x <= 0 ? 0 : dim.width;
+                } else if (collisionY) {
+                    normal.y = panelCenter.y - obj.center.y;
+                    obj.center.y = obj.center.y <= 0 ? 0 : dim.height;
+                }
+
+                normal.normalize();
+                obj.onCollision(obj.center, normal);
+            }
+        });
     }
     
     public void save(File file) throws FileNotFoundException, IOException {
@@ -105,36 +134,12 @@ public class ObjectsPanel extends JPanel {
             
             Color border = (objects.get(i).canMove ? Color.GREEN : Color.GRAY);
             
-            if (drawBorderRects)
+            if (drawBorderRects)        
                  objects.get(i).drawBorderRect(imgGraphics, border);
             
             objects.get(i).draw(imgGraphics);          
         }
         g.drawImage(img, 1, 1, this);
-    }
-    
-    private Optional<GraphicObject> getPickedObject(Point pos) {
-        
-        return objects.stream().
-                filter(obj -> obj.contains(pos.x, pos.y)).
-                findFirst();
-    }
-    
-    private void spawnRandomObject(Point pos) {
-        GraphicObject obj = null;
-        
-        var r = new Random();
-        if (r.nextInt() % 2 == 0)
-            obj = new Polygon(pos.x, pos.y, Color.BLUE, 5, 30);
-        else {
-            try {
-                obj = new Image(pos.x, pos.y, null, "cat.jpg");
-            } catch (IOException ex) {
-                System.out.println("Oops!");
-            }
-        }
-        
-        objects.add(obj);  
     }
     
     public void switchEditMode(EditMode newMode) {
@@ -164,4 +169,29 @@ public class ObjectsPanel extends JPanel {
                 panelClickHandler = (e) -> {};
         }
     }
+    
+    private Optional<GraphicObject> getPickedObject(Point pos) {
+        
+        return objects.stream().
+                filter(obj -> obj.contains(pos.x, pos.y)).
+                findFirst();
+    }
+    
+    private void spawnRandomObject(Point pos) {
+        GraphicObject obj = null;
+        
+        var r = new Random();
+        if (r.nextInt() % 2 == 0)
+            obj = new Polygon(pos.x, pos.y, Color.BLUE, 5, 30);
+        else {
+            try {
+                obj = new Image(pos.x, pos.y, null, "cat.png");
+            } catch (IOException ex) {
+                System.out.println("Oops!");
+            }
+        }
+        
+        objects.add(obj);  
+    }
+
 }

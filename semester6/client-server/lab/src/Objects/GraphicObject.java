@@ -3,6 +3,7 @@ package Objects;
 import java.awt.*;
 import java.io.*;
 import static java.lang.Math.abs;
+import javax.vecmath.Vector2d;
 
 public abstract class GraphicObject implements Serializable {
     
@@ -33,5 +34,7 @@ public abstract class GraphicObject implements Serializable {
     }
     
     public abstract void move();
+    
+    public abstract void onCollision(Point point, Vector2d normal);
     
 }
