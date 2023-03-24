@@ -14,6 +14,7 @@ public class Polygon extends GraphicObject implements Serializable {
     
     private Vector2d direction;
     private float speed;
+    private float accelerate = 0.5f;
     
     public Polygon() { super();  };
 
@@ -82,6 +83,8 @@ public class Polygon extends GraphicObject implements Serializable {
                 dotsX[i] += xStep;
             center.x += xStep;
         }
+        
+        speed += accelerate;
     }
 
     @Override
