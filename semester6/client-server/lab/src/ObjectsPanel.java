@@ -182,7 +182,7 @@ public class ObjectsPanel extends JPanel {
         
         var r = new Random();
         if (r.nextInt() % 2 == 0)
-            obj = new Polygon(pos.x, pos.y, Color.BLUE, 5, 30);
+            obj = new Polygon(pos.x, pos.y, Color.RED, 5, 30);
         else {
             try {
                 obj = new Image(pos.x, pos.y, null, "cat.png");
