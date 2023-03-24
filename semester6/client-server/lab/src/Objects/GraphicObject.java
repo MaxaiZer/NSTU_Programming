@@ -35,6 +35,6 @@ public abstract class GraphicObject implements Serializable {
     
     public abstract void move();
     
-    public abstract void onCollision(Point point, Vector2d normal);
+    public abstract void onCollision(Point point, Vector2d normal, Vector2d moveOutOfCollision);
     
 }

@@ -40,27 +40,20 @@ public class ObjectsPanel extends JPanel {
         objects.forEach(obj -> obj.move());
         objects.forEach(obj -> { 
     
-            boolean collisionX = false;
-            boolean collisionY = false;
+            int diffX = 0, diffY = 0;
+            
+            if (obj.center.x < 0) diffX = -obj.center.x;
+            if (dim.width - obj.center.x < 0) diffX = dim.width - obj.center.x;
+            
+            if (obj.center.y < 0) diffY = -obj.center.y;
+            if (dim.height - obj.center.y < 0) diffY = dim.height - obj.center.y;
 
-            collisionX = obj.center.x > dim.width
-                    || obj.center.x < 0;
-            collisionY = obj.center.y > dim.height
-                    || obj.center.y < 0;
-
-            if (collisionX || collisionY) {
-
-                Vector2d normal = new Vector2d(0, 0);
-                if (collisionX) {
-                    normal.x = panelCenter.x - obj.center.x;
-                    obj.center.x = obj.center.x <= 0 ? 0 : dim.width;
-                } else if (collisionY) {
-                    normal.y = panelCenter.y - obj.center.y;
-                    obj.center.y = obj.center.y <= 0 ? 0 : dim.height;
-                }
-
+            if (diffX != 0 || diffY != 0) {
+                Vector2d normal = new Vector2d(diffX, diffY);
+                Vector2d outOfCollision = new Vector2d(normal);
+                
                 normal.normalize();
-                obj.onCollision(obj.center, normal);
+                obj.onCollision(obj.center, normal, outOfCollision);
             }
         });
     }

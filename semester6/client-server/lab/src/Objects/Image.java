@@ -53,8 +53,20 @@ public class Image extends GraphicObject implements Serializable {
     }
 
     @Override
-    public void onCollision(Point point, Vector2d normal) {      
+    public void onCollision(Point point, Vector2d normal, Vector2d moveOutOfCollision) {      
         double velocityDotProduct = direction.dot(normal);
         direction = new Vector2d(direction.x - 2 * velocityDotProduct * normal.x, direction.y - 2 * velocityDotProduct * normal.y);
+        
+        int oldCenterX = center.x;
+        int oldCenterY = center.y;
+        int deltaX = 0, deltaY = 0;
+        
+        while (deltaX < moveOutOfCollision.x &&
+                deltaY < moveOutOfCollision.y) {
+            move();
+            deltaX = center.x - oldCenterX;
+            deltaY = center.y - oldCenterY;
+        }
+        
     }
 }

@@ -86,13 +86,34 @@ public class Polygon extends GraphicObject implements Serializable {
         
         speed += accelerate;
     }
+    
+    public void move(Point point) {
+        int deltaX = point.x - center.x;
+        int deltaY = point.y - center.y;
+        
+        if (deltaX != 0) {
+            for (int i = 0; i < dots; i++)
+                dotsX[i] += deltaX;
+            center.x += deltaX;
+        }
+        
+        if (deltaY != 0) {
+            for (int i = 0; i < dots; i++)
+                dotsY[i] += deltaY;
+            center.y += deltaY;
+        }
+    }
 
     @Override
-    public void onCollision(Point point, Vector2d normal) {
+    public void onCollision(Point point, Vector2d normal, Vector2d moveOutOfCollision) {
         
         double velocityDotProduct = direction.dot(normal);
         direction = new Vector2d(direction.x - 2 * velocityDotProduct * normal.x, direction.y - 2 * velocityDotProduct * normal.y);
         speed *= 0.5;
+        
+        Point p = new Point(center.x + (int)moveOutOfCollision.x, 
+                center.y + (int)moveOutOfCollision.y);      
+        move(p);
     }
 
 }
