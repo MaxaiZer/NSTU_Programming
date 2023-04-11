@@ -1,4 +1,6 @@
-import Objects.*;
+import objects.Polygon;
+import objects.GraphicObject;
+import objects.Image;
 import com.thoughtworks.xstream.XStream;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -9,27 +11,98 @@ import java.util.*;
 import javax.swing.*;
 
 public class ObjectsPanel extends JPanel {
+
+    public enum EditMode { None, Add, Delete, Resume, Stop }; 
     
-    private java.util.List<GraphicObject> objects = new ArrayList<>();
+    private java.util.List<GraphicObject> objects = new ArrayList<>(); 
+    private ClickHandler panelClickHandler = (e) -> {};
+    private boolean drawBorderRects = false; 
     
-    ClickHandler panelClickHandler = (e) -> {};
-    
-    public enum EditMode { None, Add, Delete, Resume, Stop };
-    
-    boolean drawBorderRects = false;
-    
-    public void onMouseClicked(MouseEvent evt) {
-        panelClickHandler.OnClick(evt);
+    @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+        
+        var dim = getBounds();     
+        var img = createImage(dim.width - 2, dim.height - 2);
+        
+        var imgGraphics = img.getGraphics();
+        imgGraphics.setColor(getBackground());
+        imgGraphics.fillRect(0, 0, dim.width, dim.height);
+        
+        for (int i = 0; i < objects.size(); i++) {
+            
+            Color border = (objects.get(i).canMove ? Color.GREEN : Color.GRAY);
+            
+            if (drawBorderRects)
+                 objects.get(i).drawBorderRect(imgGraphics, border);
+            
+            objects.get(i).draw(imgGraphics);          
+        }
+        g.drawImage(img, 1, 1, this);
     }
     
-    public void resumeAllObjects() {
+    public void onAddButtonClick() {
+        switchEditMode(EditMode.Add);
+    }
+
+    public void onDeleteButtonClick() {
+        switchEditMode(EditMode.Delete);
+    }
+
+    public void onResumeButtonClick() {
+        switchEditMode(EditMode.Resume);
+    }
+
+    public void onResumeAllButtonClick() {
         switchEditMode(EditMode.None);
         objects.forEach(obj -> obj.canMove = true);
     }
-    
-    public void stopAllObjects() {
+
+    public void onStopButtonClick() {
+         switchEditMode(EditMode.Stop);
+    }
+
+    public void onStopAllButtonClick() {
         switchEditMode(EditMode.None);
         objects.forEach(obj -> obj.canMove = false);
+    }
+
+    public void addObject(GraphicObject obj) {
+        objects.add(obj);
+    }   
+    
+    public void clearObjects() {
+        objects.clear();
+    }
+
+    public Optional<GraphicObject> getObjectById(int id) {
+        GraphicObject obj = null;
+        
+        try { obj = objects.get(id); } 
+        catch (IndexOutOfBoundsException ex) { }
+        
+        return Optional.ofNullable(obj);
+    }
+
+    public ArrayList<String> getObjectNames() {
+        var names = new ArrayList<String>();
+        
+        objects.forEach(obj -> { 
+            String className = obj instanceof Image ? "Image" : "Polygon";
+            
+            names.add(String.format("%s (x: %d, y: %d)", 
+                    className, obj.center.x, obj.center.y)); 
+        });
+        
+        return names;
+    }
+
+    public int getObjectsCount() {
+         return objects.size();
+    }
+    
+    public void onMouseClicked(MouseEvent evt) {
+        panelClickHandler.OnClick(evt);
     }
     
     public void moveAllObjects() {
@@ -90,54 +163,7 @@ public class ObjectsPanel extends JPanel {
             objects.add((GraphicObject)objStream.readObject());
     }
     
-    @Override
-    public void paint(Graphics g) {
-        super.paint(g);
-        
-        var dim = getBounds();     
-        var img = createImage(dim.width - 2, dim.height - 2);
-        
-        var imgGraphics = img.getGraphics();
-        imgGraphics.setColor(getBackground());
-        imgGraphics.fillRect(0, 0, dim.width, dim.height);
-        
-        for (int i = 0; i < objects.size(); i++) {
-            
-            Color border = (objects.get(i).canMove ? Color.GREEN : Color.GRAY);
-            
-            if (drawBorderRects)
-                 objects.get(i).drawBorderRect(imgGraphics, border);
-            
-            objects.get(i).draw(imgGraphics);          
-        }
-        g.drawImage(img, 1, 1, this);
-    }
-    
-    private Optional<GraphicObject> getPickedObject(Point pos) {
-        
-        return objects.stream().
-                filter(obj -> obj.contains(pos.x, pos.y)).
-                findFirst();
-    }
-    
-    private void spawnRandomObject(Point pos) {
-        GraphicObject obj = null;
-        
-        var r = new Random();
-        if (r.nextInt() % 2 == 0)
-            obj = new Polygon(pos.x, pos.y, Color.BLUE, 5, 30);
-        else {
-            try {
-                obj = new Image(pos.x, pos.y, null, "cat.jpg");
-            } catch (IOException ex) {
-                System.out.println("Oops!");
-            }
-        }
-        
-        objects.add(obj);  
-    }
-    
-    public void switchEditMode(EditMode newMode) {
+    private void switchEditMode(EditMode newMode) {
           
         drawBorderRects = false;
         
@@ -163,5 +189,29 @@ public class ObjectsPanel extends JPanel {
             default:
                 panelClickHandler = (e) -> {};
         }
+    }
+    
+    private Optional<GraphicObject> getPickedObject(Point pos) {
+        
+        return objects.stream().
+                filter(obj -> obj.contains(pos.x, pos.y)).
+                findFirst();
+    }
+    
+    private void spawnRandomObject(Point pos) {
+        GraphicObject obj = null;
+        
+        var r = new Random();
+        if (r.nextInt() % 2 == 0)
+            obj = new Polygon(pos.x, pos.y, Color.BLUE, 5, 30);
+        else {
+            try {
+                obj = new Image(pos.x, pos.y, null, "cat.jpg");
+            } catch (IOException ex) {
+                System.out.println("Error spawn image");
+            }
+        }
+        
+        objects.add(obj);  
     }
 }
