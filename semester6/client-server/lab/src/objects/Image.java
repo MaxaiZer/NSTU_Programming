@@ -1,4 +1,4 @@
-package Objects;
+package objects;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import java.awt.*;
