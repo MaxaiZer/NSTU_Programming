@@ -1,15 +1,15 @@
 package net;
 
+import net.TCPConnectionHandler;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class TCPClient extends ConnectionHandler {
+public class TCPClient extends TCPConnectionHandler {
 
     Socket socket;
-    private boolean isConnected = true;
     Thread connectionThread;
 
     public TCPClient(String serverAddress, int serverPort) throws IOException {
@@ -38,7 +38,7 @@ public class TCPClient extends ConnectionHandler {
                 inputStream = new ObjectInputStream(socket.getInputStream());
                 outputStream = new ObjectOutputStream(socket.getOutputStream());
                 
-                while (isConnected) {
+                while (true) {
                     handleCommand(inputStream.readInt());
                 }
             } 
@@ -54,7 +54,6 @@ public class TCPClient extends ConnectionHandler {
     @Override
     public void disconnect() throws IOException {
         connectionThread.interrupt();
-        isConnected = false;
         if (socket != null)
             socket.close();
     }

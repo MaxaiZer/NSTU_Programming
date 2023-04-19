@@ -7,11 +7,10 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class TCPServer extends ConnectionHandler implements Runnable {
+public class TCPServer extends TCPConnectionHandler implements Runnable {
     
     private ServerSocket serverSocket;
     private Socket clientSocket;
-    private boolean isClientConnected = true;
     private Thread connectionThread;
             
     public TCPServer(int port) throws IOException {
@@ -32,7 +31,7 @@ public class TCPServer extends ConnectionHandler implements Runnable {
 
             connectionThread = new Thread(() -> {
                 try {
-                    while (isClientConnected) {
+                    while (true) {
                         handleCommand(inputStream.readInt());
                     }
                 } 
@@ -51,7 +50,6 @@ public class TCPServer extends ConnectionHandler implements Runnable {
     @Override
     public void disconnect() throws IOException {
         connectionThread.interrupt();
-        isClientConnected = false;
         if (clientSocket != null)
             clientSocket.close();
     }
