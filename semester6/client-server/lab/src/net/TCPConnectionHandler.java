@@ -5,66 +5,62 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
-public abstract class ConnectionHandler {
-    
-    ArrayList<ConnectionEventListener> listeners = new ArrayList<>(); 
+public abstract class TCPConnectionHandler extends ConnectionHandler  {
     
     ObjectInputStream inputStream;
     ObjectOutputStream outputStream;
     
-    public void addListener(ConnectionEventListener listener) {
-        listeners.add(listener);
-    }
-    
-    public void removeListener(ConnectionEventListener listener) {
-        listeners.remove(listeners);
-    }
-    
+    @Override
     public void sendClearObjectsRequest() throws IOException {
         outputStream.writeInt(NetCommand.clearObjectsRequest);
         outputStream.flush();
     }
     
+    @Override
     public void sendObjectByIdRequest(int id) throws IOException {
         outputStream.writeInt(NetCommand.objectByIdRequest);
         outputStream.writeInt(id);
         outputStream.flush();
     } 
     
+    @Override
     public void sendObjectCountRequest(int count) throws IOException {
         outputStream.writeInt(NetCommand.objectCountRequest);
         outputStream.flush();
     }
     
+    @Override
     public void sendObjectNamesRequest() throws IOException {
         outputStream.writeInt(NetCommand.objectNamesRequest);
         outputStream.flush();
     }
     
+    @Override
     public void sendCloseConnectionRequest() throws IOException {
         outputStream.writeInt(NetCommand.closeConnectionRequest);
         outputStream.flush();
     }
     
+    @Override
     public void sendObject(Object object) throws IOException {
         outputStream.writeInt(NetCommand.objectTransfer);
         outputStream.writeObject(object);
         outputStream.flush();
     }
     
+    @Override
     public void sendObjectNames(ArrayList<String> names) throws IOException {
         outputStream.writeInt(NetCommand.objectNamesTransfer);
         outputStream.writeObject(names);       
         outputStream.flush();
     }
     
+    @Override
     public void sendObjectCount(int count) throws IOException {
         outputStream.writeInt(NetCommand.objectCountTransfer);
         outputStream.writeInt(count);
         outputStream.flush();
     }
-    
-    public abstract void disconnect() throws IOException;
   
     protected void handleCommand(int command) throws IOException, ClassNotFoundException {
         
