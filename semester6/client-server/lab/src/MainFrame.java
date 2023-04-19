@@ -3,8 +3,8 @@ import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import net.ConnectionHandler;
-import net.TCPClient;
-import net.TCPServer;
+import net.UDPClient;
+import net.UDPServer;
 
 public class MainFrame extends javax.swing.JFrame {
    
@@ -451,7 +451,7 @@ public class MainFrame extends javax.swing.JFrame {
         if (connectionHandler != null)
             connectionHandler.disconnect();
         
-        var server = new TCPServer(1234);
+        var server = new UDPServer(7003, 7001);
         connectionHandler = server;
         connectionHandler.addListener(connectionListener);
         serverThread = new Thread(server);
@@ -467,7 +467,7 @@ public class MainFrame extends javax.swing.JFrame {
         if (connectionHandler != null)
             connectionHandler.disconnect();
 
-        connectionHandler = new TCPClient("localhost", 1234);
+        connectionHandler = new UDPClient(7001, 7003);
         connectionHandler.addListener(connectionListener);
     }
     

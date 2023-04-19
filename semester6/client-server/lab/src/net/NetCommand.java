@@ -1,12 +1,12 @@
 package net;
 
 public class NetCommand {
-    static int closeConnectionRequest = 0;
-    static int clearObjectsRequest = 1;
-    static int objectByIdRequest = 2;
-    static int objectTransfer = 3;
-    static int objectNamesRequest = 4;  
-    static int objectNamesTransfer = 5;  
-    static int objectCountRequest = 6;
-    static int objectCountTransfer = 7;
+    static public int closeConnectionRequest = 0;
+    static public int clearObjectsRequest = 1;
+    static public int objectByIdRequest = 2;
+    static public int objectTransfer = 3;
+    static public int objectNamesRequest = 4;  
+    static public int objectNamesTransfer = 5;  
+    static public int objectCountRequest = 6;
+    static public int objectCountTransfer = 7;
 }
