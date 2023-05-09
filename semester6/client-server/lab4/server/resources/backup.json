@@ -1,0 +1,1 @@
+[{"type":"polygon","dots":5,"dotsX":[349,328,294,294,309],"dotsY":[240,268,257,222,211],"states":["Up","Right","Down","Left"],"curStateId":3,"minX":222,"maxX":382,"minY":110,"maxY":270,"center":{"x":319,"y":240},"color":{"red":0,"green":0,"blue":255,"alpha":255},"canMove":true,"width":60,"height":60}]
