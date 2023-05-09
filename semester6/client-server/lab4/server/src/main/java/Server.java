@@ -39,15 +39,13 @@ public class Server {
             }
 
             var obj = container.getObjectByIndex(index.getAsInt());
-            
-            System.out.println("SEND " + gson.toJson(obj.get()));
           
             if (obj.isPresent()) { //костыль!!! почему то для одного объекта не добавляет type
                 var container = new ObjectContainer();
                 container.addObject(obj.get());
                 String str = container.getObjectsAsJson();
                 str = str.substring( 1, str.length() - 1);
-                System.out.println("Send " + str);
+                System.out.println("Sent object: " + str);
                 return str;
              //   return gson.toJson(obj.get());
             }
@@ -70,7 +68,8 @@ public class Server {
         Spark.post("object/add", (req, res) -> { 
             
             GraphicObject obj = null;
-            System.out.println("RECEIVED!!!: " + req.body());
+            
+            System.out.println("Received object: " + req.body());
 
             try {
                 obj = gson.fromJson(req.body(), GraphicObject.class);
@@ -85,7 +84,6 @@ public class Server {
     }
 
     private OptionalInt stringToInt(String str) {
-        System.out.println("STRING: " + str);
         try {
             return OptionalInt.of(Integer.parseInt(str));
         } catch (NumberFormatException ex) {
