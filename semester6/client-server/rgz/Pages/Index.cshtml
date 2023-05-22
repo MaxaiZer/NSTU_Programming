@@ -1,0 +1,28 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Tic Tac Toe Game";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"]</title>
+    <style>
+        /* Your CSS styles here */
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script src="~/js/game.js"></script>
+    <script>
+        $(function() {
+            createGameBoard();
+        });
+    </script>
+</head>
+<body>
+    <h1>@ViewData["Title"]</h1>
+    <div id="game-board"></div>
+    <div id="message"></div>
+</body>
+</html>

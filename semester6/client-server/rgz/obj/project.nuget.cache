@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "yrxz6RbB/FYyIV2m8xWLlKe4NtfAVDKIKgg1RGFQOgzIIXPmvzXuV0UZtCVtvpnQqO6uCkcRvDBwGhYr061poQ==",
+  "success": true,
+  "projectFilePath": "/home/max/Документы/NSTU_Programming/semester6/client-server/rgz/rgz.csproj",
+  "expectedPackageFiles": [
+    "/home/max/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
