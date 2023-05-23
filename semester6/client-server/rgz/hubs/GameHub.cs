@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
-using Models;
+using rgz.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -35,18 +35,20 @@ namespace rgz.Hubs
             );
 
             if (game is null) return;
-
-            game.MakeMove(row, col);
+            if (!game.MakeMove(row, col)) return;
 
             string anotherPlayer = game.FirstPlayerId == Context.ConnectionId ? 
                 game.SecondPlayerId :
                 game.FirstPlayerId;
 
             await Clients.Client(anotherPlayer).SendAsync("MadeMove", row, col);
-           // GlobalHost.ConnectionManager.GetHubContext<GameHub>();
-        //   var b = Host.CreateDefaultBuilder();
-         //  await Services.GetService<GameHub>().MakeMove(row, col);
-          //  HubContext
+
+            if (game.CurState != GameState.NotOver) {
+                await OnGameOver(game);
+                return;
+            }
+
+            await Clients.Client(anotherPlayer).SendAsync("PlayerTurn", row, col);  
         }
 
         public async Task SendMessage(string user, string message)
@@ -55,27 +57,33 @@ namespace rgz.Hubs
         }
 
         private async Task CreateGame(string firstUserId, string secondUserId) {
-            var game = new Game(firstUserId, secondUserId);
-            game.GameOver += OnGameOver;
-            game.TurnPlayerChanged += OnTurnPlayerChanged;
+
+            Random random = new Random();
+            int randomNumber = random.Next(0, 2);
+
+            Game game = randomNumber == 0 ?
+                new Game(firstUserId, secondUserId) :
+                new Game(secondUserId, firstUserId);
+
             GameList.Instance.Add(game);
-            await Clients.Client(firstUserId).SendAsync("PlayerTurn");
+
+            var info = new GameInfo(crossPlayerId: game.FirstPlayerId, toePlayerId: game.SecondPlayerId);
+            string infoJson = JsonConvert.SerializeObject(info);
+
+            await Clients.Client(firstUserId).SendAsync("GameInfo", infoJson);
+            await Clients.Client(secondUserId).SendAsync("GameInfo", infoJson);
+            await Clients.Client(game.FirstPlayerId).SendAsync("PlayerTurn");
         }
 
-        private async void OnTurnPlayerChanged(object sender, EventArgs args) {
-            await Clients.Client(((Game)sender).currentTurnPlayerId).SendAsync("PlayerTurn");
-        }
+        private async Task OnGameOver(Game game) {
 
-        private async void OnGameOver(object sender, EventArgs args) {
-
-            var game = sender as Game;
             GameList.Instance.Remove(game);
 
             var result = new GameResult(game.CurState, game.FirstPlayerId, game.SecondPlayerId);
             string json = JsonConvert.SerializeObject(result, new StringEnumConverter());
-       
-            Clients.Client(game.FirstPlayerId).SendAsync("GameResult", json);
-            Clients.Client(game.SecondPlayerId).SendAsync("GameResult", json);
+
+            await Clients.Client(game.FirstPlayerId).SendAsync("GameResult", json);
+            await Clients.Client(game.SecondPlayerId).SendAsync("GameResult", json);
         }
     }
 }

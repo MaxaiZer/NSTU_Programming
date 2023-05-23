@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Models {
+namespace rgz.Models {
     public class GameResult {
 
         [JsonConverter(typeof(StringEnumConverter))]

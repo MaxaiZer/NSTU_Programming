@@ -22,26 +22,42 @@ connection.start().then(function () {
 });
 
 connection.on("GameResult", function (result) {
+
+    console.log("received game result: " + result);
+    result = JSON.parse(result);
+
     if (result.state === "Draw") {
-        console.log("Draw!");
+        document.getElementById("message").textContent = "Draw!";
         return;
     }
 
-    let winnerId = (result.state === "FirstPlayerWin" ? state.firstPlayerId : result.secondPlayerId);
-
-    if (connection.connectionId == winnerId)
-        console.log("Win!");
-    else
-        console.log("Lose!");
+    let winnerId = (result.state === "FirstPlayerWin" ? result.firstPlayerId : result.secondPlayerId);
+    let message = connection.connectionId == winnerId ? "Win!" : "Lose!";
+    document.getElementById("message").textContent = message;
 });
 
 connection.on("PlayerTurn", function () {
-    console.log("Player's turn!");
+
+    console.log("received player turn");
+    document.getElementById("message").textContent = "It's your turn!";
     isPlayerTurn = true;
 });
 
 connection.on("MadeMove", function (row, col) {
+
+    console.log("received made move");
     makeMove(row, col, thisPlayer == Player.Cross ? Player.Toe : Player.Cross);
+});
+
+connection.on("GameInfo", function (info) {
+
+    console.log("received game info: " + info);
+    info = JSON.parse(info);
+    thisPlayer = connection.connectionId == info.crossPlayerId ?
+        Player.Cross :
+        Player.Toe;
+
+    document.getElementById("message").textContent = "Opponent was found!";
 });
 
 function drawMove(row, col, player) {
@@ -53,8 +69,10 @@ function drawMove(row, col, player) {
     const imageSrc = player == Player.Cross ? "images/cross.jpg" : "images/toe.jpg";
 
     const image = cell.querySelector(".cell-image");
-    image.src = imageSrc;
 
+    if (image.scr == imageSrc) return false;
+
+    image.src = imageSrc;
     return true;
 }
 
@@ -63,14 +81,15 @@ function makeMove(row, col, player) {
     if (player == thisPlayer && !isPlayerTurn) return;
     if (!drawMove(row, col, player)) return;
 
-    if (player == thisPlayer) {
-        connection.invoke("MakeMove", row, col)
-        .catch(function(error) {
+    if (player != thisPlayer) return;
+
+    connection.invoke("MakeMove", row, col)
+        .catch(function (error) {
             console.error(error);
         });
-        
-        isPlayerTurn = false;
-    }
+
+    isPlayerTurn = false;
+    document.getElementById("message").textContent = "It's opponent turn!";
 }
 
 function createGameBoard() {
@@ -99,4 +118,5 @@ function createGameBoard() {
 
 $(document).ready(function() {
     createGameBoard();
+    document.getElementById("message").textContent = "Waiting for opponent...";
 });

@@ -1,4 +1,4 @@
-namespace Models
+namespace rgz.Models
 {
 
     public class GameList
