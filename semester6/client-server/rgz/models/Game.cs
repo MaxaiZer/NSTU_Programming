@@ -1,7 +1,8 @@
 namespace rgz.Models
 {
-    public enum GameState {
-        NotOver, 
+    public enum GameState
+    {
+        NotOver,
         Draw,
         FirstPlayerWin,
         SecondPlayerWin
@@ -9,23 +10,27 @@ namespace rgz.Models
 
     public class Game
     {
-        public string FirstPlayerId { get; private set; }
-        public string SecondPlayerId { get; private set; }
+        public string FirstPlayerId { get; }
+        public string SecondPlayerId { get; }
 
         public GameState CurState { get; private set; }
 
         public string currentTurnPlayerId;
 
-        private CellState[,] field = new CellState[Rows, Columns];
+        public event EventHandler? turnPlayerChanged;
 
-        private const uint Columns = 3;
-        private const uint Rows = 3;
+        public event EventHandler? gameOver;
 
-        private const uint WinningSequenceLength = 3;
+        private CellState[,] field = new CellState[_columns, _rows];
+
+        private const uint _columns = 3;
+        private const uint _rows = 3;
+
+        private const uint _winningSequenceLength = 3;
 
         private enum CellState { Empty, OccupiedByFirstPlayer, OccupiedBySecondPlayer }
 
-        private int curTurn = 0;
+        private int _curTurn = 0;
 
         public Game(string firstPlayerId, string secondPlayerId)
         {
@@ -33,9 +38,13 @@ namespace rgz.Models
             SecondPlayerId = secondPlayerId;
         }
 
+        public GameInfo GetInfo() {
+            return new GameInfo(crossPlayerId: FirstPlayerId, toePlayerId: SecondPlayerId);
+        }
+
         public bool MakeMove(int row, int column)
         {
-            if (row < 0 || row >= Rows || column < 0 || column >= Columns)
+            if (row < 0 || row >= _rows || column < 0 || column >= _columns)
                 throw new ArgumentOutOfRangeException("row/column is out of range");
 
             if (field[row, column] != CellState.Empty)
@@ -47,53 +56,78 @@ namespace rgz.Models
 
             CheckWin(row, column);
 
-            if (CurState != GameState.NotOver) return true;
+            if (CurState != GameState.NotOver) { gameOver?.Invoke(this, EventArgs.Empty); return true; }
             ChangeCurrentTurnPlayer();
-            curTurn++;
+            _curTurn++;
             return true;
         }
 
-        private void ChangeCurrentTurnPlayer() {
+        private void ChangeCurrentTurnPlayer()
+        {
             currentTurnPlayerId = currentTurnPlayerId == FirstPlayerId ?
                 SecondPlayerId :
                 FirstPlayerId;
+            turnPlayerChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        private void CheckWin(int moveRow, int moveColumn) {
+        private void CheckWin(int moveRow, int moveColumn)
+        {
             CellState targetState = currentTurnPlayerId == FirstPlayerId ?
                 CellState.OccupiedByFirstPlayer :
                 CellState.OccupiedBySecondPlayer;
 
-            Func<int, int, bool> find = (stepRow, stepColumn) => {
-
-                int count = 0;
-                int row = moveRow, column = moveColumn;
-
-                while (row >= 0 && row < Rows && column >= 0 && column < Columns) {
-                    
-                    if (field[row, column] == targetState) { 
-                        count++;  System.Console.WriteLine("Increase");
-                        if (count == WinningSequenceLength) return true;
-                    }
-                    else return false;
-
-                    row += stepRow;
-                    column += stepColumn;
-                }
-
-                return false;
-            };
-
-            if (find(0,1) || find(0, -1) || find(1, 0) || find (-1, 0) || find(1, 1) || find(-1, -1)) {       
+            if (hasWinningSequence(moveRow, moveColumn, 0, 1, targetState) ||
+                hasWinningSequence(moveRow, moveColumn, 1, 0, targetState) ||
+                hasWinningSequence(moveRow, moveColumn, 1, 1, targetState) ||
+                hasWinningSequence(moveRow, moveColumn, -1, 1, targetState) 
+            )
+            {
                 CurState = currentTurnPlayerId == FirstPlayerId ?
                     GameState.FirstPlayerWin :
                     GameState.SecondPlayerWin;
                 return;
             }
 
-            if (curTurn == Rows * Columns - 1) {
+            if (_curTurn == _rows * _columns - 1)
+            {
                 CurState = GameState.Draw;
             }
+        }
+
+        private bool hasWinningSequence(int moveRow, int moveColumn,
+            int stepRow, int stepColumn, CellState targetState)
+        {
+            int count = 1;
+            int row = moveRow + stepRow, column = moveColumn + stepColumn;
+
+            Action setSequenceLength = () =>
+            {
+
+                while (row >= 0 && row < _rows &&
+                    column >= 0 && column < _columns &&
+                    count < _winningSequenceLength)
+                {
+                    if (field[row, column] == targetState)
+                        count++;
+                    else break;
+
+                    row += stepRow;
+                    column += stepColumn;
+                }
+            };
+
+            setSequenceLength();
+            if (count >= _winningSequenceLength) return true;
+
+            stepRow *= -1;
+            stepColumn *= -1;
+
+            row = moveRow + stepRow;
+            column = moveColumn + stepColumn;
+
+            setSequenceLength();
+            if (count >= _winningSequenceLength) return true;
+            return false;
         }
 
     }

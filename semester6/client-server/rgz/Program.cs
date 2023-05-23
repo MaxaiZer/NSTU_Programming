@@ -1,11 +1,12 @@
 using rgz.Hubs;
+using rgz.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddSignalR();
-builder.Services.AddScoped<GameHub>();
+builder.Services.AddSingleton<IGameService, GameService>();
 
 var app = builder.Build();
 

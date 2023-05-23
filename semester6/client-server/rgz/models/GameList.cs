@@ -3,9 +3,9 @@ namespace rgz.Models
 
     public class GameList
     {
-        private static GameList instance;
-        private List<Game> games = new List<Game>();
-        private object lockObject = new object();
+        private static GameList _instance;
+        private List<Game> _games = new List<Game>();
+        private object _lockObject = new object();
 
         private GameList() { }
 
@@ -13,31 +13,34 @@ namespace rgz.Models
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new GameList();
+                    _instance = new GameList();
                 }
-                return instance;
+                return _instance;
             }
         }
 
         public void Add(Game game)
         {
-            lock (lockObject)
+            lock (_lockObject)
             {
-                games.Add(game);
+                _games.Add(game);
             }
         }
 
         public void Remove(Game game)
         {
-            lock (lockObject)
+            lock (_lockObject)
             {
-                games.Remove(game);
+                _games.Remove(game);
             }
         }
 
-        public Game? Find(Predicate<Game> match) => games.Find(match);
+        public Game? FindByPlayerId(string playerId) {
+            return _games.Find(game => game.FirstPlayerId == playerId ||
+                game.SecondPlayerId == playerId);
+        }
 
     }
 }
