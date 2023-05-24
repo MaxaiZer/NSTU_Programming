@@ -24,10 +24,10 @@ namespace rgz.Models
 
         private CellState[,] field = new CellState[_columns, _rows];
 
-        private const uint _columns = 3;
-        private const uint _rows = 3;
+        private const uint _columns = 7;
+        private const uint _rows = 7;
 
-        private const uint _winningSequenceLength = 3;
+        private const uint _winningSequenceLength = 4;
 
         private enum CellState { Empty, OccupiedByFirstPlayer, OccupiedBySecondPlayer }
 

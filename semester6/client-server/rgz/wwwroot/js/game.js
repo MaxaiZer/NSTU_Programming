@@ -109,8 +109,10 @@ function makeMove(row, col, player) {
 
     if (player != thisPlayer) return;
 
-    let move = new GameMoveDto(gameId, row, col);   
-    connection.invoke("MakeMove", JSON.stringify(move))
+    let move = new GameMoveDto(gameId, row, col);
+    let json = JSON.stringify(move);
+    console.log("You made move: " + json);
+    connection.invoke("MakeMove", json)
         .catch(function (error) {
             console.error(error);
         });
@@ -121,8 +123,8 @@ function makeMove(row, col, player) {
 
 function createGameBoard() {
     const boardContainer = document.getElementById("game-board");
-    const rows = 3;
-    const columns = 3;
+    const rows = 7;
+    const columns = 7;
     boardContainer.innerHTML = ""; // Clear the board container
 
     for (let row = 0; row < rows; row++) {
