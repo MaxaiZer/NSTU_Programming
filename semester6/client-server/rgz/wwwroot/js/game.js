@@ -9,6 +9,19 @@ var connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
 
 var isPlayerTurn = false;
 var thisPlayer = Player.Cross;
+var gameId;
+
+class GameMoveDto {
+    gameId;
+    row;
+    col;
+
+    constructor(gameId, row, col) {
+        this.gameId = gameId;
+        this.row = row;
+        this.col = col;
+    }
+}
 
 connection.start().then(function () {
 
@@ -34,6 +47,13 @@ connection.on("GameResult", function (result) {
     let winnerId = (result.state === "FirstPlayerWin" ? result.firstPlayerId : result.secondPlayerId);
     let message = connection.connectionId == winnerId ? "Win!" : "Lose!";
     document.getElementById("message").textContent = message;
+
+    setTimeout(() => {
+        connection.invoke("WaitForGame").catch(function (err) {
+            return console.error(err.toString());
+        });
+        setWaitForGame();
+    }, 5000);
 });
 
 connection.on("PlayerTurn", function () {
@@ -57,8 +77,14 @@ connection.on("GameInfo", function (info) {
         Player.Cross :
         Player.Toe;
 
+    gameId = info.gameId;
     document.getElementById("message").textContent = "Opponent was found!";
 });
+
+function setWaitForGame() {
+    createGameBoard();
+    document.getElementById("message").textContent = "Waiting for opponent...";
+}
 
 function drawMove(row, col, player) {
     const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
@@ -83,7 +109,8 @@ function makeMove(row, col, player) {
 
     if (player != thisPlayer) return;
 
-    connection.invoke("MakeMove", row, col)
+    let move = new GameMoveDto(gameId, row, col);   
+    connection.invoke("MakeMove", JSON.stringify(move))
         .catch(function (error) {
             console.error(error);
         });
@@ -117,6 +144,5 @@ function createGameBoard() {
 }
 
 $(document).ready(function() {
-    createGameBoard();
-    document.getElementById("message").textContent = "Waiting for opponent...";
+    setWaitForGame();
 });

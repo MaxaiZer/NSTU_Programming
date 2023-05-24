@@ -1,11 +1,13 @@
+using System.Collections.Concurrent;
+
 namespace rgz.Models
 {
 
     public class GameList
     {
         private static GameList _instance;
-        private List<Game> _games = new List<Game>();
-        private object _lockObject = new object();
+
+        private ConcurrentDictionary<string, Game> _games = new ConcurrentDictionary<string, Game>();
 
         private GameList() { }
 
@@ -21,25 +23,22 @@ namespace rgz.Models
             }
         }
 
-        public void Add(Game game)
+        public bool Add(Game game)
         {
-            lock (_lockObject)
-            {
-                _games.Add(game);
-            }
+            return _games.TryAdd(game.Id, game);
         }
 
-        public void Remove(Game game)
+        public bool Remove(string id)
         {
-            lock (_lockObject)
-            {
-                _games.Remove(game);
-            }
+            Game? game;
+            return _games.TryRemove(id, out game);
         }
-
-        public Game? FindByPlayerId(string playerId) {
-            return _games.Find(game => game.FirstPlayerId == playerId ||
-                game.SecondPlayerId == playerId);
+    
+        public Game? Find(string id)
+        {
+            Game? game = null;
+            _games.TryGetValue(id, out game);
+            return game;
         }
 
     }

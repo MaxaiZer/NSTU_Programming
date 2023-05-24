@@ -11,7 +11,7 @@ namespace rgz.Services
 
         public Task CreateGame(string firstPlayerId, string secondPlayerId);
 
-        public Task HandlePlayerMove(string playerId, int row, int col);
+        public Task HandlePlayerMove(string gameId, string playerId, int row, int col);
 
     }
 

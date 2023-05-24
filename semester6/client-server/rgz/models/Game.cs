@@ -10,6 +10,7 @@ namespace rgz.Models
 
     public class Game
     {
+        public string Id { get; }
         public string FirstPlayerId { get; }
         public string SecondPlayerId { get; }
 
@@ -32,14 +33,11 @@ namespace rgz.Models
 
         private int _curTurn = 0;
 
-        public Game(string firstPlayerId, string secondPlayerId)
+        public Game(string id, string firstPlayerId, string secondPlayerId)
         {
+            Id = id;
             currentTurnPlayerId = FirstPlayerId = firstPlayerId;
             SecondPlayerId = secondPlayerId;
-        }
-
-        public GameInfo GetInfo() {
-            return new GameInfo(crossPlayerId: FirstPlayerId, toePlayerId: SecondPlayerId);
         }
 
         public bool MakeMove(int row, int column)

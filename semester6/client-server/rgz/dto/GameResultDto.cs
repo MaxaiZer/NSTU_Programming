@@ -1,9 +1,10 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using rgz.Models;
 
-namespace rgz.Models
+namespace rgz.Dto
 {
-    public class GameResult
+    public class GameResultDto
     {
 
         [JsonConverter(typeof(StringEnumConverter))]
@@ -11,7 +12,7 @@ namespace rgz.Models
         public string firstPlayerId;
         public string secondPlayerId;
 
-        public GameResult(GameState state, string firstPlayerId, string secondPlayerId)
+        public GameResultDto(GameState state, string firstPlayerId, string secondPlayerId)
         {
             this.state = state;
             this.firstPlayerId = firstPlayerId;

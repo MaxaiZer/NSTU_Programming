@@ -4,6 +4,7 @@ using rgz.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using rgz.Services;
+using rgz.Dto;
 
 namespace rgz.Hubs
 {
@@ -39,10 +40,20 @@ namespace rgz.Hubs
             else _waitingPlayerIds.Add(Context.ConnectionId);
         }
 
-        public async Task MakeMove(int row, int col)
+        public async Task MakeMove(string gameMoveJson)
         {
-            await _gameService.HandlePlayerMove(Context.ConnectionId, row, col);
+            var move = JsonConvert.DeserializeObject<GameMoveDto>(gameMoveJson);
+            await _gameService.HandlePlayerMove(move.gameId, Context.ConnectionId, move.row, move.col);
         }
 
+        public override Task OnDisconnectedAsync(Exception? exception)
+        {
+            /*
+                it is necessary to remove the player either waiting list or from the game and 
+                notify the second player about it. So, game id needs to be stored in Context.Items.
+                Sorry, but I don't have time.
+            */
+            return base.OnDisconnectedAsync(exception);
+        }
     }
 }
