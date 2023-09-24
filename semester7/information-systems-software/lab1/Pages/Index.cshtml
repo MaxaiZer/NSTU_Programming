@@ -1,0 +1,44 @@
+﻿@page
+@model IndexModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="~/css/styles.css">
+</head>
+<body>
+<div style="margin-top: 100px; text-align: center;">
+
+    @if (Model.Message != null) 
+    {
+        <p>@Model.Message</p>
+    }
+
+    <p>New student:</p>
+    <form method="post">
+        <input asp-for="NewStudent.Name" placeholder="name"/><br />
+        <input asp-for="NewStudent.Surname" placeholder="surname"/><br>
+        <button style="padding: 5px 5px; margin-top: 5px;" type="submit">Add</button>
+    </form>
+
+    <p style="margin-top: 50px;">Students:</p>
+    <table class="styled-table" style="margin-left: auto; margin-right: auto;">
+        <tr>
+            <th>Name</th>
+            <th>Surname</th>
+        </tr>
+    @foreach (var student in Model.Students)
+    {
+        <tr>
+            <td>@student.Name</td>
+            <td>@student.Surname</td>
+        </tr>
+    }
+    </table>
+
+</div>
+</body>
+</html>

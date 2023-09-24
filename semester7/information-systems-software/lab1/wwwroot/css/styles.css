@@ -1,0 +1,55 @@
+html {
+  font-size: 18px;
+  text-shadow: -1px -1px 0 #ffffff, 1px -1px 0 #ffffff, -1px 1px 0 #ffffff, 1px 1px 0 #ffffff;
+}
+
+input {
+    font-size:17px;
+}
+
+button {
+    background-color:#fffded;
+    border-radius:12px;
+    border:1px solid #000000;
+    display:inline-block;
+    cursor:pointer;
+    color:#000000;
+    font-family:Arial;
+    font-size:17px;
+    text-decoration:none;
+    transition: background-color .5s;
+}
+
+button:hover {
+    background-color:#ffffff;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+  background-image: url("../images/cats.jpg");
+  background-color: rgba(0, 0, 0, 0.15);
+  background-blend-mode: lighten;
+  font-family: "Font Name", sans-serif;
+}
+
+.center {
+    margin: auto;
+}
+
+table, th, td {
+    border: 1px solid;
+}
+
+.styled-table {
+     border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
