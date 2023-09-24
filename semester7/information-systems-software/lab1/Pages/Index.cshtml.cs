@@ -40,4 +40,9 @@ public class IndexModel : PageModel
             Message = "Student was added.";
         }
     }
+
+    public void OnPostClearStudents()
+    {
+        _studentService.Clear();
+    }
 }

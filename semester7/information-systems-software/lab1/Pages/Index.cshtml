@@ -21,8 +21,11 @@
     <form method="post">
         <input asp-for="NewStudent.Name" placeholder="name"/><br />
         <input asp-for="NewStudent.Surname" placeholder="surname"/><br>
-        <button style="padding: 5px 5px; margin-top: 5px;" type="submit">Add</button>
-    </form>
+        <button asp-page-handler="" style="padding: 5px 45px; margin-top: 5px;" type="submit">Add</button>
+    </form>   
+    <form method="post">
+    <button asp-page-handler="ClearStudents" style="padding: 5px 5px; margin-top: 5px;" >Clear students</button>
+    </form> 
 
     <p style="margin-top: 50px;">Students:</p>
     <table class="styled-table" style="margin-left: auto; margin-right: auto;">

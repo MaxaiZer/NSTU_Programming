@@ -7,6 +7,11 @@ public class StudentService: IStudentService
         _list.Add(student);
     }
 
+    public void Clear()
+    {
+        _list.Clear();
+    }
+
     public IEnumerable<Student> GetAll()
     {
         return _list;
