@@ -1,0 +1,14 @@
+@page
+@model LoadModel
+
+@if (Model.Message != null) 
+{
+    <p>@Model.Message</p>
+}
+
+<div style="display: flex; justify-content: center;  align-items: center; ">
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" asp-for="Upload" style="margin-right: 10px;" class="btn btn-success"/>
+        <input type="submit" asp-page-handler="LoadXML" style="margin-right: 10px;" class="btn btn-success" value="Загрузить из XML"  />
+    </form>
+</div>

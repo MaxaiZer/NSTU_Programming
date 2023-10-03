@@ -1,0 +1,51 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h2>База данных дисциплин кафедры АВТ</h2>
+
+<table class="table" style="margin-top: 100px; margin-left: auto; margin-right: auto;">
+    <thead class="thead-dark">
+        <tr>
+            <th>Название</th>
+            <th>Часы</th>
+            <th>Часы лекций</th>
+            <th>Часы лаб. работ</th>
+            <th>Зачёт/экзамен</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+@foreach (var discipline in Model.Disciplines)
+{
+    <tr>
+        <td>@discipline.Name</td>
+        <td>@discipline.Hours</td>
+        <td>@discipline.LectureHours</td>
+        <td>@discipline.LabHours</td>
+        <td>@discipline.CertificationType</td>
+        <td><a style="text-decoration: none" asp-page="Insert" asp-route-id="@discipline.Id">Изменить</a></td>
+        <td><a style="text-decoration: none" class="link-danger" asp-page="Delete" asp-route-id="@discipline.Id">Удалить</a></td>
+    </tr>
+}
+</table>
+
+<div style="display: flex; justify-content: center;  align-items: center; ">
+<form action="Insert">
+    <input type="submit" style="margin-right: 10px;" class="btn btn-primary" value="Добавить" />
+</form>
+
+<form action="Load">
+    <input type="submit" style="margin-right: 10px;" class="btn btn-success" value="Загрузить из XML" />
+</form>
+
+<form method="post">
+    <input type="submit" asp-page-handler="SaveXML" style="margin-right: 10px;" class="btn btn-success" value="Сохранить в XML" />
+    <input type="submit" asp-page-handler="Clear" style="margin-right: 10px;" class="btn btn-danger" value="Очистить" />
+</form>
+</div>
+
+</div>
