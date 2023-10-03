@@ -10,11 +10,6 @@ public class DisciplineRepository : IDisciplineRepository
         _db = db;
     }
 
-    public void Delete(int id)
-    {
-        _db.Execute("DELETE FROM disciplines WHERE Id = @Id", new { Id = id });
-    }
-
     public IEnumerable<Discipline> GetAll()
     {
         return _db.Query<Discipline>("SELECT * FROM disciplines");
@@ -41,6 +36,11 @@ public class DisciplineRepository : IDisciplineRepository
         certification_type = Cast(@CertificationType as certification)    
         WHERE Id = @Id";
         _db.Query(sql, obj);
+    }
+
+    public void Delete(int id)
+    {
+        _db.Execute("DELETE FROM disciplines WHERE Id = @Id", new { Id = id });
     }
 
     public void Clear()
