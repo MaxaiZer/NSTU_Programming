@@ -1,0 +1,51 @@
+@page "{id?}"
+@model InsertModel
+
+@if (Model.Message != null) 
+{
+    <p>@Model.Message</p>
+}
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="IsUpdate"/>
+    <input type="hidden" asp-for="Discipline.Id"/>
+    <div class="form-group">
+        <label asp-for="Discipline.Name">Название</label>
+        <input asp-for="Discipline.Name" class="form-control"/>
+        <span asp-validation-for="Discipline.Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Discipline.Hours">Часы</label>
+        <input asp-for="Discipline.Hours" class="form-control" />
+        <span asp-validation-for="Discipline.Hours" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Discipline.LectureHours">Часы лекций</label>
+        <input asp-for="Discipline.LectureHours" class="form-control" />
+        <span asp-validation-for="Discipline.LectureHours" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Discipline.LabHours">Часы лаб. работ</label>
+        <input asp-for="Discipline.LabHours" class="form-control" />
+        <span asp-validation-for="Discipline.LabHours" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Discipline.CertificationType">Зачёт/экзамен</label>
+        <p>        
+            <select asp-for="Discipline.CertificationType">
+                <option value="зачёт">Зачёт</option>
+                <option value="экзамен">Экзамен</option>
+            </select>
+        </p>   
+    </div>
+
+    @if (Model.IsUpdate) 
+    {
+        <button type="submit" class="btn btn-primary">Обновить</button>
+    } else
+    {
+        <button type="submit" class="btn btn-primary">Добавить</button>
+    }
+    
+</form>
