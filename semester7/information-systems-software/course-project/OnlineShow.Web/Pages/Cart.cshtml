@@ -1,0 +1,63 @@
+@page "{search?}"
+@model CartModel
+@{
+    ViewData["Title"] = "Home page";
+
+    if (Model.ErrorMessage != null)
+    {
+        <p>@Model.ErrorMessage</p>
+        return;
+    }
+}
+
+<div class="products">
+
+    @{
+        if (Model.ProductsAndQuantities.Count() == 0)
+        {
+            <p>Пусто :(</p>
+            return;
+        }
+
+        foreach(var productAndQuantity in Model.ProductsAndQuantities)
+        {
+
+            <div class="product">
+                <div class="card mb-3" style="width: 200px;">
+                <img class="card-img-left" src="@productAndQuantity.Item1.ImageUrl" alt="Card image cap">
+                <div class="card-body">
+                    <h5 class="card-title">@productAndQuantity.Item1.Model</h5>
+                    <p class="card-text">
+                        <p>
+                            @productAndQuantity.Item1.CurrentPrice руб
+                        </p>
+                        <p>
+                            Количество: @productAndQuantity.Item2
+                        </p>
+                    </p>
+                <a asp-page="/Product" asp-route-id="@productAndQuantity.Item1.Id" class="btn btn-primary" style="width:150px">Подробнее</a>
+                <form method="post">
+                    <button type="submit" class="btn btn-danger" style="width:150px; margin-top:5px;" asp-page-handler="RemoveFromCart" asp-route-productId="@productAndQuantity.Item1.Id">Удалить</button>
+                </form>
+                </div>
+                </div>
+            </div>
+        }
+    }
+
+</div>
+
+<div>
+    @{
+        if (Model.ProductsAndQuantities.Count() == 0)
+        {
+            return;
+        }
+
+        <p>Всего: @Model.ProductsAndQuantities.Sum(item => item.Item1.CurrentPrice * item.Item2) руб</p>
+
+        <form method="post">
+            <button type="submit" class="btn btn-info" asp-page-handler="Checkout">Оформить заказ</button>
+        </form>  
+    }
+</div>

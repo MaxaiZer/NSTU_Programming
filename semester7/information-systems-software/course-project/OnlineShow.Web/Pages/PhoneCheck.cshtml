@@ -1,0 +1,28 @@
+@page
+@model PhoneCheckModel
+
+<div style="width: 200px;">
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <input type="hidden" name="CurState" asp-for="CurState" value=@Model.CurState />
+
+            @if (Model.CurState == PhoneCheckModel.State.PhoneInput)
+            {
+                <p>Введите номер телефона:</p>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <p><span asp-validation-for="PhoneNumber" class="text-danger"></span></p>
+                <input type="submit" value="Отправить код" class="btn btn-primary" />
+            }
+
+            @if (Model.CurState == PhoneCheckModel.State.Confirmation)
+            {
+                <p>Введите полученный код:</p>
+                <input asp-for="Code" class="form-control" />
+                <p><span asp-validation-for="Code" class="text-danger"></span></p>
+                <input type="submit" value="Подтвердить" class="btn btn-primary" />
+            }
+
+        </div>
+    </form>
+</div>

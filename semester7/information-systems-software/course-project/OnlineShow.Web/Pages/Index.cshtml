@@ -1,0 +1,46 @@
+﻿@page "{search?}"
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+
+    if (Model.ErrorMessage != null)
+    {
+        <p>@Model.ErrorMessage</p>
+        return;
+    }
+}
+
+<div class="products">
+
+    @if (Model.Products.Count() == 0)
+    {
+        <p>Ничего не найдено</p>
+    }
+
+    @foreach(var product in Model.Products)
+    {
+        <div class="product">
+            <div class="card mb-3" style="width: 300px;">
+            <img class="card-img-left" src="@product.ImageUrl" alt="Card image cap">
+            <div class="card-body">
+                <h5 class="card-title">@product.Model</h5>
+                <p class="card-text">
+                    
+                    @product.Diagonal '', @product.Cores ядер, @product.RAM ГБ ОЗУ, @product.BatteryCapacity мА*ч
+
+            <p>
+            @if (product.DefaultPrice > product.CurrentPrice)
+            {
+                <s>@product.DefaultPrice</s>
+            }
+                @product.CurrentPrice
+            руб
+            </p>
+
+            </p>
+            <a asp-page="/Product" asp-route-id="@product.Id" class="btn btn-primary">Подробнее</a>
+            </div>
+            </div>
+        </div>
+    }
+</div>

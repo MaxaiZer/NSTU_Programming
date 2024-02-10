@@ -1,0 +1,84 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/max/Документы/NSTU_Programming/semester7/information-systems-software/course-project/OnlineShop.Api/OnlineShop.Api.csproj": {}
+  },
+  "projects": {
+    "/home/max/Документы/NSTU_Programming/semester7/information-systems-software/course-project/OnlineShop.Api/OnlineShop.Api.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/max/Документы/NSTU_Programming/semester7/information-systems-software/course-project/OnlineShop.Api/OnlineShop.Api.csproj",
+        "projectName": "OnlineShop.Api",
+        "projectPath": "/home/max/Документы/NSTU_Programming/semester7/information-systems-software/course-project/OnlineShop.Api/OnlineShop.Api.csproj",
+        "packagesPath": "/home/max/.nuget/packages/",
+        "outputPath": "/home/max/Документы/NSTU_Programming/semester7/information-systems-software/course-project/OnlineShop.Api/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/max/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.OpenApi": {
+              "target": "Package",
+              "version": "[7.0.5, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.14, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[7.0.11, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[6.4.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/7.0.105/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
