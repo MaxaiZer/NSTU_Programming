@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MinIO + ASP.NET Core Test Page</title>
+    <style>
+        #result {
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>MinIO + ASP.NET Core Test Page</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <div>
+            <label for="poster">Poster:</label>
+            <input type="file" id="poster" name="poster" accept=".jpg,.jpeg,.png">
+        </div>
+        <div>
+            <label for="video">Video:</label>
+            <input type="file" id="video" name="video" accept=".mp4">
+        </div>
+        <button type="submit">Upload</button>
+    </form>
+    <div id="result"></div>
+
+    <!-- Script section -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const resultDiv = document.getElementById('result');
+
+        uploadForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const formData = new FormData(uploadForm);
+            axios.post('http://localhost:5071/api/movies', formData)
+                .then(() => {
+                    resultDiv.innerHTML = '<span style="color: green; font-weight: bold;">Video uploaded successfully.</span>';
+                }).catch((error) => {
+                    resultDiv.innerHTML = '<span style="color: red; font-weight: bold;">Error:</span>' + error.message;
+                });
+        });
+    </script>
+</body>
+</html>
