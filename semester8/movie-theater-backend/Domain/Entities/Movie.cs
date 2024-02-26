@@ -8,11 +8,13 @@ public class Movie
 
     public required string Annotation { get; set; }
 
-    public required string PosterPath { get; set; }
+    public required string PosterObjectName { get; set; }
 
-    public required string MoviePath { get; set; }
+    public required string MovieObjectName { get; set; }
 
     public int ScoresSum { get; set; }
 
     public int ScoresCount { get; set; }
+
+    public required TimeSpan Length { get; set; }
 }

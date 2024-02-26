@@ -8,9 +8,9 @@ public class MovieDto
 
     public required string Annotation { get; set; }
 
-    public required string PosterLink { get; set; }
+    public required string PosterUrl { get; set; }
 
-    public required string MovieLink { get; set; }
+    public required string MovieUrl { get; set; }
 
   //  public TimeSpan Length { get; set; }
 

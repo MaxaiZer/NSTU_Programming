@@ -21,34 +21,56 @@ public class MovieService : IMovieService
        _movieRepository = movieRepository;
     }
 
-    public async Task<IEnumerable<MovieDto>> GetMoviesAsync(float? minRating)
+    public async Task<IEnumerable<MovieDto>> GetMoviesAsync(int? limit, int? offset, float? minRating)
     {
-        IEnumerable<Movie> movies = await _movieRepository.Get(minRating);
+        IEnumerable<Movie> movies = await _movieRepository.Get(limit, offset, minRating);
         List<MovieDto> dtos = new();
 
         foreach (var movie in movies)
         {
             PresignedGetObjectArgs movieArgs = new PresignedGetObjectArgs()
                 .WithBucket(_movieBucket)
-                .WithObject(movie.MoviePath);
+                .WithObject(movie.MovieObjectName);
 
             PresignedGetObjectArgs posterArgs = new PresignedGetObjectArgs()
                 .WithBucket(_posterBucket)
-                .WithObject(movie.PosterPath);
+                .WithObject(movie.PosterObjectName);
 
             dtos.Add(new MovieDto 
             { 
                 Title = movie.Title, 
                 Annotation = movie.Annotation,
-                MovieLink = await _minioClient.PresignedGetObjectAsync(movieArgs),
-                PosterLink =  await _minioClient.PresignedGetObjectAsync(posterArgs)
+                MovieUrl = await _minioClient.PresignedGetObjectAsync(movieArgs),
+                PosterUrl =  await _minioClient.PresignedGetObjectAsync(posterArgs)
             });
         }
 
         return dtos;
     }
 
-    public async Task UploadMovie(MovieUploadDto movieInfo)
+    public async Task<MovieDto?> GetMovieByIdAsync(int id)
+    {
+        Movie? movie = await _movieRepository.GetById(id);
+        if (movie == null) return null;
+
+        PresignedGetObjectArgs movieArgs = new PresignedGetObjectArgs()
+            .WithBucket(_movieBucket)
+            .WithObject(movie.MovieObjectName);
+
+        PresignedGetObjectArgs posterArgs = new PresignedGetObjectArgs()
+            .WithBucket(_posterBucket)
+            .WithObject(movie.PosterObjectName);
+
+        return new MovieDto
+        {
+            Title = movie.Title, 
+            Annotation = movie.Annotation,
+            MovieUrl = await _minioClient.PresignedGetObjectAsync(movieArgs),
+            PosterUrl =  await _minioClient.PresignedGetObjectAsync(posterArgs)
+        };
+    }
+ 
+    public async Task UploadMovieAsync(MovieUploadDto movieInfo)
     {
         Task[] tasks = {
             UploadFile(_posterBucket, movieInfo.Poster),
@@ -57,8 +79,8 @@ public class MovieService : IMovieService
             {
                 Title = movieInfo.Title,
                 Annotation = movieInfo.Annotation,
-                MoviePath = movieInfo.Movie.Name,
-                PosterPath = movieInfo.Poster.Name
+                MovieObjectName = movieInfo.Movie.Name,
+                PosterObjectName = movieInfo.Poster.Name
             })
          };
 

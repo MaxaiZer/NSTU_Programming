@@ -17,16 +17,17 @@ public class MovieController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<MovieDto>> Get(float? minRating)
+    public async Task<ActionResult<IEnumerable<MovieDto>>> Get([FromQuery]int? limit, 
+        [FromQuery]int? offset, [FromQuery]float? minRating)
     {
-        return await _movieService.GetMoviesAsync(minRating);
+        return new JsonResult(await _movieService.GetMoviesAsync(limit, offset, minRating));
     }
 
-    //[HttpGet("{id}")]
-   // public IActionResult Get(int id)
-   // {
-        
-   // }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get(int id)
+    {
+        return new JsonResult(await _movieService.GetMovieByIdAsync(id));
+    }
 
     [HttpPost]
     public async Task<IActionResult> Post([FromForm]MovieUploadDto movieInfo)
