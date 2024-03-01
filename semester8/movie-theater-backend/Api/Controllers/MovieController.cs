@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Application.Dto;
+using Domain.Repositories;
 using Application.Services.Interfaces;
 
 namespace Api.Controllers;
@@ -8,7 +9,6 @@ namespace Api.Controllers;
 [Route("api/movies")]
 public class MovieController : ControllerBase
 {
-
     private readonly IMovieService _movieService;
 
     public MovieController(IMovieService movieService)
@@ -17,24 +17,44 @@ public class MovieController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<MovieDto>>> Get([FromQuery]int? limit, 
-        [FromQuery]int? offset, [FromQuery]float? minRating)
+    public async Task<ActionResult<IEnumerable<MovieDto>>> Get([FromQuery]MovieSearchParams parameters)
     {
-        return new JsonResult(await _movieService.GetMoviesAsync(limit, offset, minRating));
+        return new JsonResult(await _movieService.GetMoviesAsync(parameters));
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(int id)
     {
-        return new JsonResult(await _movieService.GetMovieByIdAsync(id));
+        var response = await _movieService.GetMovieByIdAsync(id);
+        if (response == null)
+            return NotFound();
+
+        return new JsonResult(response);
     }
 
+/*
+    [HttpGet("{id}/stream")]
+    public async Task<FileStreamResult> Stream(int id)
+    {
+        string _videoPath = "123";
+        string videoName = "123";
+        var videoFileStream = new FileStream(_videoPath, FileMode.Open, FileAccess.Read);
+
+        var contentType = "video/mp4"; 
+
+        return new FileStreamResult(videoFileStream, contentType)
+        {
+            FileDownloadName = videoName,
+            EnableRangeProcessing = true
+        };
+    }
+*/
     [HttpPost]
     public async Task<IActionResult> Post([FromForm]MovieUploadDto movieInfo)
     {
-        if (movieInfo.Poster == null)
+        if (movieInfo.Image == null)
         {
-            return BadRequest("Poster was not uploaded.");
+            return BadRequest("Image was not uploaded.");
         }
 
         if (movieInfo.Movie == null || movieInfo.Movie.Length == 0)
@@ -42,7 +62,7 @@ public class MovieController : ControllerBase
             return BadRequest("Movie was not uploaded.");
         }
 
-        await _movieService.UploadMovie(movieInfo);
+        await _movieService.UploadMovieAsync(movieInfo);
         return Ok("Movie uploaded successfully.");
     }
 }

@@ -1,48 +1,42 @@
-using Minio;
 using Application.Services.Interfaces;
 using Application.Dto;
 using Domain.Repositories;
 using Domain.Entities;
-using Minio.DataModel.Args;
+using Application.ObjectStorage;
 
 namespace Application.Services.Implementations;
 
 public class MovieService : IMovieService
 {
     protected readonly IMovieRepository _movieRepository;
-    protected readonly IMinioClient _minioClient;
+    protected readonly IObjectStorage _objectStorage;
 
-    protected readonly string _movieBucket = "movies";
-    protected readonly string _posterBucket = "posters";
+    protected int _expireTime = 60 * 60 * 60;
 
-    public  MovieService(IMinioClient minioClient, IMovieRepository movieRepository)
+    public  MovieService(IObjectStorage objectStorage, IMovieRepository movieRepository)
     {
-       _minioClient = minioClient;
+       _objectStorage = objectStorage;
        _movieRepository = movieRepository;
     }
 
-    public async Task<IEnumerable<MovieDto>> GetMoviesAsync(int? limit, int? offset, float? minRating)
+    public async Task<IEnumerable<MovieDto>> GetMoviesAsync(MovieSearchParams parameters)
     {
-        IEnumerable<Movie> movies = await _movieRepository.Get(limit, offset, minRating);
-        List<MovieDto> dtos = new();
+        IEnumerable<Movie> movies = await _movieRepository.Get(parameters);
 
+        List<Task<MovieDto>> tasks = new();
+        
         foreach (var movie in movies)
         {
-            PresignedGetObjectArgs movieArgs = new PresignedGetObjectArgs()
-                .WithBucket(_movieBucket)
-                .WithObject(movie.MovieObjectName);
+            tasks.Add(MovieToDtoAsync(movie));
+        }
 
-            PresignedGetObjectArgs posterArgs = new PresignedGetObjectArgs()
-                .WithBucket(_posterBucket)
-                .WithObject(movie.PosterObjectName);
+        await Task.WhenAll(tasks);
 
-            dtos.Add(new MovieDto 
-            { 
-                Title = movie.Title, 
-                Annotation = movie.Annotation,
-                MovieUrl = await _minioClient.PresignedGetObjectAsync(movieArgs),
-                PosterUrl =  await _minioClient.PresignedGetObjectAsync(posterArgs)
-            });
+        List<MovieDto> dtos = new();
+
+        foreach (var task in tasks)
+        {
+            dtos.Add(task.Result);
         }
 
         return dtos;
@@ -53,34 +47,29 @@ public class MovieService : IMovieService
         Movie? movie = await _movieRepository.GetById(id);
         if (movie == null) return null;
 
-        PresignedGetObjectArgs movieArgs = new PresignedGetObjectArgs()
-            .WithBucket(_movieBucket)
-            .WithObject(movie.MovieObjectName);
-
-        PresignedGetObjectArgs posterArgs = new PresignedGetObjectArgs()
-            .WithBucket(_posterBucket)
-            .WithObject(movie.PosterObjectName);
-
-        return new MovieDto
-        {
-            Title = movie.Title, 
-            Annotation = movie.Annotation,
-            MovieUrl = await _minioClient.PresignedGetObjectAsync(movieArgs),
-            PosterUrl =  await _minioClient.PresignedGetObjectAsync(posterArgs)
-        };
+        return await MovieToDtoAsync(movie);
     }
  
     public async Task UploadMovieAsync(MovieUploadDto movieInfo)
     {
+        string movieName = Guid.NewGuid().ToString();
+        string imageName = Guid.NewGuid().ToString();
+
         Task[] tasks = {
-            UploadFile(_posterBucket, movieInfo.Poster),
-            UploadFile(_movieBucket, movieInfo.Movie),
+            _objectStorage.PutObjectAsync(movieInfo.Movie, ObjectType.Movie, movieName),
+            _objectStorage.PutObjectAsync(movieInfo.Image, ObjectType.Image, imageName),
             _movieRepository.Add(new Movie 
             {
                 Title = movieInfo.Title,
                 Annotation = movieInfo.Annotation,
-                MovieObjectName = movieInfo.Movie.Name,
-                PosterObjectName = movieInfo.Poster.Name
+                MovieObjectName = movieName,
+                ImageObjectName = imageName,
+                Length = movieInfo.Length,
+                Year = movieInfo.Year,
+                CountryId = movieInfo.CountryId,
+                GenreId = movieInfo.GenreId,
+                ScoresSum = (int)(movieInfo.Rating * 10),
+                ScoresCount = 10
             })
          };
 
@@ -88,21 +77,23 @@ public class MovieService : IMovieService
         _movieRepository.Save();
     }
 
-    protected async Task UploadFile(string bucket, IFormFile file)
+    protected async Task<MovieDto> MovieToDtoAsync(Movie movie)
     {
-        using (var stream = file.OpenReadStream())
+
+        return new MovieDto 
         {
-            PutObjectArgs args = new PutObjectArgs()
-                .WithBucket(bucket)
-                .WithStreamData(stream)
-                .WithObject(file.Name)
-                .WithObjectSize(file.Length)
-                .WithContentType(file.ContentType);
-
-            if (!await _minioClient.BucketExistsAsync(new BucketExistsArgs().WithBucket(bucket)))
-                await _minioClient.MakeBucketAsync(new MakeBucketArgs().WithBucket(bucket));
-
-            await _minioClient.PutObjectAsync(args);
-        }
+            Id = movie.Id,
+            Title = movie.Title, 
+            Annotation = movie.Annotation,
+            MovieUrl = await _objectStorage.PresignedGetObjectAsync(ObjectType.Movie, 
+                movie.MovieObjectName, _expireTime),
+            ImageUrl =  await _objectStorage.PresignedGetObjectAsync(ObjectType.Image, 
+                movie.ImageObjectName, _expireTime),
+            Rating = (float)(movie.ScoresCount == 0 ? 0 : movie.ScoresSum * 1.0 / movie.ScoresCount),
+            Length = movie.Length,
+            Year = movie.Year,
+            Country = movie.Country.Name,
+            Genre = movie.Genre.Name
+        };
     }
 }

@@ -3,11 +3,14 @@
 version: '3.4'
 
 services:
-  movietheaterbackend:
+  backend:
     image: movietheaterbackend
     build:
       context: .
       dockerfile: ./Dockerfile
+    depends_on:
+      - db
+      - minio
     ports:
       - 5071:5071
 
@@ -16,16 +19,23 @@ services:
     environment:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
-      MINIO_Buckets: movies, posters
+      MINIO_Buckets: movies, images
     volumes:
       - minio-data:/data
     ports:
       - 9000:9000
       - 9001:9001
+    command: server --console-address ":9001" /data
 
   db:
     image: postgres:latest
     environment:
       POSTGRES_DB: movie_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+volumes:
+  minio-data:
+  pgdata:

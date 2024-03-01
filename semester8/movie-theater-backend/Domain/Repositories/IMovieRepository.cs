@@ -4,7 +4,7 @@ namespace Domain.Repositories;
 
 public interface IMovieRepository
 {
-    public Task<IEnumerable<Movie>> Get(int? limit, int? offset, float? minRating);
+    public Task<IEnumerable<Movie>> Get(MovieSearchParams parameters);
 
     public Task<Movie?> GetById(int id);
 

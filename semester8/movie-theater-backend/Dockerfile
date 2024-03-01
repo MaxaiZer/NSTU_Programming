@@ -22,6 +22,10 @@ FROM build AS publish
 ARG configuration=Release
 RUN dotnet publish "movie-theater-backend.csproj" -c $configuration -o /app/publish /p:UseAppHost=false
 
+#RUN dotnet tool install --global dotnet-ef --version 7.0.5
+#ENV PATH="${PATH}:/root/.dotnet/tools"
+#RUN dotnet ef database update
+
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .

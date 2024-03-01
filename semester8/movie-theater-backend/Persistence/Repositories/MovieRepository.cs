@@ -13,25 +13,30 @@ public class MovieRepository : IMovieRepository
        _context = dbContext;
     }
 
-    public async Task<IEnumerable<Movie>> Get(int? limit, int? offset, float? minRating)
+    public async Task<IEnumerable<Movie>> Get(MovieSearchParams parameters)
     {
         IQueryable<Movie> query = _context.Movies;
 
-        if (minRating != null)
+        if (parameters.MinRating != null)
         {
-            query = query.Where((m) => (m.ScoresSum * 1.0f / m.ScoresCount) >= minRating);
+            query = query.Where((m) => (m.ScoresSum * 1.0f / m.ScoresCount) >= parameters.MinRating);
         }
 
-        if (offset != null)
+        if (parameters.IsForeign != null)
         {
-            if (offset < 0) throw new InvalidArgumentException("Offset must be greater or equal than 0");
-            query = query.Skip(offset.Value);
+            query = query.Where((m) => m.Country.Name != "Россия");
         }
 
-        if (limit != null)
+        if (parameters.Offset != null)
         {
-            if (limit <= 0) throw new InvalidArgumentException("Limit must be greater than 0");
-            query = query.Take(limit.Value);
+            if (parameters.Offset < 0) throw new ArgumentOutOfRangeException("Offset must be greater or equal than 0");
+            query = query.Skip(parameters.Offset.Value);
+        }
+
+        if (parameters.Limit != null)
+        {
+            if (parameters.Limit <= 0) throw new ArgumentOutOfRangeException("Limit must be greater than 0");
+            query = query.Take(parameters.Limit.Value);
         }
 
         return await query.ToListAsync();
