@@ -1469,25 +1469,26 @@
   "projectFileDependencyGroups": {
     "net7.0": [
       "Microsoft.AspNetCore.OpenApi >= 7.0.5",
+      "Microsoft.EntityFrameworkCore >= 7.0.14",
       "Microsoft.EntityFrameworkCore.Tools >= 7.0.14",
       "Npgsql.EntityFrameworkCore.PostgreSQL >= 7.0.11",
       "Swashbuckle.AspNetCore >= 6.4.0"
     ]
   },
   "packageFolders": {
-    "/home/max/.nuget/packages/": {}
+    "/root/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/max/Документы/NSTU_Programming/semester7/information-systems-software/course-project/OnlineShop.Api/OnlineShop.Api.csproj",
+      "projectUniqueName": "/root/course-project/OnlineShop.Api/OnlineShop.Api.csproj",
       "projectName": "OnlineShop.Api",
-      "projectPath": "/home/max/Документы/NSTU_Programming/semester7/information-systems-software/course-project/OnlineShop.Api/OnlineShop.Api.csproj",
-      "packagesPath": "/home/max/.nuget/packages/",
-      "outputPath": "/home/max/Документы/NSTU_Programming/semester7/information-systems-software/course-project/OnlineShop.Api/obj/",
+      "projectPath": "/root/course-project/OnlineShop.Api/OnlineShop.Api.csproj",
+      "packagesPath": "/root/.nuget/packages/",
+      "outputPath": "/root/course-project/OnlineShop.Api/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/max/.nuget/NuGet/NuGet.Config"
+        "/root/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net7.0"
@@ -1514,6 +1515,10 @@
           "Microsoft.AspNetCore.OpenApi": {
             "target": "Package",
             "version": "[7.0.5, )"
+          },
+          "Microsoft.EntityFrameworkCore": {
+            "target": "Package",
+            "version": "[7.0.14, )"
           },
           "Microsoft.EntityFrameworkCore.Tools": {
             "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
@@ -1549,7 +1554,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/7.0.105/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/7.0.116/RuntimeIdentifierGraph.json"
       }
     }
   }
