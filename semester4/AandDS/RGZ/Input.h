@@ -26,7 +26,7 @@ inline int Input<int>::Get(string hintForUser)
 	cin.clear();
 	while (!(cin >> input))
 	{
-		cin.clear(); //игнорируем всё, кроме цифр
+		cin.clear(); //РёРіРЅРѕСЂРёСЂСѓРµРј РІСЃС‘, РєСЂРѕРјРµ С†РёС„СЂ
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		cout << "Only numbers are required" << endl;
 	}

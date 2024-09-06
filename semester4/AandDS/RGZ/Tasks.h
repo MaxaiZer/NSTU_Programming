@@ -21,7 +21,7 @@ protected:
 
 #pragma region Task1
 
-string task1Description = "Определение вершин, отстоящих на расстоянии d от заданной вершины (d – число рёбер)";
+string task1Description = "РћРїСЂРµРґРµР»РµРЅРёРµ РІРµСЂС€РёРЅ, РѕС‚СЃС‚РѕСЏС‰РёС… РЅР° СЂР°СЃСЃС‚РѕСЏРЅРёРё d РѕС‚ Р·Р°РґР°РЅРЅРѕР№ РІРµСЂС€РёРЅС‹ (d вЂ“ С‡РёСЃР»Рѕ СЂС‘Р±РµСЂ)";
 
 template <class Vertex, class Edge>
 class Task1v13: public Task<Vertex, Edge>
@@ -46,7 +46,7 @@ inline void Task1v13<Vertex, Edge>::Restart()
 	Vertex* v;
 	if (!FindVertex(&v))
 	{
-		cout << "Вершина не найдена\n";
+		cout << "Р’РµСЂС€РёРЅР° РЅРµ РЅР°Р№РґРµРЅР°\n";
 		return;
 	}
 
@@ -54,7 +54,7 @@ inline void Task1v13<Vertex, Edge>::Restart()
 
 	if (d < 0)
 	{
-		cout << "Неверный параметр\n";
+		cout << "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ\n";
 		return;
 	}
 
@@ -97,7 +97,7 @@ template<class Vertex, class Edge>
 inline void Task1v13<Vertex, Edge>::Result()
 {
 	if (result.empty())
-		cout << "Нет таких вершин\n";
+		cout << "РќРµС‚ С‚Р°РєРёС… РІРµСЂС€РёРЅ\n";
 
 	for (auto v : result)
 	{
@@ -110,7 +110,7 @@ template<class Vertex, class Edge>
 inline bool Task1v13<Vertex, Edge>::FindVertex(Vertex** vertex)
 {
 	typename Graph<Vertex, Edge>::VertexesIterator iter(*Task<Vertex,Edge>::graph);
-	string name = Input<string>::Get("Имя вершины");
+	string name = Input<string>::Get("РРјСЏ РІРµСЂС€РёРЅС‹");
 
 	while (iter != iter.End())
 	{
@@ -140,7 +140,7 @@ inline void Task1v13<Vertex, Edge>::GetAllNeighboringVertexes(Vertex* vertex, ve
 
 #pragma region Task2
 
-string task2Description = "Определение центра взвешенного орграфа на основе алгоритма Флойда";
+string task2Description = "РћРїСЂРµРґРµР»РµРЅРёРµ С†РµРЅС‚СЂР° РІР·РІРµС€РµРЅРЅРѕРіРѕ РѕСЂРіСЂР°С„Р° РЅР° РѕСЃРЅРѕРІРµ Р°Р»РіРѕСЂРёС‚РјР° Р¤Р»РѕР№РґР°";
 
 template <class Vertex, class Edge>
 class Task2v14 : public Task<Vertex, Edge>
@@ -149,7 +149,7 @@ public:
 	Task2v14(Graph<Vertex, Edge>& graph) : Task<Vertex, Edge>(graph) 
 	{
 		if (graph.IsDirected() == false) 
-			throw "Граф должен быть ориентированным";  
+			throw "Р“СЂР°С„ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕСЂРёРµРЅС‚РёСЂРѕРІР°РЅРЅС‹Рј";  
 		Restart();
 	};
 	virtual void Restart();
@@ -167,7 +167,7 @@ template<class Vertex, class Edge>
 inline void Task2v14<Vertex, Edge>::Result()
 {
 	if (result.empty())
-		cout << "Нет таких вершин\n";
+		cout << "РќРµС‚ С‚Р°РєРёС… РІРµСЂС€РёРЅ\n";
 	for (auto v : result)
 	{
 		v.Print();
@@ -231,7 +231,7 @@ inline vector<vector<int>> Task2v14<Vertex, Edge>::GetWeightMatrix()
 		Vertex* v2 = (*iter).V2();
 
 		if (!(*iter).HasWeight())
-			throw "Граф не взвешен";
+			throw "Р“СЂР°С„ РЅРµ РІР·РІРµС€РµРЅ";
 
 		weights[v1->index][v2->index] = (*iter).GetWeight();
 

@@ -7,6 +7,9 @@
 #include "Input.h"
 #include "Tasks.h"
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 using namespace std;
 
 using commandView = pair<int, string>;
@@ -65,7 +68,7 @@ bool getVertex(_Vertex** vertex, string hint)
 
 	if (*vertex == nullptr)
 	{
-		cout << "Вершина не найдена\n";
+		cout << "Р’РµСЂС€РёРЅР° РЅРµ РЅР°Р№РґРµРЅР°\n";
 		return false;
 	}
 	return true;
@@ -75,7 +78,7 @@ bool getTwoVertixes(_Vertex** array)
 {
 	for (int i = 0; i < 2; i++)
 	{
-		if (!getVertex(&array[i], "Имя вершины #" + to_string(i + 1)))
+		if (!getVertex(&array[i], "РРјСЏ РІРµСЂС€РёРЅС‹ #" + to_string(i + 1)))
 			return false;
 	}
 	return true;
@@ -92,7 +95,7 @@ bool getEdge(_Edge** edge)
 
 	if (*edge == nullptr)
 	{
-		cout << "Ребро не найдено\n";
+		cout << "Р РµР±СЂРѕ РЅРµ РЅР°Р№РґРµРЅРѕ\n";
 		return false;
 	}
 		
@@ -154,7 +157,7 @@ public:
 
 	int HandleInput()
 	{
-		int input = Input<int>::Get("Номер команды");
+		int input = Input<int>::Get("РќРѕРјРµСЂ РєРѕРјР°РЅРґС‹");
 
 		switch (input)
 		{
@@ -166,8 +169,8 @@ public:
 		case (int)Command::CreateVDF:
 		{
 			delete graph;
-			RGZGraph::Form form = (RGZGraph::Form)(Input<bool>::Get("Форма графа L/M"));
-			graph = new RGZGraph(Input<int>::Get("Количество вершин"), Input<bool>::Get("Направленный ли граф"), form);
+			RGZGraph::Form form = (RGZGraph::Form)(Input<bool>::Get("Р¤РѕСЂРјР° РіСЂР°С„Р° L/M"));
+			graph = new RGZGraph(Input<int>::Get("РљРѕР»РёС‡РµСЃС‚РІРѕ РІРµСЂС€РёРЅ"), Input<bool>::Get("РќР°РїСЂР°РІР»РµРЅРЅС‹Р№ Р»Рё РіСЂР°С„"), form);
 			updateGraphHelpers();
 			setNamesToAllVertexes();
 			break;
@@ -175,8 +178,8 @@ public:
 		case (int)Command::CreateVEDF:
 		{
 			delete graph;
-			RGZGraph::Form form = (RGZGraph::Form)(Input<bool>::Get("Форма графа L/M"));
-			graph = new RGZGraph(Input<int>::Get("Количество вершин"), Input<int>::Get("Количество случайных рёбер"), Input<bool>::Get("Направленный ли граф"), form);
+			RGZGraph::Form form = (RGZGraph::Form)(Input<bool>::Get("Р¤РѕСЂРјР° РіСЂР°С„Р° L/M"));
+			graph = new RGZGraph(Input<int>::Get("РљРѕР»РёС‡РµСЃС‚РІРѕ РІРµСЂС€РёРЅ"), Input<int>::Get("РљРѕР»РёС‡РµСЃС‚РІРѕ СЃР»СѓС‡Р°Р№РЅС‹С… СЂС‘Р±РµСЂ"), Input<bool>::Get("РќР°РїСЂР°РІР»РµРЅРЅС‹Р№ Р»Рё РіСЂР°С„"), form);
 			updateGraphHelpers();
 			setNamesToAllVertexes();
 			break;
@@ -196,15 +199,15 @@ public:
 			graph->Print();
 			break;
 		case (int)Command::SetForm:
-			graph->SetForm(RGZGraph::Form(Input<bool>::Get("Форма графа (L/M)")));
+			graph->SetForm(RGZGraph::Form(Input<bool>::Get("Р¤РѕСЂРјР° РіСЂР°С„Р° (L/M)")));
 			break;
 		case (int)Command::AddVertex:
 		{
-			string name = Input<string>::Get("Имя вершины");
+			string name = Input<string>::Get("РРјСЏ РІРµСЂС€РёРЅС‹");
 			_Vertex* v = vertexMap.Get(name);
 			if (v != nullptr)
 			{
-				cout << "Вершина с таким именем уже существует\n";
+				cout << "Р’РµСЂС€РёРЅР° СЃ С‚Р°РєРёРј РёРјРµРЅРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚\n";
 				break;
 			}
 			v = graph->AddVertex();
@@ -214,11 +217,11 @@ public:
 		}
 		case (int)Command::RemoveVertex:
 		{
-			string name = Input<string>::Get("Имя вершины");
+			string name = Input<string>::Get("РРјСЏ РІРµСЂС€РёРЅС‹");
 			_Vertex* v = vertexMap.Get(name);
 			if (v == nullptr)
 			{
-				cout << "Вершины с таким именем не существует\n";
+				cout << "Р’РµСЂС€РёРЅС‹ СЃ С‚Р°РєРёРј РёРјРµРЅРµРј РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚\n";
 				break;
 			}
 
@@ -242,7 +245,7 @@ public:
 			if (!getTwoVertixes(vertexes))
 				break;
 
-			cout << "Метод вернул: " << graph->RemoveEdge(vertexes[0], vertexes[1]) << endl;
+			cout << "РњРµС‚РѕРґ РІРµСЂРЅСѓР»: " << graph->RemoveEdge(vertexes[0], vertexes[1]) << endl;
 			break;
 		}
 		case (int)Command::GetEdge:
@@ -255,7 +258,7 @@ public:
 		case (int)Command::SetEdgeData:
 		{
 			_Edge* edge; if (!getEdge(&edge)) break;
-			edge->SetData(Input<string>::Get("Данные"));
+			edge->SetData(Input<string>::Get("Р”Р°РЅРЅС‹Рµ"));
 			break;
 		}
 		case (int)Command::GetEdgeData:
@@ -264,13 +267,13 @@ public:
 			if (edge->HasData())
 				cout << edge->GetData() << endl;
 			else
-				cout << "Данные не заданы\n";
+				cout << "Р”Р°РЅРЅС‹Рµ РЅРµ Р·Р°РґР°РЅС‹\n";
 			break;
 		}
 		case (int)Command::SetEdgeWeight:
 		{
 			_Edge* edge; if (!getEdge(&edge)) break;
-				edge->SetWeight(Input<int>::Get("Вес"));
+				edge->SetWeight(Input<int>::Get("Р’РµСЃ"));
 			break;
 		}
 		case (int)Command::GetEdgeWeight:
@@ -279,28 +282,28 @@ public:
 			if (edge->HasWeight())
 				cout << edge->GetWeight() << endl;
 			else
-				cout << "Вес не задан\n";;
+				cout << "Р’РµСЃ РЅРµ Р·Р°РґР°РЅ\n";;
 			break;
 		}
 		case (int)Command::SetVertexData:
 		{
 			_Vertex* vertex;
-			if (getVertex(&vertex, "Имя вершины") == false)
+			if (getVertex(&vertex, "РРјСЏ РІРµСЂС€РёРЅС‹") == false)
 				break;
 
-			vertex->SetData(Input<int>::Get("Данные"));
+			vertex->SetData(Input<int>::Get("Р”Р°РЅРЅС‹Рµ"));
 			break;
 		}
 		case (int)Command::GetVertexData:
 		{
 			_Vertex* vertex;
-			if (getVertex(&vertex, "Имя вершины") == false)
+			if (getVertex(&vertex, "РРјСЏ РІРµСЂС€РёРЅС‹") == false)
 				break;
 
 			if (vertex->HasData())
 				cout << vertex->GetData() << endl;
 			else
-				cout << "Данные не заданы\n";
+				cout << "Р”Р°РЅРЅС‹Рµ РЅРµ Р·Р°РґР°РЅС‹\n";
 			break;
 		}
 		case (int)Command::GetEdgesCount:
@@ -313,10 +316,10 @@ public:
 			cout << graph->GetSaturation() << endl;
 			break;
 		case (int)Command::SwitchName:
-			cout << "Метод вернул: " << vertexMap.SwitchName(Input<string>::Get("Старое имя вершины"), Input<string>::Get("Новое имя вершины")) << endl;
+			cout << "РњРµС‚РѕРґ РІРµСЂРЅСѓР»: " << vertexMap.SwitchName(Input<string>::Get("РЎС‚Р°СЂРѕРµ РёРјСЏ РІРµСЂС€РёРЅС‹"), Input<string>::Get("РќРѕРІРѕРµ РёРјСЏ РІРµСЂС€РёРЅС‹")) << endl;
 			break;
 		default:
-			cout << "Неверный номер команды\n";
+			cout << "РќРµРІРµСЂРЅС‹Р№ РЅРѕРјРµСЂ РєРѕРјР°РЅРґС‹\n";
 		};
 
 		return SUCCESS_INPUT;
@@ -325,30 +328,30 @@ public:
 protected:
 
 	vector<commandView> commands = {
-	{(int)Command::Create, "Создать путой L-граф"},
-	{(int)Command::CreateVDF, "Создать граф и задать кол-во вершин, тип, форму"},
-	{(int)Command::CreateVEDF, "Создать граф и задать кол-во вершин и случ. рёбер, тип, форму"},
-	{(int)Command::IsDirected, "Ориентированный ли граф"},
-	{(int)Command::GetSaturation, "Коэф. насыщенности"},
-	{(int)Command::GetForm, "Получить форму"},
-	{(int)Command::SetForm, "Задать форму"},
-	{(int)Command::GetEdgesCount, "Количество рёбер"},
-	{(int)Command::AddEdge, "Добавить ребро"},
-	{(int)Command::GetEdge, "Получить ребро"},
-	{(int)Command::SetEdgeData, "Задать данные ребра"},
-	{(int)Command::GetEdgeData, "Получить данные ребра"},
-	{(int)Command::SetEdgeWeight, "Задать вес ребра"},
-	{(int)Command::GetEdgeWeight, "Получить вес ребра"},
-	{(int)Command::RemoveEdge, "Удалить ребро"},
-	{(int)Command::GetVertexesCount, "Количество вершин"},
-	{(int)Command::AddVertex, "Добавить вершину"},
-	{(int)Command::SetVertexData, "Задать данные вершины"},
-	{(int)Command::GetVertexData, "Получить данные вершины"},
-	{(int)Command::SwitchName, "Сменить имя вершины"},
-	{(int)Command::RemoveVertex, "Удалить вершину"},
-	{(int)Command::Print, "Вывести граф"},
-	{(int)Command::PrintCommands, "Очистить экран и вывести команды"},
-	{(int)Command::ReturnToMenu, "Выйти из текущего меню"} };
+	{(int)Command::Create, "РЎРѕР·РґР°С‚СЊ РїСѓС‚РѕР№ L-РіСЂР°С„"},
+	{(int)Command::CreateVDF, "РЎРѕР·РґР°С‚СЊ РіСЂР°С„ Рё Р·Р°РґР°С‚СЊ РєРѕР»-РІРѕ РІРµСЂС€РёРЅ, С‚РёРї, С„РѕСЂРјСѓ"},
+	{(int)Command::CreateVEDF, "РЎРѕР·РґР°С‚СЊ РіСЂР°С„ Рё Р·Р°РґР°С‚СЊ РєРѕР»-РІРѕ РІРµСЂС€РёРЅ Рё СЃР»СѓС‡. СЂС‘Р±РµСЂ, С‚РёРї, С„РѕСЂРјСѓ"},
+	{(int)Command::IsDirected, "РћСЂРёРµРЅС‚РёСЂРѕРІР°РЅРЅС‹Р№ Р»Рё РіСЂР°С„"},
+	{(int)Command::GetSaturation, "РљРѕСЌС„. РЅР°СЃС‹С‰РµРЅРЅРѕСЃС‚Рё"},
+	{(int)Command::GetForm, "РџРѕР»СѓС‡РёС‚СЊ С„РѕСЂРјСѓ"},
+	{(int)Command::SetForm, "Р—Р°РґР°С‚СЊ С„РѕСЂРјСѓ"},
+	{(int)Command::GetEdgesCount, "РљРѕР»РёС‡РµСЃС‚РІРѕ СЂС‘Р±РµСЂ"},
+	{(int)Command::AddEdge, "Р”РѕР±Р°РІРёС‚СЊ СЂРµР±СЂРѕ"},
+	{(int)Command::GetEdge, "РџРѕР»СѓС‡РёС‚СЊ СЂРµР±СЂРѕ"},
+	{(int)Command::SetEdgeData, "Р—Р°РґР°С‚СЊ РґР°РЅРЅС‹Рµ СЂРµР±СЂР°"},
+	{(int)Command::GetEdgeData, "РџРѕР»СѓС‡РёС‚СЊ РґР°РЅРЅС‹Рµ СЂРµР±СЂР°"},
+	{(int)Command::SetEdgeWeight, "Р—Р°РґР°С‚СЊ РІРµСЃ СЂРµР±СЂР°"},
+	{(int)Command::GetEdgeWeight, "РџРѕР»СѓС‡РёС‚СЊ РІРµСЃ СЂРµР±СЂР°"},
+	{(int)Command::RemoveEdge, "РЈРґР°Р»РёС‚СЊ СЂРµР±СЂРѕ"},
+	{(int)Command::GetVertexesCount, "РљРѕР»РёС‡РµСЃС‚РІРѕ РІРµСЂС€РёРЅ"},
+	{(int)Command::AddVertex, "Р”РѕР±Р°РІРёС‚СЊ РІРµСЂС€РёРЅСѓ"},
+	{(int)Command::SetVertexData, "Р—Р°РґР°С‚СЊ РґР°РЅРЅС‹Рµ РІРµСЂС€РёРЅС‹"},
+	{(int)Command::GetVertexData, "РџРѕР»СѓС‡РёС‚СЊ РґР°РЅРЅС‹Рµ РІРµСЂС€РёРЅС‹"},
+	{(int)Command::SwitchName, "РЎРјРµРЅРёС‚СЊ РёРјСЏ РІРµСЂС€РёРЅС‹"},
+	{(int)Command::RemoveVertex, "РЈРґР°Р»РёС‚СЊ РІРµСЂС€РёРЅСѓ"},
+	{(int)Command::Print, "Р’С‹РІРµСЃС‚Рё РіСЂР°С„"},
+	{(int)Command::PrintCommands, "РћС‡РёСЃС‚РёС‚СЊ СЌРєСЂР°РЅ Рё РІС‹РІРµСЃС‚Рё РєРѕРјР°РЅРґС‹"},
+	{(int)Command::ReturnToMenu, "Р’С‹Р№С‚Рё РёР· С‚РµРєСѓС‰РµРіРѕ РјРµРЅСЋ"} };
 
 	void PrintCommands() { system("CLS"); printCommands(commands); }
 };
@@ -367,7 +370,7 @@ public:
 
 	int HandleInput()
 	{
-		int input = Input<int>::Get("Номер команды");
+		int input = Input<int>::Get("РќРѕРјРµСЂ РєРѕРјР°РЅРґС‹");
 
 		switch (input)
 		{
@@ -382,7 +385,7 @@ public:
 			break;
 		}
 		case (int)Command::VIteratorInc:
-			cout << "Метод вернул: " << vIterator++ << endl;
+			cout << "РњРµС‚РѕРґ РІРµСЂРЅСѓР»: " << vIterator++ << endl;
 			break;
 		case (int)Command::VIteratorEnd:
 			vIterator = vIterator.End();
@@ -398,7 +401,7 @@ public:
 			break;
 		}
 		case (int)Command::EIteratorInc:
-			cout << "Метод вернул: " << eIterator++ << endl;
+			cout << "РњРµС‚РѕРґ РІРµСЂРЅСѓР»: " << eIterator++ << endl;
 			break;
 		case (int)Command::EIteratorEnd:
 			eIterator = eIterator.End();
@@ -407,7 +410,7 @@ public:
 		{
 			_Vertex* vertex;
 
-			if (!getVertex(&vertex, "Имя вершины"))
+			if (!getVertex(&vertex, "РРјСЏ РІРµСЂС€РёРЅС‹"))
 				break;
 			
 			outEIterator = RGZGraph::OutputEdgesIterator(*graph, vertex);
@@ -421,7 +424,7 @@ public:
 			break;
 		}
 		case (int)Command::OutEIteratorInc:
-			cout << "Метод вернул: " << outEIterator++ << endl;
+			cout << "РњРµС‚РѕРґ РІРµСЂРЅСѓР»: " << outEIterator++ << endl;
 			break;
 		case (int)Command::OutEIteratorEnd:
 			outEIterator = outEIterator.End();
@@ -432,7 +435,7 @@ public:
 		case (int)Command::ReturnToMenu:
 			return BACK_TO_MENU;
 		default:
-			cout << "Неверный номер команды\n";
+			cout << "РќРµРІРµСЂРЅС‹Р№ РЅРѕРјРµСЂ РєРѕРјР°РЅРґС‹\n";
 		};
 
 		return SUCCESS_INPUT;
@@ -441,17 +444,17 @@ public:
 protected:
 
 	vector<commandView> commands = {
-	{(int)Command::VIteratorBegin, "Итератор вершин: установить в начало"},
-	{(int)Command::VIteratorValue, "Итератор вершин: получить значение"},
-	{(int)Command::VIteratorInc, "Итератор вершин: следующая вершина"},
-	{(int)Command::EIteratorBegin, "Итератор рёбер: установить в начало"},
-	{(int)Command::EIteratorValue, "Итератор рёбер: получить значение"},
-	{(int)Command::EIteratorInc, "Итератор рёбер: следующее ребро"},
-	{(int)Command::OutEIteratorBegin, "Итератор исх. рёбер: установить в начало"},
-	{(int)Command::OutEIteratorValue, "Итератор исх. рёбер: получить значение"},
-	{(int)Command::OutEIteratorInc, "Итератор исх. рёбер: следующее ребро"},
-	{(int)Command::PrintCommands, "Очистить экран и вывести команды"},
-	{(int)Command::ReturnToMenu, "Выйти из текущего меню"} };
+	{(int)Command::VIteratorBegin, "РС‚РµСЂР°С‚РѕСЂ РІРµСЂС€РёРЅ: СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РІ РЅР°С‡Р°Р»Рѕ"},
+	{(int)Command::VIteratorValue, "РС‚РµСЂР°С‚РѕСЂ РІРµСЂС€РёРЅ: РїРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ"},
+	{(int)Command::VIteratorInc, "РС‚РµСЂР°С‚РѕСЂ РІРµСЂС€РёРЅ: СЃР»РµРґСѓСЋС‰Р°СЏ РІРµСЂС€РёРЅР°"},
+	{(int)Command::EIteratorBegin, "РС‚РµСЂР°С‚РѕСЂ СЂС‘Р±РµСЂ: СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РІ РЅР°С‡Р°Р»Рѕ"},
+	{(int)Command::EIteratorValue, "РС‚РµСЂР°С‚РѕСЂ СЂС‘Р±РµСЂ: РїРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ"},
+	{(int)Command::EIteratorInc, "РС‚РµСЂР°С‚РѕСЂ СЂС‘Р±РµСЂ: СЃР»РµРґСѓСЋС‰РµРµ СЂРµР±СЂРѕ"},
+	{(int)Command::OutEIteratorBegin, "РС‚РµСЂР°С‚РѕСЂ РёСЃС…. СЂС‘Р±РµСЂ: СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РІ РЅР°С‡Р°Р»Рѕ"},
+	{(int)Command::OutEIteratorValue, "РС‚РµСЂР°С‚РѕСЂ РёСЃС…. СЂС‘Р±РµСЂ: РїРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ"},
+	{(int)Command::OutEIteratorInc, "РС‚РµСЂР°С‚РѕСЂ РёСЃС…. СЂС‘Р±РµСЂ: СЃР»РµРґСѓСЋС‰РµРµ СЂРµР±СЂРѕ"},
+	{(int)Command::PrintCommands, "РћС‡РёСЃС‚РёС‚СЊ СЌРєСЂР°РЅ Рё РІС‹РІРµСЃС‚Рё РєРѕРјР°РЅРґС‹"},
+	{(int)Command::ReturnToMenu, "Р’С‹Р№С‚Рё РёР· С‚РµРєСѓС‰РµРіРѕ РјРµРЅСЋ"} };
 
 	void PrintCommands() { system("CLS"); printCommands(commands); }
 };
@@ -468,7 +471,7 @@ public:
 
 	int HandleInput()
 	{
-		int input = Input<int>::Get("Номер команды");
+		int input = Input<int>::Get("РќРѕРјРµСЂ РєРѕРјР°РЅРґС‹");
 
 		switch (input)
 		{
@@ -487,7 +490,7 @@ public:
 		{
 			if (*task == nullptr)
 			{
-				cout << "Создайте объект задания\n";
+				cout << "РЎРѕР·РґР°Р№С‚Рµ РѕР±СЉРµРєС‚ Р·Р°РґР°РЅРёСЏ\n";
 				break;
 			}
 
@@ -502,7 +505,7 @@ public:
 		case (int)Command::Result:
 			if (*task == nullptr)
 			{
-				cout << "Создайте объект задания\n";
+				cout << "РЎРѕР·РґР°Р№С‚Рµ РѕР±СЉРµРєС‚ Р·Р°РґР°РЅРёСЏ\n";
 				break;
 			}
 			static_cast<Task<_Vertex, _Edge>*>(*task)->Result();
@@ -513,7 +516,7 @@ public:
 		case (int)Command::ReturnToMenu:
 			return BACK_TO_MENU;
 		default:
-			cout << "Неверный номер команды\n";
+			cout << "РќРµРІРµСЂРЅС‹Р№ РЅРѕРјРµСЂ РєРѕРјР°РЅРґС‹\n";
 		};
 
 		return SUCCESS_INPUT;
@@ -522,11 +525,11 @@ public:
 protected:
 
 	vector<commandView> commands = {
-	{(int)Command::Create, "Создать объект, привязанный к графу и решить"},
-	{(int)Command::Restart, "Решить задание заново"},
-	{(int)Command::Result, "Вывести результат"},
-	{(int)Command::PrintCommands, "Очистить экран и вывести команды"},
-	{(int)Command::ReturnToMenu, "Выйти из текущего меню"} };
+	{(int)Command::Create, "РЎРѕР·РґР°С‚СЊ РѕР±СЉРµРєС‚, РїСЂРёРІСЏР·Р°РЅРЅС‹Р№ Рє РіСЂР°С„Сѓ Рё СЂРµС€РёС‚СЊ"},
+	{(int)Command::Restart, "Р РµС€РёС‚СЊ Р·Р°РґР°РЅРёРµ Р·Р°РЅРѕРІРѕ"},
+	{(int)Command::Result, "Р’С‹РІРµСЃС‚Рё СЂРµР·СѓР»СЊС‚Р°С‚"},
+	{(int)Command::PrintCommands, "РћС‡РёСЃС‚РёС‚СЊ СЌРєСЂР°РЅ Рё РІС‹РІРµСЃС‚Рё РєРѕРјР°РЅРґС‹"},
+	{(int)Command::ReturnToMenu, "Р’С‹Р№С‚Рё РёР· С‚РµРєСѓС‰РµРіРѕ РјРµРЅСЋ"} };
 
 	T** task;
 	string taskDescription;
@@ -554,13 +557,13 @@ public:
 			return;
 		}
 
-		cout << "1 - Граф\n";
-		cout << "2 - Команды для итераторов\n";
-		cout << "3 - Задание №2\n";
-		cout << "4 - Задание №3\n";
-		cout << "5 - Выход\n";
+		cout << "1 - Р“СЂР°С„\n";
+		cout << "2 - РљРѕРјР°РЅРґС‹ РґР»СЏ РёС‚РµСЂР°С‚РѕСЂРѕРІ\n";
+		cout << "3 - Р—Р°РґР°РЅРёРµ в„–2\n";
+		cout << "4 - Р—Р°РґР°РЅРёРµ в„–3\n";
+		cout << "5 - Р’С‹С…РѕРґ\n";
 
-		int input = Input<int>::Get("Номер команды");
+		int input = Input<int>::Get("РќРѕРјРµСЂ РєРѕРјР°РЅРґС‹");
 
 		switch (input)
 		{
@@ -580,7 +583,7 @@ public:
 			exit(0);
 			break;
 		default:
-			cout << "Неправильный номер команды\n";
+			cout << "РќРµРїСЂР°РІРёР»СЊРЅС‹Р№ РЅРѕРјРµСЂ РєРѕРјР°РЅРґС‹\n";
 			break;
 		}
 
@@ -593,7 +596,11 @@ protected:
 
 int main()
 {
-	setlocale(LC_ALL, "Russian");
+	SetConsoleCP(65001);
+	SetConsoleOutputCP(65001); 
+
+	setlocale(LC_ALL, "ru_RU.UTF-8");
+
 	srand(time(NULL));
 
 	MainMenu menu;
