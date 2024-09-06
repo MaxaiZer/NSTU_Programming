@@ -5,7 +5,6 @@
 build/
 *.out
 x64/
-*.sln
 *.vcxproj
 *.vcxproj.user
 *.filters
