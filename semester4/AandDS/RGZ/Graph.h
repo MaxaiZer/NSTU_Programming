@@ -10,6 +10,8 @@ using namespace std;
 template <class Vertex, class Edge>
 class Graph
 {
+protected:
+
 	class GraphForm;
 
 public:
@@ -321,7 +323,6 @@ inline Graph<Vertex, Edge>::Graph(const Graph& graph)
 		newEdge->CopyDataWeight(edge);
 		it2++;
 	}
-
 }
 
 template<class Vertex, class Edge>
@@ -517,9 +518,9 @@ inline bool Graph<Vertex, Edge>::MatrixForm::IsEdgeExists(Vertex* v1, Vertex* v2
 	ptrEdge& edge2 = edges[v2->index][v1->index];
 
 	if (GraphForm::isDirected)
-		return (edge1 || edge2);
+		return (bool)edge1;
 	else
-		return (edge1 && edge2);
+		return edge1 || edge2;
 }
 
 template<class Vertex, class Edge>
@@ -563,7 +564,7 @@ inline bool Graph<Vertex, Edge>::ListForm::IsEdgeExists(Vertex* v1, Vertex* v2)
 	if (FindEdgeWithV2(edges[v1->index], v2) != edges[v1->index].end())
 		return true;
 
-	if (GraphForm::isDirected)
+	if (GraphForm::isDirected == false)
 	{
 		return FindEdgeWithV2(edges[v2->index], v1) != edges[v2->index].end();
 	}
