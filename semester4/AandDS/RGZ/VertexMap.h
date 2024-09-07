@@ -5,7 +5,7 @@
 
 using namespace std;
 
-template <class Name, class Data = Vertex<Name, typename class T>*>
+template <class Name, class Data = Vertex<Name, class T>*>
 class VertexMap
 {
 public:
