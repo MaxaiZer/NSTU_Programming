@@ -6,9 +6,17 @@
 #include "VertexMap.h"
 #include "Input.h"
 #include "Tasks.h"
+#include <codecvt>
+#include "utf8.h"
 
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#define CLEAR_SCREEN() system("CLS")
+#else
+#include <unistd.h>
+#define CLEAR_SCREEN() system("clear")
+#endif
 
 using namespace std;
 
@@ -31,6 +39,8 @@ SecondTask<_Vertex, _Edge>* task2 = nullptr;
 
 void printCommands(vector<commandView> commandsView)
 {
+	int maxOffsetBetweenColumns = 70;
+
 	auto printCommand = [](commandView view)
 	{
 		cout << (int)view.first << " - " << view.second;
@@ -48,7 +58,11 @@ void printCommands(vector<commandView> commandsView)
 			len++; k /= 10;
 		}
 
-		cout << string(70 - len - commandsView[i].second.length(), ' ');
+		string command_title = commandsView[i].second;
+		size_t utf8_length = utf8::distance(command_title.begin(), command_title.end());
+		size_t currentOffsetBetweenColumns = maxOffsetBetweenColumns - len - utf8_length;
+
+		cout << string(currentOffsetBetweenColumns, ' ');
 		printCommand(commandsView[j]);
 
 		cout << endl;
@@ -59,7 +73,6 @@ void printCommands(vector<commandView> commandsView)
 		printCommand(commandsView.back());
 		cout << endl;
 	}
-
 }
 
 bool getVertex(_Vertex** vertex, string hint)
@@ -140,6 +153,7 @@ class CommandsHandler
 {
 public:
 	virtual int HandleInput() = 0;
+	virtual ~CommandsHandler() = default;
 protected:
 	virtual void PrintCommands() = 0;
 };
@@ -328,7 +342,7 @@ public:
 protected:
 
 	vector<commandView> commands = {
-	{(int)Command::Create, "Создать путой L-граф"},
+	{(int)Command::Create, "Создать пуcтой L-граф"},
 	{(int)Command::CreateVDF, "Создать граф и задать кол-во вершин, тип, форму"},
 	{(int)Command::CreateVEDF, "Создать граф и задать кол-во вершин и случ. рёбер, тип, форму"},
 	{(int)Command::IsDirected, "Ориентированный ли граф"},
@@ -353,7 +367,7 @@ protected:
 	{(int)Command::PrintCommands, "Очистить экран и вывести команды"},
 	{(int)Command::ReturnToMenu, "Выйти из текущего меню"} };
 
-	void PrintCommands() { system("CLS"); printCommands(commands); }
+	void PrintCommands() { CLEAR_SCREEN(); printCommands(commands); }
 };
 
 class IteratorsCommands : public CommandsHandler
@@ -456,7 +470,7 @@ protected:
 	{(int)Command::PrintCommands, "Очистить экран и вывести команды"},
 	{(int)Command::ReturnToMenu, "Выйти из текущего меню"} };
 
-	void PrintCommands() { system("CLS"); printCommands(commands); }
+	void PrintCommands() { CLEAR_SCREEN(); printCommands(commands); }
 };
 
 template <class T>
@@ -534,7 +548,7 @@ protected:
 	T** task;
 	string taskDescription;
 
-	void PrintCommands() { system("CLS"); cout << taskDescription << endl; printCommands(commands); }
+	void PrintCommands() { CLEAR_SCREEN(); cout << taskDescription << endl; printCommands(commands); }
 };
 
 class MainMenu
@@ -551,7 +565,7 @@ public:
 			{
 				delete handler;
 				handler = nullptr;
-				system("CLS");
+				CLEAR_SCREEN();
 			}
 
 			return;
@@ -596,8 +610,10 @@ protected:
 
 int main()
 {
-	SetConsoleCP(65001);
-	SetConsoleOutputCP(65001); 
+	#ifdef _WIN32 
+		SetConsoleCP(65001); 
+		SetConsoleOutputCP(65001); 
+	#endif
 
 	setlocale(LC_ALL, "ru_RU.UTF-8");
 
