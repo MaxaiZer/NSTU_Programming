@@ -9,12 +9,12 @@ public:
 	Edge(Vertex* v1, Vertex* v2, Weight weight) : Edge() { this->v1 = v1; this->v2 = v2; SetWeight(weight); }
 	Edge(Vertex* v1, Vertex* v2, Weight weight, Data data) : Edge(v1, v1, weight) { SetData(data); }
 
-	Weight GetWeight() const { return *weight; };
-	void SetWeight(Weight newW) { *hasWeight = true; *weight = newW; }
-	bool HasWeight() const { return *hasWeight; }
-	Data GetData() const { return *data; };
-	void SetData(Data newD) { *hasData = true; *data = newD; }
-	bool HasData() const{ return *hasData; }
+	Weight GetWeight() const { return sharedData->weight; };
+	void SetWeight(Weight newW) { sharedData->hasWeight = true; sharedData->weight = newW; }
+	bool HasWeight() const { return sharedData->hasWeight; }
+	Data GetData() const { return sharedData->data; };
+	void SetData(Data newD) { sharedData->hasData = true; sharedData->data = newD; }
+	bool HasData() const{ return sharedData->hasData; }
 	Vertex* V1() const { return v1; };
 	Vertex* V2() const { return v2; };
 	Edge* CreateReversedCopy();
@@ -22,11 +22,17 @@ public:
 	void CopyDataWeight(const Edge& edge);
 
 protected:
-	std::shared_ptr<bool> hasWeight;
-	std::shared_ptr<bool> hasData;
 
-	std::shared_ptr<Weight> weight;
-	std::shared_ptr<Data> data;
+	class SharedData
+	{
+	public:
+		Weight weight;
+		Data data;
+		bool hasWeight = false;
+		bool hasData = false;
+	};
+
+	std::shared_ptr<SharedData> sharedData;
 
 	Vertex* v1 = nullptr, * v2 = nullptr;
 };
@@ -34,22 +40,16 @@ protected:
 template<class Vertex, class Weight, class Data>
 inline Edge<Vertex, Weight, Data>::Edge()
 {
-	weight = std::make_shared<Weight>();
-	data = std::make_shared<Data>();
-	hasWeight = std::make_shared<bool>(false);
-	hasData = std::make_shared<bool>(false);
+	sharedData = std::make_shared<SharedData>();
 }
 
 template<class Vertex, class Weight, class Data>
-inline typename Edge<Vertex, Weight, Data>* Edge<Vertex, Weight, Data>::CreateReversedCopy()
+inline Edge<Vertex, Weight, Data>* Edge<Vertex, Weight, Data>::CreateReversedCopy()
 {
 	Edge* newEdge = new Edge();
 	newEdge->v1 = this->v2;
 	newEdge->v2 = this->v1;
-	newEdge->weight = this->weight;
-	newEdge->data = this->data;
-	newEdge->hasWeight = this->hasWeight;
-	newEdge->hasData = this->hasData;
+	newEdge->sharedData = this->sharedData;
 	return newEdge;
 }
 
@@ -58,13 +58,13 @@ inline void Edge<Vertex, Weight, Data>::Print() const
 {
 	std::cout << v1->GetName() << "->" << v2->GetName() << ": ";
 
-	if (*hasData)
-		std::cout << "data:" << *data;
+	if (sharedData->hasData)
+		std::cout << "data:" << sharedData->data;
 	else
 		std::cout << "no data ";
 
-	if (*hasWeight)
-		std::cout << "weight:" << *weight;
+	if (sharedData->hasWeight)
+		std::cout << "weight:" << sharedData->weight;
 	else
 		std::cout << "no weight ";
 }
