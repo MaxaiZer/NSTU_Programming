@@ -2,6 +2,8 @@
 #include "Graph.h"
 #include "Input.h"
 #include <algorithm>
+#include <limits>
+#include <climits>
 
 #define FirstTask Task1v13
 #define SecondTask Task2v14
