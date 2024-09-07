@@ -5,9 +5,7 @@
 build/
 *.out
 x64/
-*.vcxproj
 *.vcxproj.user
-*.filters
 semester4/parallel-programming/oldLab.cu
 
 semester4/AandDS/UnitTest*
