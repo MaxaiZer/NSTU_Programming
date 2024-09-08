@@ -5,7 +5,8 @@
 #include "Graph.h"
 #include "VertexMap.h"
 #include "Input.h"
-#include "Tasks.h"
+#include "Task1v13.h"
+#include "Task2v14.h"
 #include <codecvt>
 #include "utf8.h"
 
