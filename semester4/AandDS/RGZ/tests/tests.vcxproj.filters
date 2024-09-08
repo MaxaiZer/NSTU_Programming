@@ -3,9 +3,13 @@
   <ItemGroup>
     <ClCompile Include="graphTests.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="task1v8Tests.cpp" />
+    <ClCompile Include="graphSetup.cpp" />
+    <ClCompile Include="task2v4Tests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="graphSetup.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
