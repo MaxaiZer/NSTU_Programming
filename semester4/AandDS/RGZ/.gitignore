@@ -1,1 +1,7 @@
 **/packages/
+Task1v*
+Task2v*
+!Task1v13.h
+!Task2v14.h
+!Task*Tests.cpp
+
