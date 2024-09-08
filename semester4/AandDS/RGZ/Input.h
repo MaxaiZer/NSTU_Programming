@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <limits>
+#include <queue>
 
 using namespace std;
 
@@ -10,7 +11,16 @@ class Input
 {
 public:
 	static T Get(string hintForUser);
+	static queue<T>& GetPredefinedValues(); //workarond for mocking input in tests. Every Get() method doesnt firstly access predefinedValues due to some tricky sharing problems :(
+private:
+	static inline queue<T> predefinedValues;
 };
+
+template <typename T>
+queue<T>& Input<T>::GetPredefinedValues()
+{
+	return predefinedValues;
+}
 
 template<typename T>
 inline T Input<T>::Get(string hintForUser)
